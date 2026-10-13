@@ -1,0 +1,6 @@
+# WorkBuddy 本机协作数据（个人会话记忆，不入公开仓库）
+.workbuddy/
+
+# OS
+.DS_Store
+Thumbs.db
