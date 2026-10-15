@@ -130,7 +130,10 @@ jobs:
           cmake --build build --config Release
 
       - name: Windows 代码签名（证书未配置时跳过）
-        if: ${{ secrets.WINDOWS_CERT != '' }}
+        # secrets 上下文不可用于 step 级 if（GitHub schema 限制），经 env 中转。
+        if: ${{ env.WINDOWS_CERT != '' }}
+        env:
+          WINDOWS_CERT: ${{ secrets.WINDOWS_CERT }}
         shell: pwsh
         run: |
           # DR-002：自行分发需 Authenticode 签名（SmartScreen 对未签名程序拦截更严）。
@@ -148,7 +151,9 @@ jobs:
           }
 
       - name: 签名状态说明（证书未配置）
-        if: ${{ secrets.WINDOWS_CERT == '' }}
+        if: ${{ env.WINDOWS_CERT == '' }}
+        env:
+          WINDOWS_CERT: ${{ secrets.WINDOWS_CERT }}
         shell: bash
         run: echo "::notice::secrets.WINDOWS_CERT 未配置，跳过 Authenticode 签名（DR-002：证书待配置，SmartScreen 将拦截未签名程序）"
 
@@ -453,7 +458,9 @@ jobs:
             CODE_SIGNING_ALLOWED=NO build
 
       - name: macOS 代码签名（证书未配置时跳过）
-        if: ${{ secrets.APPLE_CERT_BASE64 != '' }}
+        if: ${{ env.APPLE_CERT_BASE64 != '' }}
+        env:
+          APPLE_CERT_BASE64: ${{ secrets.APPLE_CERT_BASE64 }}
         shell: bash
         run: |
           app=$(find clients/macos/build \( -name '*.app' -o -name '*.inputmethod' \) 2>/dev/null | head -1)
@@ -470,7 +477,9 @@ jobs:
           rm -f "$cert"
 
       - name: 签名状态说明（证书未配置）
-        if: ${{ secrets.APPLE_CERT_BASE64 == '' }}
+        if: ${{ env.APPLE_CERT_BASE64 == '' }}
+        env:
+          APPLE_CERT_BASE64: ${{ secrets.APPLE_CERT_BASE64 }}
         shell: bash
         run: echo "::notice::secrets.APPLE_CERT_BASE64 未配置，跳过 Developer ID 签名与公证（DR-002：证书待配置，Gatekeeper 将拦截未签名应用）"
 
