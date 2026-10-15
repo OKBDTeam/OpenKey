@@ -407,7 +407,15 @@ jobs:
 
       - name: 安装依赖（Homebrew：xcodegen + librime 依赖）
         run: |
-          brew install xcodegen boost glog yaml-cpp leveldb marisa opencc cmake ninja googletest
+          brew install boost glog yaml-cpp leveldb marisa opencc cmake ninja googletest
+          # XcodeGen 固定 2.42.0：最新版生成 objectVersion 77（Xcode 16 格式），
+          # macos-14 runner 的 Xcode 15.4 打不开（"future Xcode project file
+          # format (77)"）。2.42.0 产出 Xcode 15 兼容格式。
+          curl -fsSL --retry 3 -o /tmp/xcodegen.zip \
+            https://github.com/yonaskolb/XcodeGen/releases/download/2.42.0/xcodegen.zip
+          unzip -q -o /tmp/xcodegen.zip -d /tmp/xcodegen
+          echo "/tmp/xcodegen/bin" >> "$GITHUB_PATH"
+
 
       - name: 构建并安装 librime（aarch64-apple-darwin）
         run: |
@@ -568,7 +576,6 @@ jobs:
             exit 0
           fi
           cd clients/ios
-          xcodegen --version
           xcodegen generate --spec project.yml
           ls -la | head -20
           # 工程 / scheme 名以 project.yml 为准；-derivedDataPath 固定产物位置便于收集
