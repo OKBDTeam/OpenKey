@@ -85,11 +85,19 @@ public final class OpenKeyEngine {
     ) {
         // C ABI 要求字符串指针在 ok_engine_create 调用期间有效：
         // 用 strdup 拷贝、调用后统一 free，避免 withCString 多层嵌套。
-        let cShared = sharedDataDir.map { strdup($0) }
-        let cUser = strdup(userDataDir)
-        let cDb = dataDbPath.map { strdup($0) }
-        let cComponents = componentsDir.map { strdup($0) }
-        defer { [cShared, cUser, cDb, cComponents].compactMap { $0 }.forEach { free($0) } }
+        // strdup 返回 IUO 指针，这里显式展平为单层 Optional 并转成
+        // UnsafePointer（C 函数参数为 const char *）。
+        func dupCString(_ value: String?) -> UnsafePointer<CChar>? {
+            guard let value, let raw = strdup(value) else { return nil }
+            owned.append(raw)
+            return UnsafePointer(raw)
+        }
+        var owned: [UnsafeMutablePointer<CChar>] = []
+        let cShared = dupCString(sharedDataDir)
+        let cUser = dupCString(userDataDir)
+        let cDb = dupCString(dataDbPath)
+        let cComponents = dupCString(componentsDir)
+        defer { owned.forEach { free($0) } }
 
         var config = OkEngineConfig()
         openkey_shim_fill_config(&config, cShared, cUser, cDb, cComponents, nil, minLogLevel)

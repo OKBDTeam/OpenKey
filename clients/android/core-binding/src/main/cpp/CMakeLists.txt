@@ -26,10 +26,15 @@ find_library(OPENKEY_CORE_SO NAMES openkey_ffi
 if (OPENKEY_CORE_SO)
     message(STATUS "链接 core: ${OPENKEY_CORE_SO}")
     target_link_libraries(openkey_jni_shim PRIVATE "${OPENKEY_CORE_SO}")
-    # 运行期按加载顺序解析（System.loadLibrary 先 core 后 shim）
-    target_link_options(openkey_jni_shim PRIVATE "LINKER:--allow-shlib-undefined")
 else()
     message(WARNING
-        "未找到 ${OPENKEY_CORE_SO_DIR}/libopenkey_ffi.so：跳过链接。"
-        "本地产物运行期不可用；CI 会先放入 core so。")
+        "未找到 ${OPENKEY_CORE_SO_DIR}/libopenkey_ffi.so：shim 将在运行期解析 ok_* 符号"
+        "（System.loadLibrary 先加载 core so）。")
 endif()
+# 无论是否在链接期找到 core，都允许 shim 保留未定义符号：
+# NDK 的 lld 默认对 SHARED 库强制 --no-undefined，而 ok_* 的实际提供者
+# 是随 APK 分发的 libopenkey_ffi.so（运行期先加载），链接期强制解析既不
+# 必要也会让「先编 shim 后放 core so」的构建顺序无法工作。
+target_link_options(openkey_jni_shim PRIVATE
+    "LINKER:--allow-shlib-undefined"
+    "LINKER:--unresolved-symbols=ignore-in-shared-libs")
