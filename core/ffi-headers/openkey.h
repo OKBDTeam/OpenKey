@@ -282,7 +282,8 @@ OkBool ok_session_get_commit(struct OkSession *session, char *buf, uintptr_t len
 OkBool ok_session_get_status(struct OkSession *session, struct OkStatus *out);
 
 /**
- * 选择指定下标候选。
+ * 选择候选（`index` 为**当前页内**下标，与 `ok_session_get_context` 返回的
+ * 候选顺序一致；越界或失败返回 false）。
  */
 OkBool ok_session_select_candidate(struct OkSession *session, uintptr_t index);
 

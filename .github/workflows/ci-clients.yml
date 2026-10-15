@@ -407,7 +407,7 @@ jobs:
 
       - name: 安装依赖（Homebrew：xcodegen + librime 依赖）
         run: |
-          brew install xcodegen boost glog yaml-cpp leveldb marisa opencc cmake ninja
+          brew install xcodegen boost glog yaml-cpp leveldb marisa opencc cmake ninja googletest
 
       - name: 构建并安装 librime（aarch64-apple-darwin）
         run: |

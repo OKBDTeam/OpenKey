@@ -711,7 +711,8 @@ pub extern "C" fn ok_session_get_status(session: *mut OkSession, out: *mut OkSta
     true
 }
 
-/// 选择指定下标候选。
+/// 选择候选（`index` 为**当前页内**下标，与 `ok_session_get_context` 返回的
+/// 候选顺序一致；越界或失败返回 false）。
 #[no_mangle]
 pub extern "C" fn ok_session_select_candidate(session: *mut OkSession, index: usize) -> OkBool {
     let Some(session) = (unsafe { session.as_ref() }) else {

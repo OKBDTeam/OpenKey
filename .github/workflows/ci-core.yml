@@ -154,7 +154,7 @@ jobs:
       - name: 安装 librime 依赖（Homebrew）
         run: |
           # runner 已带 cmake / ninja；显式声明保证存在（已安装则为 no-op）
-          brew install boost glog yaml-cpp leveldb marisa opencc cmake ninja
+          brew install boost glog yaml-cpp leveldb marisa opencc cmake ninja googletest
 
       - name: 构建并安装 librime（aarch64-apple-darwin）
         run: |

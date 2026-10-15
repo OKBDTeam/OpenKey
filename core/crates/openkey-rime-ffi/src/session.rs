@@ -276,15 +276,22 @@ impl Session {
         }
     }
 
-    /// 选择指定下标候选并上屏。
+    /// 选择候选并上屏（`index` 为**当前页内**下标，与 `RimeContext.candidates`
+    /// 的顺序一致）。
+    ///
+    /// 注意：librime 同时提供 `select_candidate`（全列表下标）与
+    /// `select_candidate_on_current_page`（页内下标）。候选栏展示的只有当前页，
+    /// 因此必须使用后者，否则会选错候选。
     pub fn select_candidate(&self, index: usize) -> Result<bool> {
         #[cfg(feature = "librime")]
         {
             let api = crate::engine::RimeEngine::global()?.api();
             // SAFETY: api 与会话 ID 有效。
             let ok = unsafe {
-                (api.select_candidate
-                    .ok_or(Error::Api("缺少 select_candidate"))?)(self.id, index)
+                (api.select_candidate_on_current_page
+                    .ok_or(Error::Api("缺少 select_candidate_on_current_page"))?)(
+                    self.id, index
+                )
             };
             Ok(ok != 0)
         }
