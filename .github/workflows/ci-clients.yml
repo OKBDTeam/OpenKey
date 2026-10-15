@@ -19,6 +19,8 @@
 name: ci-clients
 
 on:
+  # 手动触发：便于本地修复后定点复跑（push 事件受 paths 过滤限制）
+  workflow_dispatch:
   push:
     paths:
       - 'clients/**'
