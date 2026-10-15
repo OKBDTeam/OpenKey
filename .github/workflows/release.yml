@@ -744,7 +744,8 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: 添加 iOS 模拟器 Rust target
-        run: rustup target add x86_64-apple-ios-simulator aarch64-apple-ios-simulator
+        # stable 工具链已不再分发 x86_64 iOS 模拟器标准库，只用 arm64 模拟器。
+        run: rustup target add aarch64-apple-ios-simulator
 
       - name: 安装 XcodeGen
         run: brew install xcodegen
@@ -755,7 +756,7 @@ jobs:
         run: |
           # librime 的 iOS 链接方案待定（DR-004 仅豁免 ASR 引擎）；v0.1.0 先保证工程可构建。
           ok=true
-          for t in x86_64-apple-ios-simulator aarch64-apple-ios-simulator; do
+          for t in aarch64-apple-ios-simulator; do
             if (cd core && cargo build --release --target "$t" -p openkey-ffi --no-default-features); then
               echo "$t 构建完成"
             else
@@ -775,7 +776,7 @@ jobs:
           fi
           # 放置位置按接口约定（clients-apple 侧 project.yml / README 为准，如不同以它为准）
           dst="clients/ios/core-binding"
-          for t in x86_64-apple-ios-simulator aarch64-apple-ios-simulator; do
+          for t in aarch64-apple-ios-simulator; do
             mkdir -p "$dst/$t"
             src="core/target/$t/release/libopenkey_ffi.a"
             if [ -f "$src" ]; then cp "$src" "$dst/$t/"; else echo "::warning::缺少 $src"; fi

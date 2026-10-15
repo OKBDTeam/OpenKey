@@ -297,6 +297,4 @@ class OpenKeyEngineFactory : public fcitx::AddonFactory {
   }
 };
 
-}  // namespace
-
 FCITX_ADDON_FACTORY(OpenKeyEngineFactory);

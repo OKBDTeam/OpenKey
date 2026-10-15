@@ -13,7 +13,10 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
@@ -52,9 +55,11 @@ class OpenKeyIme : InputMethodService() {
         composeOwner = owner
 
         return ComposeView(this).apply {
-            // IME 窗口的 decor view 没有 LifecycleOwner/SavedStateRegistryOwner，
-            // 必须手动设置，否则 ComposeView.setContent 抛 IllegalStateException。
+            // IME 窗口没有 Activity/Fragment 提供的 owner，必须手动挂齐
+            // LifecycleOwner / ViewModelStoreOwner / SavedStateRegistryOwner 三者，
+            // 否则 ComposeView.setContent 抛 IllegalStateException。
             ViewTreeLifecycleOwner.set(this, owner)
+            ViewTreeViewModelStoreOwner.set(this, owner)
             ViewTreeSavedStateRegistryOwner.set(this, owner)
             // 组合生命周期绑定到我们手动维护的 owner（输入视图销毁时释放组合）
             setViewCompositionStrategy(
@@ -259,13 +264,17 @@ class OpenKeyIme : InputMethodService() {
  * 为运行在 Service 窗口中的 ComposeView 提供 LifecycleOwner +
  * SavedStateRegistryOwner（InputMethodService 的窗口默认没有）。
  */
-private class ComposeOwner : LifecycleOwner, SavedStateRegistryOwner {
+private class ComposeOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val savedStateController = SavedStateRegistryController.create(this)
+    private val viewModelStore = ViewModelStore()
 
     override val lifecycle: Lifecycle
         get() = lifecycleRegistry
+
+    override val viewModelStore: ViewModelStore
+        get() = viewModelStore
 
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateController.savedStateRegistry
@@ -283,6 +292,7 @@ private class ComposeOwner : LifecycleOwner, SavedStateRegistryOwner {
     fun handleDestroy() {
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        viewModelStore.clear()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     }
 }

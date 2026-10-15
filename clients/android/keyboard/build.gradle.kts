@@ -33,8 +33,11 @@ dependencies {
     implementation("androidx.compose.material3:material3")
 
     // ComposeView 运行在 InputMethodService 窗口中，需要手动提供
-    // ViewTreeLifecycleOwner / ViewTreeSavedStateRegistryOwner（见 OpenKeyIme）。
-    // 两者的静态 set() 扩展位于 -ktx 构件（非 ktx 包只有类本体）。
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
-    implementation("androidx.savedstate:savedstate-ktx:1.2.1")
+    // ViewTreeLifecycleOwner / ViewTreeViewModelStoreOwner /
+    // ViewTreeSavedStateRegistryOwner（见 OpenKeyIme）。
+    // 注意：AndroidX 自 2024 年起 KMP 拆分，lifecycle-runtime / savedstate 等
+    // 根构件是空壳（无 class），实现类位于 -android 变体，必须显式依赖。
+    implementation("androidx.lifecycle:lifecycle-runtime-android:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-android:2.8.6")
+    implementation("androidx.savedstate:savedstate-android:1.2.1")
 }
