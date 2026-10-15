@@ -1,0 +1,158 @@
+# clients/ios/project.yml —— OpenKey iOS 工程（XcodeGen 规格，docs/02 4.5）。
+#
+# 与 CI 的约定（.github/workflows/ci-clients.yml 的 ios-client job）：
+#   1. CI 构建 core 静态库（--target x86_64-apple-ios-simulator 与
+#      aarch64-apple-ios-simulator，--no-default-features：iOS 端 librime 链接
+#      方案待定，DR-004 仅豁免 ASR 引擎）；
+#   2. CI 把 libopenkey_ffi.a 放到 core-binding/<target>/，openkey.h 放到
+#      core-binding/；
+#   3. CI 执行：
+#        xcodebuild -project OpenKey.xcodeproj -scheme OpenKey -configuration Debug \
+#          -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+#   4. CI 收集 build/Build/Products/* 打包为 OpenKey-<ver>-ios-simulator.zip。
+#
+# 本地开发同样先准备 core-binding/（见 README）。
+name: OpenKey
+
+options:
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "16.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGNING_ALLOWED: "NO"
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+    # —— core 链接：静态库按模拟器架构分目录放置，链接器按搜索路径自取 ——
+    LIBRARY_SEARCH_PATHS:
+      - "$(SRCROOT)/core-binding/x86_64-apple-ios-simulator"
+      - "$(SRCROOT)/core-binding/aarch64-apple-ios-simulator"
+      - "$(SRCROOT)/core-binding"
+    OTHER_LDFLAGS:
+      - "-lopenkey_ffi"
+      # rusqlite bundled SQLite 与 librime（C++）可能引入 C++ 符号。
+      - "-lc++"
+
+packages:
+  # 与 macOS 工程共用同一 core 绑定包（避免双份维护）。
+  OpenKeyCore:
+    path: ../macos/Packages/OpenKeyCore
+
+schemes:
+  OpenKey:
+    build:
+      targets:
+        OpenKey: all
+        OpenKeyKeyboard: all
+        OpenKeyCredentialProvider: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+
+targets:
+  # 主 App：设置（方案/双拼/模糊音/中英）、启用引导、关于。
+  OpenKey:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: OpenKey
+    dependencies:
+      - package: OpenKeyCore
+      - target: OpenKeyKeyboard
+        embed: true
+      - target: OpenKeyCredentialProvider
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.openkey.client
+        PRODUCT_NAME: OpenKey
+        TARGETED_DEVICE_FAMILY: "1,2"
+    info:
+      path: OpenKey/Info.plist
+      properties:
+        CFBundleDisplayName: 开门输入法
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        # 键盘扩展与主 App 共享设置（docs/02 4.5.1 App Group）。
+        # 模拟器构建 CODE_SIGNING_ALLOWED=NO，不做真实签名，仅声明能力。
+    entitlements:
+      path: OpenKey/OpenKey.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.app.openkey.shared
+
+  # 键盘扩展（com.apple.keyboard-service）。
+  # 4.5.2：键盘扩展直链 core（进程内），不启 Full Access 时无网络与共享容器
+  # 访问——本里程碑 RequestsOpenAccess=false，词库/方案随 App 安装内置。
+  OpenKeyKeyboard:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: KeyboardExtension
+    dependencies:
+      - package: OpenKeyCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.openkey.client.Keyboard
+        PRODUCT_NAME: OpenKeyKeyboard
+        SKIP_INSTALL: "YES"
+        APPLICATION_EXTENSION_API_ONLY: "YES"
+    info:
+      path: KeyboardExtension/Info.plist
+      properties:
+        CFBundleDisplayName: 开门输入法
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.keyboard-service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).KeyboardViewController
+          NSExtensionAttributes:
+            IsASCIICapable: true
+            PrimaryLanguage: zh-Hans
+            PrefersRightToLeft: false
+            RequestsOpenAccess: false
+    entitlements:
+      path: KeyboardExtension/OpenKeyKeyboard.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.app.openkey.shared
+
+  # 自动填充扩展（docs/02 4.5.4）：Phase 4 落地密码自动填充，
+  # v0.1.0 为可编译骨架（列表占位 + TODO）。
+  OpenKeyCredentialProvider:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: CredentialProviderExtension
+    dependencies:
+      - package: OpenKeyCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.openkey.client.CredentialProvider
+        PRODUCT_NAME: OpenKeyCredentialProvider
+        SKIP_INSTALL: "YES"
+        APPLICATION_EXTENSION_API_ONLY: "YES"
+    info:
+      path: CredentialProviderExtension/Info.plist
+      properties:
+        CFBundleDisplayName: 开门密码
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.authentication-services-credential-provider-ui
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).CredentialProviderViewController

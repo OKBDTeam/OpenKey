@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- App Group：主 App 与键盘扩展共享设置与词库（docs/02 4.5.1）。
+     CI 与本地以 CODE_SIGNING_ALLOWED=NO 构建，不做真实签名，仅声明能力；
+     真机/TestFlight 分发时需在开发者账号注册该 App Group。 -->
+<plist version="1.0">
+<dict>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.app.openkey.shared</string>
+	</array>
+</dict>
+</plist>
