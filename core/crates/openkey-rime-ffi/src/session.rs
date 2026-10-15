@@ -276,12 +276,16 @@ impl Session {
         }
     }
 
-    /// 选择候选并上屏（`index` 为**当前页内**下标，与 `RimeContext.candidates`
-    /// 的顺序一致）。
+    /// 选择候选（`index` 为**当前页内**下标，与 `RimeContext.candidates` 的顺序
+    /// 一致），整段选择完成时自动上屏。
     ///
-    /// 注意：librime 同时提供 `select_candidate`（全列表下标）与
-    /// `select_candidate_on_current_page`（页内下标）。候选栏展示的只有当前页，
-    /// 因此必须使用后者，否则会选错候选。
+    /// 两处 librime 语义需要注意：
+    /// 1. `select_candidate` 的下标是**全列表**下标，而候选栏只展示当前页，
+    ///    因此必须使用 `select_candidate_on_current_page`；
+    /// 2. `_auto_commit` 未开启时，选择只是把该段标记为"已确认"并前移
+    ///    composition（`ConcreteEngine::OnSelect`），**不会**写入提交缓冲。
+    ///    因此整段选择后显式 `RimeCommitComposition` 冲刷（输入法语义：选中即
+    ///    上屏）；部分选择（后续仍有输入）保持组词，不冲刷。
     pub fn select_candidate(&self, index: usize) -> Result<bool> {
         #[cfg(feature = "librime")]
         {
@@ -293,6 +297,12 @@ impl Session {
                     self.id, index
                 )
             };
+            if ok != 0 {
+                // 预编辑消失即表示输入已全部消费（整段选择）→ 冲刷提交缓冲。
+                if self.context()?.preedit.is_none() {
+                    self.commit_composition()?;
+                }
+            }
             Ok(ok != 0)
         }
         #[cfg(not(feature = "librime"))]
