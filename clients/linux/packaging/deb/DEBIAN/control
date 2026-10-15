@@ -1,19 +1,13 @@
-Source: openkey
+Package: openkey
+Version: 0.1.0
 Section: x11
 Priority: optional
-Maintainer: OpenKey Developers <dev@openkey.im>
-Build-Depends: debhelper (>= 12), cmake (>= 3.16), g++ (>= 11), pkg-config,
- libfcitx5core-dev (>= 5.0.14), librime-dev
-Standards-Version: 4.6.0
-Homepage: https://github.com/leic4u/OpenKey
-Rules-Requires-Root: no
-
-Package: openkey
 Architecture: amd64
-Depends: ${shlibs:Depends}, ${misc:Depends}, fcitx5 (>= 5.0.14), librime
+Maintainer: OpenKey Developers <dev@openkey.im>
+Installed-Size: 4096
+Depends: fcitx5 (>= 5.0.14), librime
+Homepage: https://github.com/leic4u/OpenKey
 Description: 开门输入法（OpenKey）——你的输入法，你的服务器
  OpenKey 是开源五端中文拼音输入法，核心基于 librime，内置 CC0 词库。
  本包为 fcitx5 前端插件（进程内直跑 core，无常驻进程）。
- .
- 数据默认存于 ~/.local/share/openkey：词库、用户配置、同步数据与日志
- 全部留在本机（隐私优先，默认不上传任何数据）。
+ 数据默认存于 ~/.local/share/openkey，全部留在本机。

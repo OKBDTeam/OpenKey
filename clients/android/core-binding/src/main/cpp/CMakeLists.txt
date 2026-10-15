@@ -20,7 +20,7 @@ target_compile_options(openkey_jni_shim PRIVATE -Wall -Wextra)
 # ok_* 符号必须在此解析（core so 由 CI 放入 jniLibs/<abi>/，随 APK 一起分发，
 # 运行期 System.loadLibrary("openkey_ffi") 先加载，shim 再依赖其符号）。
 # 本地若尚未放入 core so，则跳过链接（shim 仍可编译，便于先看编译错误）。
-set(OPENKEY_CORE_SO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../jniLibs/${ANDROID_ABI}")
+set(OPENKEY_CORE_SO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}")
 find_library(OPENKEY_CORE_SO NAMES openkey_ffi
              PATHS "${OPENKEY_CORE_SO_DIR}" NO_DEFAULT_PATH)
 if (OPENKEY_CORE_SO)

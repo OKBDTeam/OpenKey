@@ -65,7 +65,8 @@ public final class OpenKeyEngine {
     /// 用户数据目录（librime userdb/build、openkey.db、设置项均在此树下）。
     public let userDataDir: String
 
-    private let handle: OpaquePointer
+    /// 内部句柄：同模块的 OpenKeySession 需要读取（非跨模块 API）。
+    let handle: OpaquePointer
 
     /// 创建引擎：初始化 librime（含部署）、打开数据层与组件管理器。
     /// - Parameters:
@@ -91,12 +92,7 @@ public final class OpenKeyEngine {
         defer { [cShared, cUser, cDb, cComponents].compactMap { $0 }.forEach { free($0) } }
 
         var config = OkEngineConfig()
-        config.shared_data_dir = cShared.map { UnsafePointer($0) }
-        config.user_data_dir = UnsafePointer(cUser)
-        config.data_db_path = cDb.map { UnsafePointer($0) }
-        config.components_dir = cComponents.map { UnsafePointer($0) }
-        config.log_dir = nil
-        config.min_log_level = minLogLevel
+        openkey_shim_fill_config(&config, cShared, cUser, cDb, cComponents, nil, minLogLevel)
 
         guard let engine = ok_engine_create(&config) else { return nil }
         self.handle = engine
@@ -256,7 +252,8 @@ public final class OpenKeyEngine {
 public final class OpenKeySession {
     public let engine: OpenKeyEngine
 
-    private let handle: OpaquePointer
+    /// 内部句柄：同模块的 OpenKeySession 需要读取（非跨模块 API）。
+    let handle: OpaquePointer
 
     init?(engine: OpenKeyEngine) {
         guard let session = ok_session_create(engine.handle) else { return nil }
