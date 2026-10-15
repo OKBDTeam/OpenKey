@@ -104,7 +104,7 @@ final class KeyboardViewController: UIInputViewController {
             _ = session.setOption("ascii_mode", !ascii)
         case .pageBackward, .pageForward:
             changePage(key == .pageBackward)
-        case .candidate(let index), .digit(let index):
+        case .digit(let index):
             guard session.context()?.isComposing == true else { return }
             selectCandidate(index)
         case .space:
