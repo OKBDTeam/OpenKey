@@ -164,17 +164,22 @@ fn input_pipeline_end_to_end() {
     let ctx = session.context().unwrap();
     assert!(!ctx.is_composing());
 
-    // 单字母输入 → 候选多于 5 → 翻页后内容变化。
+    // 单字母输入 → 存在下一页（is_last_page=false）→ 翻页后内容变化。
+    // 注意：RimeContext 每页最多返回 page_size 个候选，"多于一页"由
+    // is_last_page 表达，而非 candidates.len() > page_size。
     type_seq(&session, &[XK_N]);
     let page1 = session.context().unwrap();
-    assert!(
-        page1.candidates.len() > 5,
-        "候选应超过一页: {}",
-        page1.candidates.len()
-    );
+    assert!(!page1.is_last_page, "单字母应有多页候选");
+    assert_eq!(page1.page_no, 0);
     assert!(session.change_page(false).unwrap());
     let page2 = session.context().unwrap();
+    assert_eq!(page2.page_no, 1, "翻页后页码应为 1");
     assert_ne!(page1.candidates, page2.candidates, "翻页后候选应变化");
+    // 翻回上一页。
+    assert!(session.change_page(true).unwrap());
+    let back = session.context().unwrap();
+    assert_eq!(back.page_no, 0);
+    assert_eq!(back.candidates, page1.candidates);
     session.clear_composition();
 
     // ascii 模式切换。
