@@ -14,21 +14,10 @@ final class CredentialProviderViewController: ASCredentialProviderViewController
     ]
 
     override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
-        // 骨架：不查询 vault，仅登记占位项。
-        // 注：serviceIdentifier 为可选；无服务上下文时用通配标识。
-        let fallback = ASCredentialServiceIdentifier(
-            identifier: "OpenKey Placeholder",
-            type: ASCredentialServiceIdentifier.ASAPIClientCredentialType
-        )
-        for (index, title) in placeholderIdentities.enumerated() {
-            extensionContext.completeRequest(
-                withSelectedCredential: ASPasswordCredentialIdentity(
-                    serviceIdentifier: serviceIdentifiers.first ?? fallback,
-                    user: title,
-                    recordIdentifier: String(index)
-                )
-            )
-        }
+        // 骨架：v0.1.0 不接入 vault（Phase 4），直接结束本次请求。
+        // 待实现：按 serviceIdentifiers 查询本地 vault 条目，
+        // 以 extensionContext.completeRequest(withSelectedCredential:) 回填。
+        cancelRequest()
     }
 
     @objc private func cancelRequest() {
