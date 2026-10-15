@@ -8,76 +8,364 @@ version: "0.1.0"
 sort: by_weight
 use_preset_vocabulary: false
 ...
-不	bu	100000
-了	le	100000
-我	wo	100000
-是	shi	100000
 的	de	100000
-一	yi	99000
-你	ni	99000
-在	zai	99000
-上	shang	98000
-个	ge	98000
-也	ye	98000
-地	de	98000
-有	you	98000
-他	ta	97000
-她	ta	97000
-就	jiu	97000
-好	hao	96000
-人	ren	95000
-到	dao	95000
-和	he	95000
-很	hen	95000
-得	de	95000
-都	dou	95000
-说	shuo	94000
-这	zhe	94000
-为	wei	93000
-去	qu	93000
-大	da	93000
-要	yao	93000
-那	na	93000
-中	zhong	92000
-会	hui	92000
-把	ba	92000
-来	lai	92000
-没	mei	92000
-着	zhe	92000
-下	xia	91000
-又	you	91000
-后	hou	91000
-自	zi	91000
-之	zhi	90000
-于	yu	90000
-从	cong	90000
-以	yi	90000
-们	men	90000
-可	ke	90000
-多	duo	90000
-天	tian	90000
-如	ru	90000
-子	zi	90000
-小	xiao	90000
-少	shao	90000
-己	ji	90000
-年	nian	90000
-无	wu	90000
-日	ri	90000
-时	shi	90000
-生	sheng	90000
-用	yong	90000
-看	kan	90000
-等	deng	90000
-而	er	90000
-能	neng	90000
-被	bei	90000
-还	hai	90000
-里	li	90000
-问	wen	90000
+一	yi	99938
+是	shi	99876
+不	bu	99814
+了	le	99752
+人	ren	99690
+我	wo	99628
+在	zai	99566
+有	you	99504
+他	ta	99442
+这	zhe	99380
+个	ge	99318
+上	shang	99256
+们	men	99194
+来	lai	99132
+到	dao	99070
+说	shuo	99008
+为	wei	98946
+子	zi	98884
+和	he	98822
+地	de	98760
+你	ni	98698
+也	ye	98636
+着	zhe	98574
+出	chu	98512
+就	jiu	98450
+时	shi	98388
+年	nian	98326
+生	sheng	98264
+国	guo	98202
+自	zi	98140
+然	ran	98078
+后	hou	98016
+如	ru	97954
+得	de	97892
+都	dou	97830
+于	yu	97768
+面	mian	97706
+下	xia	97644
+之	zhi	97582
+去	qu	97520
+会	hui	97458
+可	ke	97396
+事	shi	97334
+而	er	97272
+学	xue	97210
+要	yao	97148
+从	cong	97086
+太	tai	97024
+多	duo	96962
+天	tian	96900
+能	neng	96838
+好	hao	96776
+外	wai	96714
+又	you	96652
+小	xiao	96590
+心	xin	96528
+间	jian	96466
+手	shou	96404
+点	dian	96342
+无	wu	96280
+定	ding	96218
+开	kai	96156
+见	jian	96094
+长	chang	96032
+方	fang	95970
+知	zhi	95908
+成	cheng	95846
+种	zhong	95784
+意	yi	95722
+民	min	95660
+目	mu	95598
+同	tong	95536
+起	qi	95474
+把	ba	95412
+还	hai	95350
+但	dan	95288
+因	yin	95226
+由	you	95164
+三	san	95102
+很	hen	95040
+实	shi	94978
+最	zui	94916
+本	ben	94854
+先	xian	94792
+明	ming	94730
+部	bu	94668
+次	ci	94606
+水	shui	94544
+理	li	94482
+化	hua	94420
+做	zuo	94358
+里	li	94296
+正	zheng	94234
+新	xin	94172
+主	zhu	94110
+已	yi	94048
+公	gong	93986
+并	bing	93924
+使	shi	93862
+问	wen	93800
+度	du	93738
+想	xiang	93676
+体	ti	93614
+当	dang	93552
+全	quan	93490
+两	liang	93428
+回	hui	93366
+加	jia	93304
+月	yue	93242
+内	nei	93180
+合	he	93118
+信	xin	93056
+儿	er	92994
+被	bei	92932
+口	kou	92870
+美	mei	92808
+位	wei	92746
+常	chang	92684
+或	huo	92622
+几	ji	92560
+老	lao	92498
+世	shi	92436
+山	shan	92374
+金	jin	92312
+张	zhang	92250
+李	li	92188
+王	wang	92126
+刘	liu	92064
+陈	chen	92002
+马	ma	91940
+龙	long	91878
+赵	zhao	91816
+北	bei	91754
+京	jing	91692
+海	hai	91630
+白	bai	91568
+百	bai	91506
+千	qian	91444
+万	wan	91382
+高	gao	91320
+父	fu	91258
+母	mu	91196
+男	nan	91134
+女	nv	91072
+友	you	91010
+师	shi	90948
+工	gong	90886
+名	ming	90824
+字	zi	90762
+春	chun	90700
+东	dong	90638
+西	xi	90576
+南	nan	90514
+左	zuo	90452
+右	you	90390
+前	qian	90328
+看	kan	90266
+听	ting	90204
+走	zou	90142
+跑	pao	90080
+坐	zuo	90018
+站	zhan	89956
+写	xie	89894
+读	du	89832
+吃	chi	89770
+喝	he	89708
+睡	shui	89646
+买	mai	89584
+卖	mai	89522
+给	gei	89460
+找	zhao	89398
+用	yong	89336
+放	fang	89274
+打	da	89212
+拿	na	89150
+带	dai	89088
+送	song	89026
+接	jie	88964
+关	guan	88902
+闭	bi	88840
+停	ting	88778
+城	cheng	88716
+市	shi	88654
+乡	xiang	88592
+村	cun	88530
+家	jia	88468
+房	fang	88406
+门	men	88344
+窗	chuang	88282
+床	chuang	88220
+桌	zhuo	88158
+椅	yi	88096
+灯	deng	88034
+电	dian	87972
+车	che	87910
+船	chuan	87848
+飞	fei	87786
+机	ji	87724
+路	lu	87662
+桥	qiao	87600
+场	chang	87538
+园	yuan	87476
+店	dian	87414
+铺	pu	87352
+馆	guan	87290
+厅	ting	87228
+室	shi	87166
+楼	lou	87104
+层	ceng	87042
+栋	dong	86980
+区	qu	86918
+省	sheng	86856
+县	xian	86794
+镇	zhen	86732
+街	jie	86670
+巷	xiang	86608
+雨	yu	86546
+雪	xue	86484
+风	feng	86422
+云	yun	86360
+星	xing	86298
+光	guang	86236
+火	huo	86174
+河	he	86112
+流	liu	86050
+花	hua	85988
+草	cao	85926
+树	shu	85864
+林	lin	85802
+石	shi	85740
+土	tu	85678
+田	tian	85616
+米	mi	85554
+茶	cha	85492
+饭	fan	85430
+菜	cai	85368
+肉	rou	85306
+鱼	yu	85244
+蛋	dan	85182
+奶	nai	85120
+果	guo	85058
+瓜	gua	84996
+豆	dou	84934
+油	you	84872
+盐	yan	84810
+糖	tang	84748
+酒	jiu	84686
+刀	dao	84624
+鸟	niao	84562
+虫	chong	84500
+猫	mao	84438
+狗	gou	84376
+猪	zhu	84314
+牛	niu	84252
+羊	yang	84190
+鸡	ji	84128
+鸭	ya	84066
+虎	hu	84004
+兔	tu	83942
+蛇	she	83880
+猴	hou	83818
+象	xiang	83756
+红	hong	83694
+黄	huang	83632
+蓝	lan	83570
+绿	lv	83508
+紫	zi	83446
+黑	hei	83384
+灰	hui	83322
+彩	cai	83260
+声	sheng	83198
+音	yin	83136
+乐	le	83074
+香	xiang	83012
+味	wei	82950
+甜	tian	82888
+苦	ku	82826
+辣	la	82764
+酸	suan	82702
+冷	leng	82640
+热	re	82578
+温	wen	82516
+暖	nuan	82454
+凉	liang	82392
+干	gan	82330
+湿	shi	82268
+快	kuai	82206
+慢	man	82144
+早	zao	82082
+晚	wan	82020
+昨	zuo	81958
+今	jin	81896
+晨	chen	81834
+午	wu	81772
+夜	ye	81710
+周	zhou	81648
+末	mo	81586
+初	chu	81524
+季	ji	81462
+节	jie	81400
+秒	miao	81338
+分	fen	81276
+钟	zhong	81214
+眼	yan	81152
+耳	er	81090
+鼻	bi	81028
+嘴	zui	80966
+牙	ya	80904
+舌	she	80842
+脸	lian	80780
+脚	jiao	80718
+腿	tui	80656
+腰	yao	80594
+背	bei	80532
+胸	xiong	80470
+腹	fu	80408
+皮	pi	80346
+血	xue	80284
+骨	gu	80222
+脑	nao	80160
+胃	wei	80098
+肝	gan	80036
 你好	ni hao	80000
 手机	shou ji	80000
 现在	xian zai	80000
+肺	fei	79974
+康	kang	79912
+病	bing	79850
+医	yi	79788
+药	yao	79726
+针	zhen	79664
+痛	tong	79602
+疼	teng	79540
+累	lei	79478
+舒	shu	79416
+饿	e	79354
+渴	ke	79292
+饱	bao	79230
+醒	xing	79168
+身	shen	79106
+影	ying	79044
+图	tu	78982
+画	hua	78920
+像	xiang	78858
+片	pian	78796
+纸	zhi	78734
+笔	bi	78672
+墨	mo	78610
+书	shu	78548
+报	bao	78486
+刊	kan	78424
+杂	za	78362
+息	xi	78300
+言	yan	78238
+语	yu	78176
+词	ci	78114
+句	ju	78052
 今天	jin tian	78000
 文件	wen jian	78000
 时间	shi jian	78000
@@ -85,6 +373,44 @@ use_preset_vocabulary: false
 电话	dian hua	78000
 网络	wang luo	78000
 谢谢	xie xie	78000
+章	zhang	77990
+段	duan	77928
+文	wen	77866
+料	liao	77804
+材	cai	77742
+资	zi	77680
+源	yuan	77618
+情	qing	77556
+况	kuang	77494
+形	xing	77432
+状	zhuang	77370
+态	tai	77308
+式	shi	77246
+样	yang	77184
+类	lei	77122
+型	xing	77060
+已经	yi jing	77000
+自己	zi ji	77000
+群	qun	76998
+众	zhong	76936
+堆	dui	76874
+批	pi	76812
+组	zu	76750
+套	tao	76688
+串	chuan	76626
+排	pai	76564
+列	lie	76502
+系	xi	76440
+吧	ba	76378
+吗	ma	76316
+呢	ne	76254
+啊	a	76192
+哦	o	76130
+嗯	en	76068
+哪	na	76006
+什么	shen me	76000
+但是	dan shi	76000
+大家	da jia	76000
 工作	gong zuo	76000
 新闻	xin wen	76000
 时候	shi hou	76000
@@ -94,6 +420,22 @@ use_preset_vocabulary: false
 游戏	you xi	76000
 电影	dian ying	76000
 音乐	yin yue	76000
+谁	shui	75944
+什	shen	75882
+么	me	75820
+怎	zen	75758
+请	qing	75696
+谢	xie	75634
+对	dui	75572
+没	mei	75510
+曾	ceng	75448
+将	jiang	75386
+刚	gang	75324
+才	cai	75262
+戏	xi	75200
+剧	ju	75138
+歌	ge	75076
+舞	wu	75014
 下载	xia zai	75000
 信息	xin xi	75000
 再见	zai jian	75000
@@ -101,7 +443,30 @@ use_preset_vocabulary: false
 天气	tian qi	75000
 密码	mi ma	75000
 昨天	zuo tian	75000
+然后	ran hou	75000
 电视	dian shi	75000
+觉得	jue de	75000
+还是	hai shi	75000
+这个	zhe ge	75000
+曲	qu	74952
+唱	chang	74890
+弹	dan	74828
+琴	qin	74766
+法	fa	74704
+棋	qi	74642
+诗	shi	74580
+联	lian	74518
+谜	mi	74456
+笑	xiao	74394
+哭	ku	74332
+喊	han	74270
+叫	jiao	74208
+吵	chao	74146
+闹	nao	74084
+安	an	74022
+一定	yi ding	74000
+一起	yi qi	74000
+不是	bu shi	74000
 今年	jin nian	74000
 公司	gong si	74000
 图片	tu pian	74000
@@ -110,22 +475,67 @@ use_preset_vocabulary: false
 学生	xue sheng	74000
 小时	xiao shi	74000
 开心	kai xin	74000
+怎么	zen me	74000
 数据	shu ju	74000
 登录	deng lu	74000
 睡觉	shui jiao	74000
 老师	lao shi	74000
+虽然	sui ran	74000
 视频	shi pin	74000
+需要	xu yao	74000
 高兴	gao xing	74000
+静	jing	73960
+忙	mang	73898
+闲	xian	73836
+懒	lan	73774
+勤	qin	73712
+奋	fen	73650
+勇	yong	73588
+敢	gan	73526
+慎	shen	73464
+忽	hu	73402
+略	lve	73340
+详	xiang	73278
+细	xi	73216
+粗	cu	73154
+密	mi	73092
+稀	xi	73030
+一下	yi xia	73000
+不过	bu guo	73000
+为了	wei le	73000
+出来	chu lai	73000
+可能	ke neng	73000
 同学	tong xue	73000
 回家	hui jia	73000
+因为	yin wei	73000
 大学	da xue	73000
+就是	jiu shi	73000
 幸福	xing fu	73000
 快乐	kuai le	73000
+情况	qing kuang	73000
 汽车	qi che	73000
 火车	huo che	73000
 系统	xi tong	73000
 考试	kao shi	73000
+通过	tong guo	73000
+重要	zhong yao	73000
 飞机	fei ji	73000
+厚	hou	72968
+薄	bo	72906
+深	shen	72844
+浅	qian	72782
+宽	kuan	72720
+窄	zhai	72658
+低	di	72596
+陡	dou	72534
+坡	po	72472
+弯	wan	72410
+直	zhi	72348
+斜	xie	72286
+平	ping	72224
+尖	jian	72162
+圆	yuan	72100
+扁	bian	72038
 上传	shang chuan	72000
 上班	shang ban	72000
 下班	xia ban	72000
@@ -138,7 +548,10 @@ use_preset_vocabulary: false
 可以	ke yi	72000
 地铁	di tie	72000
 家人	jia ren	72000
+应该	ying gai	72000
 开始	kai shi	72000
+成为	cheng wei	72000
+所以	suo yi	72000
 技术	ji shu	72000
 明年	ming nian	72000
 服务	fu wu	72000
@@ -147,15 +560,61 @@ use_preset_vocabulary: false
 用户	yong hu	72000
 知道	zhi dao	72000
 网站	wang zhan	72000
+而且	er qie	72000
 账号	zhang hao	72000
+起来	qi lai	72000
 身体	shen ti	72000
+还有	hai you	72000
+这样	zhe yang	72000
+那个	na ge	72000
 问题	wen ti	72000
 项目	xiang mu	72000
+空	kong	71976
+满	man	71914
+缺	que	71852
+余	yu	71790
+整	zheng	71728
+残	can	71666
+破	po	71604
+旧	jiu	71542
+脏	zang	71480
+净	jing	71418
+臭	chou	71356
+丑	chou	71294
+那	na	71232
+咱	zan	71170
+彼	bi	71108
+此	ci	71046
+一些	yi xie	71000
+其实	qi shi	71000
 医生	yi sheng	71000
 医院	yi yuan	71000
+只是	zhi shi	71000
 同事	tong shi	71000
+如果	ru guo	71000
 客户	ke hu	71000
+对于	dui yu	71000
 生日	sheng ri	71000
+这么	zhe me	71000
+该	gai	70984
+每	mei	70922
+某	mou	70860
+别	bie	70798
+另	ling	70736
+其	qi	70674
+半	ban	70612
+双	shuang	70550
+错	cuo	70488
+误	wu	70426
+差	cha	70364
+异	yi	70302
+反	fan	70240
+负	fu	70178
+绝	jue	70116
+比	bi	70054
+一种	yi zhong	70000
+一般	yi ban	70000
+不能	bu neng	70000
 世界	shi jie	70000
 中学	zhong xue	70000
 习惯	xi guan	70000
@@ -170,15 +629,22 @@ use_preset_vocabulary: false
 儿子	er zi	70000
 兄弟	xiong di	70000
 公交	gong jiao	70000
+关于	guan yu	70000
 关系	guan xi	70000
+其中	qi zhong	70000
 冰箱	bing xiang	70000
 出门	chu men	70000
 办法	ban fa	70000
 努力	nu li	70000
+历史	li shi	70000
 原因	yuan yin	70000
 发展	fa zhan	70000
 发现	fa xian	70000
+只有	zhi you	70000
+可是	ke shi	70000
+同时	tong shi	70000
 周末	zhou mo	70000
+咱们	zan men	70000
 喝水	he shui	70000
 回答	hui da	70000
 团队	tuan dui	70000
@@ -220,6 +686,7 @@ use_preset_vocabulary: false
 父亲	fu qin	70000
 爸爸	ba ba	70000
 生气	sheng qi	70000
+由于	you yu	70000
 相信	xiang xin	70000
 研究	yan jiu	70000
 科学	ke xue	70000
@@ -239,40 +706,93 @@ use_preset_vocabulary: false
 质量	zhi liang	70000
 跑步	pao bu	70000
 软件	ruan jian	70000
+过去	guo qu	70000
+过来	guo lai	70000
 运动	yun dong	70000
+进入	jin ru	70000
+那么	na me	70000
 邮件	you jian	70000
 银行	yin hang	70000
 高铁	gao tie	70000
 鸡蛋	ji dan	70000
+较	jiao	69992
+非	fei	69930
+极	ji	69868
+超	chao	69806
+越	yue	69744
+尤	you	69682
+甚	shen	69620
+更	geng	69558
+渐	jian	69496
+仍	reng	69434
+未	wei	69372
+临	lin	69310
+免	mian	69248
+应	ying	69186
+允	yun	69124
+须	xu	69062
+不同	bu tong	69000
+之前	zhi qian	69000
+之后	zhi hou	69000
+以及	yi ji	69000
 午餐	wu can	69000
 压力	ya li	69000
 发烧	fa shao	69000
 咖啡	ka fei	69000
+回去	hui qu	69000
+因此	yin ci	69000
 感情	gan qing	69000
 成本	cheng ben	69000
+或者	huo zhe	69000
 投资	tou zi	69000
 数字	shu zi	69000
+方面	fang mian	69000
 晚餐	wan can	69000
+有点	you dian	69000
 水果	shui guo	69000
 牛奶	niu nai	69000
 病人	bing ren	69000
 礼物	li wu	69000
 程序	cheng xu	69000
+第一	di yi	69000
 米饭	mi fan	69000
 计算机	ji suan ji	69000
 车站	che zhan	69000
 销售	xiao shou	69000
 难过	nan guo	69000
+需	xu	69000
+肯	ken	68938
+且	qie	68876
+既	ji	68814
+乃	nai	68752
+则	ze	68690
+即	ji	68628
+便	bian	68566
+宁	ning	68504
+令	ling	68442
+以	yi	68380
+与	yu	68318
+及	ji	68256
+乎	hu	68194
+者	zhe	68132
+皆	jie	68070
+夫	fu	68008
+一点	yi dian	68000
 一直	yi zhi	68000
 上午	shang wu	68000
 下午	xia wu	68000
 下雨	xia yu	68000
+不断	bu duan	68000
 不行	bu xing	68000
+不要	bu yao	68000
 专业	zhuan ye	68000
 个人	ge ren	68000
 中午	zhong wu	68000
+为什么	wei shen me	68000
+于是	yu shi	68000
 交流	jiao liu	68000
 代码	dai ma	68000
+以上	yi shang	68000
 伤心	shang xin	68000
 保护	bao hu	68000
 信心	xin xin	68000
@@ -283,6 +803,7 @@ use_preset_vocabulary: false
 分析	fen xi	68000
 刷牙	shua ya	68000
 力量	li liang	68000
+发生	fa sheng	68000
 变化	bian hua	68000
 合作	he zuo	68000
 同意	tong yi	68000
@@ -374,6 +895,24 @@ use_preset_vocabulary: false
 饮料	yin liao	68000
 饺子	jiao zi	68000
 麻烦	ma fan	68000
+凡	fan	67946
+诸	zhu	67884
+矣	yi	67822
+焉	yan	67760
+哉	zai	67698
+兮	xi	67636
+耶	ye	67574
+咨	zi	67512
+询	xun	67450
+访	fang	67388
+谈	tan	67326
+论	lun	67264
+议	yi	67202
+辩	bian	67140
+证	zheng	67078
+评	ping	67016
+不错	bu cuo	67000
+以下	yi xia	67000
 出租车	chu zu che	67000
 咳嗽	ke sou	67000
 害怕	hai pa	67000
@@ -385,7 +924,24 @@ use_preset_vocabulary: false
 鞋子	xie zi	67000
 香蕉	xiang jiao	67000
 鸡肉	ji rou	67000
+估	gu	66954
+计	ji	66892
+测	ce	66830
+量	liang	66768
+检	jian	66706
+查	cha	66644
+验	yan	66582
+审	shen	66520
+核	he	66458
+算	suan	66396
+统	tong	66334
+汇	hui	66272
+总	zong	66210
+结	jie	66148
+清	qing	66086
+盘	pan	66024
 不好意思	bu hao yi si	66000
+不管	bu guan	66000
 事实	shi shi	66000
 人们	ren men	66000
 人民	ren min	66000
@@ -439,6 +995,7 @@ use_preset_vocabulary: false
 实际	shi ji	66000
 尊重	zun zhong	66000
 屏幕	ping mu	66000
+属于	shu yu	66000
 工具	gong ju	66000
 工厂	gong chang	66000
 工程师	gong cheng shi	66000
@@ -457,6 +1014,7 @@ use_preset_vocabulary: false
 慢慢	man man	66000
 成立	cheng li	66000
 报道	bao dao	66000
+提供	ti gong	66000
 提前	ti qian	66000
 提高	ti gao	66000
 收入	shou ru	66000
@@ -474,10 +1032,12 @@ use_preset_vocabulary: false
 智慧	zhi hui	66000
 暑假	shu jia	66000
 服务器	fu wu qi	66000
+来自	lai zi	66000
 核心	he xin	66000
 根据	gen ju	66000
 梦想	meng xiang	66000
 检查	jian cha	66000
+比如	bi ru	66000
 水平	shui ping	66000
 没关系	mei guan xi	66000
 测试	ce shi	66000
@@ -490,6 +1050,7 @@ use_preset_vocabulary: false
 理想	li xiang	66000
 理由	li you	66000
 申请	shen qing	66000
+的时候	de shi hou	66000
 目标	mu biao	66000
 直播	zhi bo	66000
 真实	zhen shi	66000
@@ -537,6 +1098,7 @@ use_preset_vocabulary: false
 过程	guo cheng	66000
 运行	yun xing	66000
 进步	jin bu	66000
+那样	na yang	66000
 配合	pei he	66000
 重点	zhong dian	66000
 金牌	jin pai	66000
@@ -545,7 +1107,24 @@ use_preset_vocabulary: false
 键盘	jian pan	66000
 阅读	yue du	66000
 顺利	shun li	66000
+录	lu	65962
+载	zai	65900
+存	cun	65838
+储	chu	65776
+取	qu	65714
+舍	she	65652
+选	xuan	65590
+择	ze	65528
+补	bu	65466
+充	chong	65404
+增	zeng	65342
+减	jian	65280
+乘	cheng	65218
+除	chu	65156
+倍	bei	65094
+例	li	65032
 下雪	xia xue	65000
+不用	bu yong	65000
 书包	shu bao	65000
 人工智能	ren gong zhi neng	65000
 保存	bao cun	65000
@@ -553,9 +1132,13 @@ use_preset_vocabulary: false
 关闭	guan bi	65000
 利润	li run	65000
 升级	sheng ji	65000
+另外	ling wai	65000
+同样	tong yang	65000
 在线	zai xian	65000
+外卖	wai mai	65000
 奶茶	nai cha	65000
 婚礼	hun li	65000
+导致	dao zhi	65000
 巧克力	qiao ke li	65000
 庆祝	qing zhu	65000
 手表	shou biao	65000
@@ -592,12 +1175,28 @@ use_preset_vocabulary: false
 雨伞	yu san	65000
 页面	ye mian	65000
 鼠标	shu biao	65000
+率	lv	64970
+额	e	64908
+值	zhi	64846
+价	jia	64784
+账	zhang	64722
+币	bi	64660
+钱	qian	64598
+物	wu	64536
+品	pin	64474
+质	zhi	64412
+数	shu	64350
+税	shui	64288
+费	fei	64226
+支	zhi	64164
+收	shou	64102
+盈	ying	64040
 下降	xia jiang	64000
+不仅	bu jin	64000
 中华	zhong hua	64000
 主题	zhu ti	64000
 乒乓球	ping pang qiu	64000
 事业	shi ye	64000
-云	yun	64000
 交易	jiao yi	64000
 人才	ren cai	64000
 从来	cong lai	64000
@@ -611,12 +1210,14 @@ use_preset_vocabulary: false
 体力	ti li	64000
 体检	ti jian	64000
 体系	ti xi	64000
+体育	ti yu	64000
 作品	zuo pin	64000
 修改	xiu gai	64000
 做法	zuo fa	64000
 停止	ting zhi	64000
 偶尔	ou er	64000
 先进	xian jin	64000
+全面	quan mian	64000
 兴趣	xing qu	64000
 冰淇淋	bing qi lin	64000
 减肥	jian fei	64000
@@ -631,6 +1232,7 @@ use_preset_vocabulary: false
 勇敢	yong gan	64000
 化妆	hua zhuang	64000
 单位	dan wei	64000
+即使	ji shi	64000
 原则	yuan ze	64000
 参数	can shu	64000
 及时	ji shi	64000
@@ -642,6 +1244,7 @@ use_preset_vocabulary: false
 后端	hou duan	64000
 启动	qi dong	64000
 咨询	zi xun	64000
+品牌	pin pai	64000
 品质	pin zhi	64000
 响应	xiang ying	64000
 唱歌	chang ge	64000
@@ -668,6 +1271,7 @@ use_preset_vocabulary: false
 安静	an jing	64000
 实力	shi li	64000
 客户端	ke hu duan	64000
+客服	ke fu	64000
 宣传	xuan chuan	64000
 家乡	jia xiang	64000
 寒假	han jia	64000
@@ -676,6 +1280,7 @@ use_preset_vocabulary: false
 幸运	xing yun	64000
 度假	du jia	64000
 建筑	jian zhu	64000
+开会	kai hui	64000
 开发者	kai fa zhe	64000
 开学	kai xue	64000
 开源	kai yuan	64000
@@ -695,6 +1300,7 @@ use_preset_vocabulary: false
 成长	cheng zhang	64000
 打印机	da yin ji	64000
 打折	da zhe	64000
+打车	da che	64000
 执行	zhi xing	64000
 扫码	sao ma	64000
 报名	bao ming	64000
@@ -717,6 +1323,7 @@ use_preset_vocabulary: false
 无线	wu xian	64000
 日志	ri zhi	64000
 最终	zui zhong	64000
+有人	you ren	64000
 有效	you xiao	64000
 有时	you shi	64000
 有用	you yong	64000
@@ -762,6 +1369,7 @@ use_preset_vocabulary: false
 答应	da ying	64000
 粉丝	fen si	64000
 红酒	hong jiu	64000
+终于	zhong yu	64000
 经营	jing ying	64000
 结构	jie gou	64000
 统计	tong ji	64000
@@ -797,6 +1405,7 @@ use_preset_vocabulary: false
 豆浆	dou jiang	64000
 贷款	dai kuan	64000
 资料	zi liao	64000
+越来越	yue lai yue	64000
 转发	zhuan fa	64000
 输出	shu chu	64000
 辣椒	la jiao	64000
@@ -807,10 +1416,13 @@ use_preset_vocabulary: false
 退出	tui chu	64000
 逐渐	zhu jian	64000
 通常	tong chang	64000
+造成	zao cheng	64000
 逻辑	luo ji	64000
 道理	dao li	64000
 部门	bu men	64000
+酒店	jiu dian	64000
 降低	jiang di	64000
+除了	chu le	64000
 难受	nan shou	64000
 集体	ji ti	64000
 需求	xu qiu	64000
@@ -825,18 +1437,61 @@ use_preset_vocabulary: false
 高效	gao xiao	64000
 黄瓜	huang gua	64000
 鼓励	gu li	64000
+亏	kui	63978
+借	jie	63916
+份	fen	63854
+利	li	63792
+险	xian	63730
+保	bao	63668
+担	dan	63606
+任	ren	63544
+务	wu	63482
+职	zhi	63420
+装	zhuang	63358
+改	gai	63296
+善	shan	63234
+齐	qi	63172
+良	liang	63110
+悲	bei	63048
 中秋	zhong qiu	63000
+使得	shi de	63000
 国庆	guo qing	63000
+实际上	shi ji shang	63000
+并且	bing qie	63000
 手套	shou tao	63000
 挂号	gua hao	63000
+排队	pai dui	63000
+故事	gu shi	63000
+有些	you xie	63000
+有关	you guan	63000
 桃子	tao zi	63000
+毕业	bi ye	63000
 毛衣	mao yi	63000
+活动	huo dong	63000
 疲劳	pi lao	63000
 绿茶	lv cha	63000
 菜单	cai dan	63000
 萝卜	luo bo	63000
 门诊	men zhen	63000
+爱	ai	62986
+亲	qin	62924
+朋	peng	62862
+邻	lin	62800
+陌	mo	62738
+客	ke	62676
+官	guan	62614
+己	ji	62552
+望	wang	62490
+威	wei	62428
+急	ji	62366
+缓	huan	62304
+速	su	62242
+达	da	62180
+迎	ying	62118
+往	wang	62056
 上线	shang xian	62000
+不再	bu zai	62000
+不好	bu hao	62000
 不客气	bu ke qi	62000
 世界杯	shi jie bei	62000
 业余	ye yu	62000
@@ -854,6 +1509,7 @@ use_preset_vocabulary: false
 会计	kuai ji	62000
 余额	yu e	62000
 佩服	pei fu	62000
+例如	li ru	62000
 供应	gong ying	62000
 便捷	bian jie	62000
 促销	cu xiao	62000
@@ -895,7 +1551,9 @@ use_preset_vocabulary: false
 发表	fa biao	62000
 发达	fa da	62000
 变量	bian liang	62000
+口罩	kou zhao	62000
 可怜	ke lian	62000
+司机	si ji	62000
 各地	ge di	62000
 合并	he bing	62000
 合格	he ge	62000
@@ -915,8 +1573,10 @@ use_preset_vocabulary: false
 备份	bei fen	62000
 夏天	xia tian	62000
 大众	da zhong	62000
+大多数	da duo shu	62000
 大数据	da shu ju	62000
 大蒜	da suan	62000
+大部分	da bu fen	62000
 奖励	jiang li	62000
 奖牌	jiang pai	62000
 奖金	jiang jin	62000
@@ -927,9 +1587,12 @@ use_preset_vocabulary: false
 实用	shi yong	62000
 容器	rong qi	62000
 宽带	kuan dai	62000
+导航	dao hang	62000
+尽管	jin guan	62000
 居民	ju min	62000
+工程	gong cheng	62000
+差不多	cha bu duo	62000
 并发	bing fa	62000
-库	ku	62000
 开头	kai tou	62000
 异常	yi chang	62000
 引擎	yin qing	62000
@@ -940,6 +1603,7 @@ use_preset_vocabulary: false
 心疼	xin teng	62000
 忙碌	mang lu	62000
 快捷	kuai jie	62000
+怎样	zen yang	62000
 思维	si wei	62000
 惊喜	jing xi	62000
 感激	gan ji	62000
@@ -981,6 +1645,7 @@ use_preset_vocabulary: false
 数量	shu liang	62000
 文件夹	wen jian jia	62000
 无线网	wu xian wang	62000
+无论	wu lun	62000
 春天	chun tian	62000
 显示器	xian shi qi	62000
 晴天	qing tian	62000
@@ -1023,7 +1688,7 @@ use_preset_vocabulary: false
 独特	du te	62000
 理发	li fa	62000
 理念	li nian	62000
-生成	fa sheng	62000
+生成	sheng cheng	62000
 电力	dian li	62000
 病毒	bing du	62000
 登记	deng ji	62000
@@ -1045,7 +1710,6 @@ use_preset_vocabulary: false
 简洁	jian jie	62000
 管理员	guan li yuan	62000
 类型	lei xing	62000
-粥	zhou	62000
 精准	jing zhun	62000
 精确	jing que	62000
 糖果	tang guo	62000
@@ -1063,6 +1727,7 @@ use_preset_vocabulary: false
 美容	mei rong	62000
 美术	mei shu	62000
 群聊	qun liao	62000
+而是	er shi	62000
 自主	zi zhu	62000
 自动化	zi dong hua	62000
 自豪	zi hao	62000
@@ -1106,6 +1771,7 @@ use_preset_vocabulary: false
 进程	jin cheng	62000
 退休	tui xiu	62000
 送货	song huo	62000
+选择	xuan ze	62000
 选项	xuan xiang	62000
 造型	zao xing	62000
 道路	dao lu	62000
@@ -1116,6 +1782,7 @@ use_preset_vocabulary: false
 重视	zhong shi	62000
 银牌	yin pai	62000
 镜像	jing xiang	62000
+门票	men piao	62000
 队长	dui zhang	62000
 防守	fang shou	62000
 阶段	jie duan	62000
@@ -1123,6 +1790,7 @@ use_preset_vocabulary: false
 集成	ji cheng	62000
 顾客	gu ke	62000
 预测	yu ce	62000
+预订	yu ding	62000
 题目	ti mu	62000
 风险	feng xian	62000
 饮食	yin shi	62000
@@ -1132,13 +1800,60 @@ use_preset_vocabulary: false
 高速	gao su	62000
 魅力	mei li	62000
 麻将	ma jiang	62000
+黄金	huang jin	62000
+归	gui	61994
+返	fan	61932
+离	li	61870
+聚	ju	61808
+散	san	61746
+遇	yu	61684
+受	shou	61622
+纳	na	61560
+藏	cang	61498
+现	xian	61436
+露	lu	61374
+显	xian	61312
+示	shi	61250
+演	yan	61188
+讲	jiang	61126
+述	shu	61064
+导	dao	61002
+不但	bu dan	61000
+出行	chu xing	61000
+基本上	ji ben shang	61000
+比分	bi fen	61000
+然而	ran er	61000
+电梯	dian ti	61000
+票房	piao fang	61000
+表情	biao qing	61000
+调查	diao cha	61000
+采购	cai gou	61000
+预约	yu yue	61000
+求	qiu	60940
+准	zhun	60878
+阅	yue	60816
+览	lan	60754
+观	guan	60692
+视	shi	60630
+闻	wen	60568
+嗅	xiu	60506
+摸	mo	60444
+趣	qu	60382
+习	xi	60320
+惯	guan	60258
+队	dui	60196
+团	tuan	60134
+营	ying	60072
+连	lian	60010
 一帆风顺	yi fan feng shun	60000
 一流	yi liu	60000
 万事如意	wan shi ru yi	60000
 上涨	shang zhang	60000
 下跌	xia die	60000
+不得不	bu de bu	60000
 不知	bu zhi	60000
 专注	zhuan zhu	60000
+业务	ye wu	60000
 业绩	ye ji	60000
 主张	zhu zhang	60000
 书写	shu xie	60000
@@ -1153,7 +1868,9 @@ use_preset_vocabulary: false
 代理	dai li	60000
 休假	xiu jia	60000
 传递	chuan di	60000
+位于	wei yu	60000
 低碳	di tan	60000
+住房	zhu fang	60000
 体制	ti zhi	60000
 供应链	gong ying lian	60000
 依据	yi ju	60000
@@ -1163,12 +1880,16 @@ use_preset_vocabulary: false
 俱乐部	ju le bu	60000
 假设	jia she	60000
 偶然	ou ran	60000
+免费	mian fei	60000
+公园	gong yuan	60000
 公民	gong min	60000
 典型	dian xing	60000
 兼容	jian rong	60000
 内核	nei he	60000
+农业	nong ye	60000
 冲动	chong dong	60000
 冲突	chong tu	60000
+决定	jue ding	60000
 出色	chu se	60000
 分发	fen fa	60000
 分支	fen zhi	60000
@@ -1176,6 +1897,7 @@ use_preset_vocabulary: false
 刮风	gua feng	60000
 前提	qian ti	60000
 前景	qian jing	60000
+办理	ban li	60000
 协商	xie shang	60000
 协调	xie tiao	60000
 卓越	zhuo yue	60000
@@ -1194,8 +1916,8 @@ use_preset_vocabulary: false
 善意	shan yi	60000
 回顾	hui gu	60000
 国家队	guo jia dui	60000
-地	di	60000
 坚决	jian jue	60000
+堵车	du che	60000
 外地	wai di	60000
 天地	tian di	60000
 失业	shi ye	60000
@@ -1215,11 +1937,13 @@ use_preset_vocabulary: false
 干嘛	gan ma	60000
 干脆	gan cui	60000
 平稳	ping wen	60000
+年轻	nian qing	60000
 库存	ku cun	60000
 应付	ying fu	60000
 延迟	yan chi	60000
 建造	jian zao	60000
 开工	kai gong	60000
+开放	kai fang	60000
 异步	yi bu	60000
 强度	qiang du	60000
 录取	lu qu	60000
@@ -1239,6 +1963,7 @@ use_preset_vocabulary: false
 报表	bao biao	60000
 持续	chi xu	60000
 指教	zhi jiao	60000
+指数	zhi shu	60000
 指标	zhi biao	60000
 指甲	zhi jia	60000
 按时	an shi	60000
@@ -1268,7 +1993,9 @@ use_preset_vocabulary: false
 梨子	li zi	60000
 榜样	bang yang	60000
 模糊	mo hu	60000
+欢迎	huan ying	60000
 歉意	qian yi	60000
+此外	ci wai	60000
 步骤	bu zhou	60000
 武术	wu shu	60000
 毛病	mao bing	60000
@@ -1276,6 +2003,7 @@ use_preset_vocabulary: false
 气质	qi zhi	60000
 汤面	tang mian	60000
 汽水	qi shui	60000
+没什么	mei shen me	60000
 注释	zhu shi	60000
 活力	huo li	60000
 活泼	huo po	60000
@@ -1294,6 +2022,7 @@ use_preset_vocabulary: false
 生日快乐	sheng ri kuai le	60000
 痛点	tong dian	60000
 瘦身	shou shen	60000
+相反	xiang fan	60000
 真相	zhen xiang	60000
 睡衣	shui yi	60000
 神经网络	shen jing wang luo	60000
@@ -1306,6 +2035,7 @@ use_preset_vocabulary: false
 精度	jing du	60000
 级别	ji bie	60000
 纪录	ji lu	60000
+缓解	huan jie	60000
 网速	wang su	60000
 美妙	mei miao	60000
 羽绒服	yu rong fu	60000
@@ -1337,6 +2067,7 @@ use_preset_vocabulary: false
 语义	yu yi	60000
 语句	yu ju	60000
 读者	du zhe	60000
+调整	tiao zheng	60000
 负担	fu dan	60000
 财政	cai zheng	60000
 费心	fei xin	60000
@@ -1353,10 +2084,13 @@ use_preset_vocabulary: false
 进球	jin qiu	60000
 迭代	die dai	60000
 退款	tui kuan	60000
+退货	tui huo	60000
 适配	shi pei	60000
 逐步	zhu bu	60000
 郁闷	yu men	60000
+重复	chong fu	60000
 重试	chong shi	60000
+铁路	tie lu	60000
 队列	dui lie	60000
 队友	dui you	60000
 队员	dui yuan	60000
@@ -1377,12 +2111,64 @@ use_preset_vocabulary: false
 香烟	xiang yan	60000
 香皂	xiang zao	60000
 马虎	ma hu	60000
+验证码	yan zheng ma	60000
+班	ban	59948
+级	ji	59886
+届	jie	59824
+户	hu	59762
+庭	ting	59700
+祝	zhu	59638
+福	fu	59576
+壮	zhuang	59514
+弱	ruo	59452
+幼	you	59390
+青	qing	59328
+婴	ying	59266
+育	yu	59204
+培	pei	59142
+雀	que	59080
+蚊	wen	59018
+丰富	feng fu	59000
+二手	er shou	59000
+体验	ti yan	59000
+保证	bao zheng	59000
+健身房	jian shen fang	59000
+全世界	quan shi jie	59000
+公开	gong kai	59000
+台风	tai feng	59000
+心理	xin li	59000
+总之	zong zhi	59000
+截图	jie tu	59000
+旅客	lv ke	59000
+景区	jing qu	59000
+空气	kong qi	59000
+粮食	liang shi	59000
+经典	jing dian	59000
+课程	ke cheng	59000
+返回	fan hui	59000
+蚁	yi	58956
+蛙	wa	58894
+汤	tang	58832
+巾	jin	58770
+案	an	58708
+瓶	ping	58646
+盆	pen	58584
+勺	shao	58522
+蒸	zheng	58460
+托	tuo	58398
+帆	fan	58336
+舱	cang	58274
+封	feng	58212
+扎	zha	58150
+科	ke	58088
+研	yan	58026
 一向	yi xiang	58000
 一致性	yi zhi xing	58000
 一路平安	yi lu ping an	58000
 不合格	bu he ge	58000
 主教练	zhu jiao lian	58000
 主键	zhu jian	58000
+举行	ju xing	58000
 乐趣	le qu	58000
 习俗	xi su	58000
 事务	shi wu	58000
@@ -1400,7 +2186,9 @@ use_preset_vocabulary: false
 信誉	xin yu	58000
 倒霉	dao mei	58000
 倾听	qing ting	58000
+停车	ting che	58000
 全市	quan shi	58000
+全新	quan xin	58000
 全省	quan sheng	58000
 公式	gong shi	58000
 关照	guan zhao	58000
@@ -1408,18 +2196,23 @@ use_preset_vocabulary: false
 内向	nei xiang	58000
 内在	nei zai	58000
 冤枉	yuan wang	58000
+决赛	jue sai	58000
 减速	jian su	58000
 击败	ji bai	58000
 创办	chuang ban	58000
+制作	zhi zuo	58000
 刻苦	ke ku	58000
 前途	qian tu	58000
 力度	li du	58000
 加薪	jia xin	58000
+动态	dong tai	58000
 助力	zhu li	58000
 匆忙	cong mang	58000
 升职	sheng zhi	58000
+卫生	wei sheng	58000
 危机	wei ji	58000
 卸载	xie zai	58000
+受伤	shou shang	58000
 可视化	ke shi hua	58000
 听力	ting li	58000
 听取	ting qu	58000
@@ -1436,14 +2229,19 @@ use_preset_vocabulary: false
 安全感	an quan gan	58000
 实质	shi zhi	58000
 家属	jia shu	58000
+家电	jia dian	58000
+家长	jia zhang	58000
 密度	mi du	58000
 密钥	mi yao	58000
 小数	xiao shu	58000
 尺码	chi ma	58000
 层面	ceng mian	58000
+岗位	gang wei	58000
 工作顺利	gong zuo shun li	58000
 常量	chang liang	58000
+平均	ping jun	58000
 幻想	huan xiang	58000
+广场	guang chang	58000
 序列化	xu lie hua	58000
 店铺	dian pu	58000
 康复	kang fu	58000
@@ -1452,6 +2250,7 @@ use_preset_vocabulary: false
 开设	kai she	58000
 弹幕	dan mu	58000
 心痛	xin tong	58000
+怎么样	zen me yang	58000
 思念	si nian	58000
 急忙	ji mang	58000
 总决赛	zong jue sai	58000
@@ -1461,6 +2260,8 @@ use_preset_vocabulary: false
 戏剧	xi ju	58000
 成品	cheng pin	58000
 战术	zhan shu	58000
+战胜	zhan sheng	58000
+打工人	da gong ren	58000
 执行力	zhi xing li	58000
 担忧	dan you	58000
 按摩	an mo	58000
@@ -1471,11 +2272,13 @@ use_preset_vocabulary: false
 撤销	che xiao	58000
 支撑	zhi cheng	58000
 改造	gai zao	58000
+攻略	gong lve	58000
 效益	xiao yi	58000
 敬意	jing yi	58000
 时常	shi chang	58000
 暂停	zan ting	58000
 替换	ti huan	58000
+有时候	you shi hou	58000
 机智	ji zhi	58000
 杀毒	sha du	58000
 村民	cun min	58000
@@ -1489,15 +2292,22 @@ use_preset_vocabulary: false
 氛围	fen wei	58000
 沉重	chen zhong	58000
 泄露	xie lou	58000
+泡面	pao mian	58000
+深入	shen ru	58000
 渴望	ke wang	58000
 滑冰	hua bing	58000
 漏洞	lou dong	58000
+演唱会	yan chang hui	58000
 演奏	yan zou	58000
 烦躁	fan zao	58000
 牺牲	xi sheng	58000
+状况	zhuang kuang	58000
 状态码	zhuang tai ma	58000
+环节	huan jie	58000
+现场	xian chang	58000
 理财	li cai	58000
 瑜伽	yu jia	58000
+生命	sheng ming	58000
 用途	yong tu	58000
 申报	shen bao	58000
 电源	dian yuan	58000
@@ -1517,6 +2327,7 @@ use_preset_vocabulary: false
 米醋	mi cu	58000
 粗心	cu xin	58000
 纠正	jiu zheng	58000
+组合	zu he	58000
 终点	zhong dian	58000
 绘画	hui hua	58000
 绝望	jue wang	58000
@@ -1527,12 +2338,17 @@ use_preset_vocabulary: false
 耳环	er huan	58000
 肥胖	fei pang	58000
 背诵	bei song	58000
+自拍	zi pai	58000
+至于	zhi yu	58000
 节日快乐	jie ri kuai le	58000
 获胜	huo sheng	58000
+融合	rong he	58000
 裁判	cai pan	58000
+装备	zhuang bei	58000
 要点	yao dian	58000
 解析	jie xi	58000
 认知	ren zhi	58000
+设施	she shi	58000
 评审	ping shen	58000
 话语	hua yu	58000
 课题	ke ti	58000
@@ -1546,21 +2362,90 @@ use_preset_vocabulary: false
 辅导	fu dao	58000
 辩论	bian lun	58000
 边缘	bian yuan	58000
+过滤	guo lv	58000
 进取	jin qu	58000
 远方	yuan fang	58000
 连忙	lian mang	58000
 适用	shi yong	58000
+配置	pei zhi	58000
 重构	chong gou	58000
+针对	zhen dui	58000
 铜牌	tong pai	58000
+长大	zhang da	58000
 长连接	chang lian jie	58000
+闹钟	nao zhong	58000
 难点	nan dian	58000
+零售	ling shou	58000
+青年	qing nian	58000
 非凡	fei fan	58000
 靠谱	kao pu	58000
 顽强	wan qiang	58000
 风俗	feng su	58000
+餐饮	can yin	58000
 首饰	shou shi	58000
 马拉松	ma la song	58000
 麦克风	mai ke feng	58000
+发	fa	57964
+布	bu	57902
+代	dai	57840
+智	zhi	57778
+大	da	57716
+模	mo	57654
+货	huo	57592
+续	xu	57530
+升	sheng	57468
+折	zhe	57406
+叠	die	57344
+屏	ping	57282
+格	ge	57220
+降	jiang	57158
+引	yin	57096
+换	huan	57034
+一会儿	yi hui er	57000
+主力	zhu li	57000
+举办	ju ban	57000
+互动	hu dong	57000
+份额	fen e	57000
+全民	quan min	57000
+动画	dong hua	57000
+医保	yi bao	57000
+压缩	ya suo	57000
+回收	hui shou	57000
+外贸	wai mao	57000
+家居	jia ju	57000
+小说	xiao shuo	57000
+少数	shao shu	57000
+展示	zhan shi	57000
+户外	hu wai	57000
+打卡	da ka	57000
+抢票	qiang piao	57000
+文字	wen zi	57000
+日常	ri chang	57000
+有趣	you qu	57000
+球队	qiu dui	57000
+短视频	duan shi pin	57000
+经历	jing li	57000
+评分	ping fen	57000
+购物车	gou wu che	57000
+运动员	yun dong yuan	57000
+选手	xuan shou	57000
+避免	bi mian	57000
+潮	chao	56972
+汽	qi	56910
+航	hang	56848
+程	cheng	56786
+突	tu	56724
+动	dong	56662
+驾	jia	56600
+驶	shi	56538
+试	shi	56476
+过	guo	56414
+五	wu	56352
+制	zhi	56290
+重	zhong	56228
+阶	jie	56166
+性	xing	56104
+进	jin	56042
 主场	zhu chang	56000
 争吵	zheng chao	56000
 亚运	ya yun	56000
@@ -1570,16 +2455,19 @@ use_preset_vocabulary: false
 仪表盘	yi biao pan	56000
 优异	you yi	56000
 信仰	xin yang	56000
+假如	jia ru	56000
 全区	quan qu	56000
 全栈	quan zhan	56000
 全运会	quan yun hui	56000
 公开赛	gong kai sai	56000
 关怀	guan huai	56000
 兴旺	xing wang	56000
+养老	yang lao	56000
 内涵	nei han	56000
 冲刺	chong ci	56000
 冷却	leng que	56000
 分区	fen qu	56000
+列车	lie che	56000
 劝说	quan shuo	56000
 劣势	lie shi	56000
 劳累	lao lei	56000
@@ -1596,6 +2484,7 @@ use_preset_vocabulary: false
 品味	pin wei	56000
 哈希	ha xi	56000
 哲学	zhe xue	56000
+商店	shang dian	56000
 回归	hui gui	56000
 均衡	jun heng	56000
 壮观	zhuang guan	56000
@@ -1604,15 +2493,19 @@ use_preset_vocabulary: false
 奉献	feng xian	56000
 妥善	tuo shan	56000
 学习进步	xue xi jin bu	56000
+完整	wan zheng	56000
 审美	shen mei	56000
 审计	shen ji	56000
 射击	she ji	56000
+少年	shao nian	56000
 工具链	gong ju lian	56000
 幸福感	xing fu gan	56000
 应聘	ying pin	56000
+引发	yin fa	56000
 弹性	tan xing	56000
 强化	qiang hua	56000
 归纳	gui na	56000
+形势	xing shi	56000
 心跳	xin tiao	56000
 心酸	xin suan	56000
 念头	nian tou	56000
@@ -1637,9 +2530,12 @@ use_preset_vocabulary: false
 提早	ti zao	56000
 提议	ti yi	56000
 摘要	zhai yao	56000
+摸鱼	mo yu	56000
 播出	bo chu	56000
+播放	bo fang	56000
 支援	zhi yuan	56000
 收据	shou ju	56000
+收购	shou gou	56000
 改良	gai liang	56000
 敏捷	min jie	56000
 教导	jiao dao	56000
@@ -1650,6 +2546,7 @@ use_preset_vocabulary: false
 断线	duan xian	56000
 方程	fang cheng	56000
 无效	wu xiao	56000
+早睡	zao shui	56000
 昂贵	ang gui	56000
 晋级	jin ji	56000
 智商	zhi shang	56000
@@ -1668,13 +2565,16 @@ use_preset_vocabulary: false
 浮点	fu dian	56000
 消极	xiao ji	56000
 淘汰	tao tai	56000
+炸鸡	zha ji	56000
 热身	re shen	56000
 爽快	shuang kuai	56000
+特产	te chan	56000
 瓶颈	ping jing	56000
 用处	yong chu	56000
 盼望	pan wang	56000
 短跑	duan pao	56000
 研制	yan zhi	56000
+秒杀	miao sha	56000
 立场	li chang	56000
 筹备	chou bei	56000
 简便	jian bian	56000
@@ -1690,6 +2590,8 @@ use_preset_vocabulary: false
 自卑	zi bei	56000
 花样	hua yang	56000
 苦恼	ku nao	56000
+融资	rong zi	56000
+补贴	bu tie	56000
 衰退	shuai tui	56000
 见解	jian jie	56000
 视野	shi ye	56000
@@ -1700,6 +2602,7 @@ use_preset_vocabulary: false
 负载	fu zai	56000
 责怪	ze guai	56000
 质感	zhi gan	56000
+赛事	sai shi	56000
 赞赏	zan shang	56000
 赠品	zeng pin	56000
 边界	bian jie	56000
@@ -1709,11 +2612,11 @@ use_preset_vocabulary: false
 邮编	you bian	56000
 鄙视	bi shi	56000
 采纳	cai na	56000
-锁	suo	56000
 锦标赛	jin biao sai	56000
 键值	jian zhi	56000
 闭幕式	bi mu shi	56000
 问答	wen da	56000
+防晒	fang shai	56000
 阻力	zu li	56000
 阻塞	zu se	56000
 隔离	ge li	56000
@@ -1722,112 +2625,76 @@ use_preset_vocabulary: false
 首发	shou fa	56000
 高尔夫	gao er fu	56000
 高尚	gao shang	56000
-万	wan	55000
-业	ye	55000
-书	shu	55000
-事	shi	55000
-件	jian	55000
-位	wei	55000
-体	ti	55000
-作	zuo	55000
-信	xin	55000
-健	jian	55000
-入	ru	55000
-全	quan	55000
-公	gong	55000
-关	guan	55000
-写	xie	55000
-出	chu	55000
-制	zhi	55000
-办	ban	55000
-动	dong	55000
-化	hua	55000
-区	qu	55000
-印	yin	55000
-变	bian	55000
-口	kou	55000
-叶	ye	55000
-司	si	55000
-向	xiang	55000
-听	ting	55000
-品	pin	55000
-商	shang	55000
-回	hui	55000
-国	guo	55000
-图	tu	55000
-城	cheng	55000
-增	zeng	55000
-处	chu	55000
-头	tou	55000
-字	zi	55000
-学	xue	55000
-安	an	55000
-家	jia	55000
-对	dui	55000
-工	gong	55000
-市	shi	55000
-师	shi	55000
-康	kang	55000
-开	kai	55000
-形	xing	55000
-心	xin	55000
-情	qing	55000
-想	xiang	55000
-手	shou	55000
-打	da	55000
-找	zhao	55000
-报	bao	55000
-改	gai	55000
-教	jiao	55000
-新	xin	55000
-方	fang	55000
+展	zhan	55980
+卫	wei	55918
+互	hu	55856
+网	wang	55794
+服	fu	55732
+偏	pian	55670
+远	yuan	55608
+运	yun	55546
+行	xing	55484
+据	ju	55422
+中	zhong	55360
+采	cai	55298
+液	ye	55236
+技	ji	55174
+术	shu	55112
+耗	hao	55050
+休闲	xiu xian	55000
+传输	chuan shu	55000
+作者	zuo zhe	55000
+保留	bao liu	55000
+公益	gong yi	55000
+决策	jue ce	55000
+前锋	qian feng	55000
+即时	ji shi	55000
+哪怕	na pa	55000
+喷雾	pen wu	55000
+图书馆	tu shu guan	55000
+夜间	ye jian	55000
+好评	hao ping	55000
+小朋友	xiao peng you	55000
+工位	gong wei	55000
+引用	yin yong	55000
+急救	ji jiu	55000
+指针	zhi zhen	55000
+提示	ti shi	55000
 暖气	nuan qi	55000
-本	ben	55000
-机	ji	55000
-查	cha	55000
-标	biao	55000
-校	xiao	55000
-样	yang	55000
-法	fa	55000
-活	huo	55000
-游	you	55000
-理	li	55000
-眼	yan	55000
+栗子	li zi	55000
+活跃	huo yue	55000
+港口	gang kou	55000
+滤镜	lv jing	55000
+演员	yan yuan	55000
+砍价	kan jia	55000
 礼拜	li bai	55000
-站	zhan	55000
-系	xi	55000
-线	xian	55000
-网	wang	55000
-美	mei	55000
-老	lao	55000
-职	zhi	55000
-育	yu	55000
-脚	jiao	55000
-脸	lian	55000
-街	jie	55000
-见	jian	55000
-规	gui	55000
-视	shi	55000
-计	ji	55000
-讲	jiang	55000
-设	she	55000
-读	du	55000
-走	zou	55000
-起	qi	55000
-跑	pao	55000
-路	lu	55000
-身	shen	55000
-车	che	55000
-过	guo	55000
-进	jin	55000
-通	tong	55000
-道	dao	55000
-钱	qian	55000
-面	mian	55000
-飞	fei	55000
+签约	qian yue	55000
+花园	hua yuan	55000
+调休	tiao xiu	55000
+露营	lu ying	55000
+顺序	shun xu	55000
+芯	xin	54988
+造	zao	54926
+艺	yi	54864
+推	tui	54802
+辅	fu	54740
+助	zhu	54678
+诊	zhen	54616
+断	duan	54554
+入	ru	54492
+基	ji	54430
+院	yuan	54368
+教	jiao	54306
+器	qi	54244
+课	ke	54182
+堂	tang	54120
+台	tai	54058
+一下子	yi xia zi	54000
 举措	ju cuo	54000
 争执	zheng zhi	54000
 亚洲杯	ya zhou bei	54000
+传承	chuan cheng	54000
+修图	xiu tu	54000
 修订	xiu ding	54000
 倡议	chang yi	54000
 倾诉	qing su	54000
@@ -1836,15 +2703,19 @@ use_preset_vocabulary: false
 共性	gong xing	54000
 典范	dian fan	54000
 内疚	nei jiu	54000
+农民工	nong min gong	54000
+凌晨	ling chen	54000
 减排	jian pai	54000
 凝聚力	ning ju li	54000
 出众	chu zhong	54000
 出线	chu xian	54000
 分级	fen ji	54000
+剧本	ju ben	54000
 劝告	quan gao	54000
 势力	shi li	54000
 协程	xie cheng	54000
 变更	bian geng	54000
+口碑	kou bei	54000
 含糊	han hu	54000
 呵护	he hu	54000
 命题	ming ti	54000
@@ -1853,6 +2724,8 @@ use_preset_vocabulary: false
 因果	yin guo	54000
 国歌	guo ge	54000
 国际象棋	guo ji xiang qi	54000
+场所	chang suo	54000
+场馆	chang guan	54000
 埋怨	man yuan	54000
 壮丽	zhuang li	54000
 复盘	fu pan	54000
@@ -1865,15 +2738,19 @@ use_preset_vocabulary: false
 小组赛	xiao zu sai	54000
 尽兴	jin xing	54000
 崇高	chong gao	54000
+应急	ying ji	54000
 延误	yan wu	54000
 开端	kai duan	54000
 引力	yin li	54000
+彩票	cai piao	54000
+心率	xin lv	54000
 忧虑	you lv	54000
 恭喜恭喜	gong xi gong xi	54000
 惦记	dian ji	54000
 感叹	gan tan	54000
 成就感	cheng jiu gan	54000
 手感	shou gan	54000
+手续	shou xu	54000
 才艺	cai yi	54000
 投产	tou chan	54000
 报答	bao da	54000
@@ -1883,20 +2760,26 @@ use_preset_vocabulary: false
 教书	jiao shu	54000
 春节快乐	chun jie kuai le	54000
 晋升	jin sheng	54000
+晚霞	wan xia	54000
 根源	gen yuan	54000
 概况	gai kuang	54000
 模范	mo fan	54000
+潜在	qian zai	54000
 潜水	qian shui	54000
 火力	huo li	54000
 点球	dian qiu	54000
+热线	re xian	54000
 特长	te chang	54000
 犯规	fan gui	54000
 琢磨	zuo mo	54000
+画面	hua mian	54000
 疑惑	yi huo	54000
 真挚	zhen zhi	54000
 研讨	yan tao	54000
 端到端	duan dao duan	54000
 简易	jian yi	54000
+红薯	hong shu	54000
+续费	xu fei	54000
 罚球	fa qiu	54000
 美感	mei gan	54000
 翻新	fan xin	54000
@@ -1916,7 +2799,9 @@ use_preset_vocabulary: false
 车间	che jian	54000
 达标	da biao	54000
 逆转	ni zhuan	54000
+透明	tou ming	54000
 重连	chong lian	54000
+镜头	jing tou	54000
 长跑	chang pao	54000
 门槛	men kan	54000
 阵容	zhen rong	54000
@@ -1926,8 +2811,60 @@ use_preset_vocabulary: false
 默写	mo xie	54000
 默契	mo qi	54000
 鼓舞	gu wu	54000
+启	qi	53996
+配	pei	53934
+共	gong	53872
+享	xiang	53810
+宝	bao	53748
+覆	fu	53686
+盖	gai	53624
+商	shang	53562
+圈	quan	53500
+频	pin	53438
+软	ruan	53376
+件	jian	53314
+幕	mu	53252
+功	gong	53190
+块	kuai	53128
+链	lian	53066
+农	nong	53004
+书店	shu dian	53000
+众多	zhong duo	53000
+候补	hou bu	53000
+农田	nong tian	53000
+反诈	fan zha	53000
+回暖	hui nuan	53000
+桂花	gui hua	53000
+气氛	qi fen	53000
+清单	qing dan	53000
+盈利	ying li	53000
+素颜	su yan	53000
+绝大多数	jue da duo shu	53000
+肌肉	ji rou	53000
+要么	yao me	53000
+讲解	jiang jie	53000
+链路	lian lu	53000
+食堂	shi tang	53000
+产	chan	52942
+溯	su	52880
+虚	xu	52818
+拟	ni	52756
+设	she	52694
+备	bei	52632
+销	xiao	52570
+四	si	52508
+帮	bang	52446
+企	qi	52384
+业	ye	52322
+维	wei	52260
+线	xian	52198
+广	guang	52136
+泛	fan	52074
+罕	han	52012
 上报	shang bao	52000
+中间	zhong jian	52000
 举重	ju zhong	52000
+乒乓	ping pang	52000
 互斥	hu chi	52000
 交际	jiao ji	52000
 享福	xiang fu	52000
@@ -1935,7 +2872,10 @@ use_preset_vocabulary: false
 仓储	cang chu	52000
 任意球	ren yi qiu	52000
 伤病	shang bing	52000
+体会	ti hui	52000
+作家	zuo jia	52000
 作息	zuo xi	52000
+供暖	gong nuan	52000
 全县	quan xian	52000
 兴盛	xing sheng	52000
 冗余	rong yu	52000
@@ -1951,6 +2891,7 @@ use_preset_vocabulary: false
 可再生	ke zai sheng	52000
 各界	ge jie	52000
 吉祥物	ji xiang wu	52000
+向量	xiang liang	52000
 咋啦	za la	52000
 四处	si chu	52000
 回馈	hui kui	52000
@@ -1961,14 +2902,19 @@ use_preset_vocabulary: false
 坦率	tan shuai	52000
 坦诚	tan cheng	52000
 堆栈	dui zhan	52000
+备战	bei zhan	52000
 备课	bei ke	52000
 外键	wai jian	52000
+夜跑	ye pao	52000
 大满贯	da man guan	52000
 天性	tian xing	52000
+好不容易	hao bu rong yi	52000
 季军	ji jun	52000
 容错	rong cuo	52000
 宽慰	kuan wei	52000
 山河	shan he	52000
+年假	nian jia	52000
+并行	bing xing	52000
 度量	du liang	52000
 弹奏	tan zou	52000
 强项	qiang xiang	52000
@@ -1981,21 +2927,27 @@ use_preset_vocabulary: false
 才智	cai zhi	52000
 打法	da fa	52000
 扩缩容	kuo suo rong	52000
+损伤	sun shang	52000
+换季	huan ji	52000
 授课	shou ke	52000
 接纳	jie na	52000
 摊位	tan wei	52000
+改编	gai bian	52000
 整除	zheng chu	52000
+文旅	wen lv	52000
 斗志	dou zhi	52000
 无知	wu zhi	52000
 朗诵	lang song	52000
 本性	ben xing	52000
 本领	ben ling	52000
 柔道	rou dao	52000
+检索	jian suo	52000
 棒球	bang qiu	52000
 武力	wu li	52000
 死锁	si suo	52000
 毁坏	hui huai	52000
 毅力	yi li	52000
+民宿	min su	52000
 江山	jiang shan	52000
 法则	fa ze	52000
 清闲	qing xian	52000
@@ -2004,12 +2956,15 @@ use_preset_vocabulary: false
 狠心	hen xin	52000
 生态圈	sheng tai quan	52000
 生机	sheng ji	52000
+白领	bai ling	52000
 直率	zhi shuai	52000
 眼力	yan li	52000
+短袖	duan xiu	52000
 短连接	duan lian jie	52000
 秀美	xiu mei	52000
 空想	kong xiang	52000
 竣工	jun gong	52000
+简化	jian hua	52000
 繁琐	fan suo	52000
 缘故	yuan gu	52000
 美学	mei xue	52000
@@ -2017,72 +2972,98 @@ use_preset_vocabulary: false
 脚手架	jiao shou jia	52000
 舒坦	shu tan	52000
 落成	luo cheng	52000
+蓝屏	lan ping	52000
 虚伪	xu wei	52000
 补水	bu shui	52000
 表头	biao tou	52000
 衰落	shuai luo	52000
 言论	yan lun	52000
 记性	ji xing	52000
+讲述	jiang shu	52000
 词法	ci fa	52000
 起伏	qi fu	52000
 超前	chao qian	52000
 超额	chao e	52000
 轻视	qing shi	52000
+过度	guo du	52000
+遛狗	liu gou	52000
 里程碑	li cheng bei	52000
 镇静	zhen jing	52000
 雕塑	diao su	52000
 非阻塞	fei zu se	52000
 风采	feng cai	52000
 飞速	fei su	52000
+骚扰	sao rao	52000
+探	tan	51950
+传	chuan	51888
+底	di	51826
+气	qi	51764
+提	ti	51702
+供	gong	51640
+精	jing	51578
+预	yu	51516
+让	rang	51454
+患	huan	51392
+念	nian	51330
+编	bian	51268
+辑	ji	51206
+遗	yi	51144
+治	zhi	51082
+疗	liao	51020
+不得了	bu de liao	51000
+京剧	jing ju	51000
+以便	yi bian	51000
+墨镜	mo jing	51000
+多肉	duo rou	51000
+学员	xue yuan	51000
+手环	shou huan	51000
+拆分	chai fen	51000
+社恐	she kong	51000
+聚合	ju he	51000
+衣柜	yi gui	51000
+讲究	jiang jiu	51000
+趣味	qu wei	51000
+返现	fan xian	51000
+追踪	zhui zong	51000
+门将	men jiang	51000
+希	xi	50958
+跨	kua	50896
+境	jing	50834
+翻	fan	50772
+译	yi	50710
+表	biao	50648
+压	ya	50586
+监	jian	50524
+池	chi	50462
+社	she	50400
+协	xie	50338
+作	zuo	50276
+修	xiu	50214
+复	fu	50152
+漏	lou	50090
+洞	dong	50028
 万里	wan li	50000
+上限	shang xian	50000
 东道主	dong dao zhu	50000
 举止	ju zhi	50000
-代	dai	50000
+书房	shu fang	50000
 代表团	dai biao tuan	50000
 仪式感	yi shi gan	50000
-休	xiu	50000
 传播力	chuan bo li	50000
-伤	shang	50000
 假象	jia xiang	50000
-停	ting	50000
-元	yuan	50000
-养	yang	50000
-况	kuang	50000
-准	zhun	50000
 出界	chu jie	50000
 击剑	ji jian	50000
-分	fen	50000
-切	qie	50000
-划	hua	50000
-则	ze	50000
 剖析	pou xi	50000
 功效	gong xiao	50000
 动工	dong gong	50000
-千	qian	50000
-升	sheng	50000
 单步	dan bu	50000
 卫冕	wei mian	50000
-厂	chang	50000
-县	xian	50000
-双	shuang	50000
 双打	shuang da	50000
-发	fa	50000
-句	ju	50000
 可见性	ke jian xing	50000
-台	tai	50000
 台球	tai qiu	50000
-号	hao	50000
 号召力	hao zhao li	50000
-名	ming	50000
-员	yuan	50000
-唱	chang	50000
-嘴	zui	50000
 回绝	hui jue	50000
-场	chang	50000
-坏	huai	50000
-块	kuai	50000
 士气	shi qi	50000
-复	fu	50000
 大屏	da ping	50000
 天涯	tian ya	50000
 奇异	qi yi	50000
@@ -2090,129 +3071,118 @@ use_preset_vocabulary: false
 安居乐业	an ju le ye	50000
 定律	ding lv	50000
 定理	ding li	50000
-室	shi	50000
 射箭	she jian	50000
-层	ceng	50000
-屋	wu	50000
-屏	ping	50000
 帆船	fan chuan	50000
-幕	mu	50000
-店	dian	50000
-度	du	50000
-式	shi	50000
-张	zhang	50000
+座椅	zuo yi	50000
 弱项	ruo xiang	50000
 归属感	gui shu gan	50000
-往	wang	50000
-态	tai	50000
-息	xi	50000
+恨不得	hen bu de	50000
 情趣	qing qu	50000
-房	fang	50000
-所	suo	50000
 技艺	ji yi	50000
 挂念	gua nian	50000
-换	huan	50000
-排	pai	50000
 排期	pai qi	50000
 推卸	tui xie	50000
 推论	tui lun	50000
 推辞	tui ci	50000
-搜	sou	50000
 摔跤	shuai jiao	50000
-救	jiu	50000
-整	zheng	50000
 敷衍	fu yan	50000
 新婚快乐	xin hun kuai le	50000
-旧	jiu	50000
-替	ti	50000
-村	cun	50000
-条	tiao	50000
+智能体	zhi neng ti	50000
 样板	yang ban	50000
-根	gen	50000
-案	an	50000
-梦	meng	50000
-楼	lou	50000
 概要	gai yao	50000
 概览	gai lan	50000
-模	mo	50000
-次	ci	50000
 欣欣向荣	xin xin xiang rong	50000
-死	si	50000
-段	duan	50000
-毛	mao	50000
-治	zhi	50000
-添	tian	50000
+汉服	han fu	50000
+流水	liu shui	50000
 温习	wen xi	50000
-点	dian	50000
-牙	ya	50000
+源头	yuan tou	50000
 牢骚	lao sao	50000
+狗子	gou zi	50000
+献血	xian xue	50000
+球衣	qiu yi	50000
 理疗	li liao	50000
 生疏	sheng shu	50000
-画	hua	50000
-病	bing	50000
-痛	tong	50000
-百	bai	50000
-皮	pi	50000
-盘	pan	50000
-相	xiang	50000
-睛	jing	50000
-睡	shui	50000
-硬	ying	50000
+相声	xiang sheng	50000
+破防	po fang	50000
 磁力	ci li	50000
 社团	she tuan	50000
 神州	shen zhou	50000
-票	piao	50000
-种	zhong	50000
 稳当	wen dang	50000
-笔	bi	50000
 笨拙	ben zhuo	50000
-类	lei	50000
 精炼	jing lian	50000
-索	suo	50000
-累	lei	50000
 繁荣昌盛	fan rong chang sheng	50000
 红牌	hong pai	50000
-纸	zhi	50000
-组	zu	50000
+纸箱	zhi xiang	50000
 绝杀	jue sha	50000
-统	tong	50000
-置	zhi	50000
-耳	er	50000
-肉	rou	50000
-背	bei	50000
-脑	nao	50000
-腿	tui	50000
-舞	wu	50000
-节	jie	50000
+耐力	nai li	50000
+花露水	hua lu shui	50000
 获得感	huo de gan	50000
-落	luo	50000
 落败	luo bai	50000
 蒸蒸日上	zheng zheng ri shang	50000
-觉	jue	50000
+蝉鸣	chan ming	50000
 角球	jiao qiu	50000
-诚	cheng	50000
-调	tiao	50000
-谈	tan	50000
+话剧	hua ju	50000
 谢绝	xie jue	50000
 越位	yue wei	50000
-跳	tiao	50000
-软	ruan	50000
+过渡	guo du	50000
+追评	zhui ping	50000
 邀请赛	yao qing sai	50000
-邮	you	50000
-部	bu	50000
-醒	xing	50000
-键	jian	50000
 门类	men lei	50000
 阵地	zhen di	50000
-页	ye	50000
+静态	jing tai	50000
 预选赛	yu xuan sai	50000
 领奖台	ling jiang tai	50000
 风度	feng du	50000
-骨	gu	50000
 魄力	po li	50000
 黄牌	huang pai	50000
-鼻	bi	50000
+厘	li	49966
+识	shi	49904
+确	que	49842
+九	jiu	49780
+十	shi	49718
+八	ba	49656
+完	wan	49594
+轨	gui	49532
+居	ju	49470
+活	huo	49408
+桩	zhuang	49346
+专	zhuan	49284
+号	hao	49222
+印	yin	49160
+缩	suo	49098
+短	duan	49036
+丰收	feng shou	49000
+呐喊	na han	49000
+国风	guo feng	49000
+应届	ying jie	49000
+弱点	ruo dian	49000
+扩散	kuo san	49000
+曲目	qu mu	49000
+私教	si jiao	49000
+纪录片	ji lu pian	49000
+脱口秀	tuo kou xiu	49000
+贴近	tie jin	49000
+酸痛	suan tong	49000
+铲屎官	chan shi guan	49000
+非遗	fei yi	49000
+零	ling	48974
+期	qi	48912
+络	luo	48850
+丁	ding	48788
+库	ku	48726
+力	li	48664
+交	jiao	48602
+通	tong	48540
+拥	yong	48478
+堵	du	48416
+穿	chuan	48354
+戴	dai	48292
+眠	mian	48230
+护	hu	48168
+照	zhao	48106
+至	zhi	48044
 产线	chan xian	48000
+以免	yi mian	48000
 保活	bao huo	48000
 全镇	quan zhen	48000
 兴衰	xing shuai	48000
@@ -2225,6 +3195,8 @@ use_preset_vocabulary: false
 友谊赛	you yi sai	48000
 反超	fan chao	48000
 取余	qu yu	48000
+古镇	gu zhen	48000
+台词	tai ci	48000
 后盾	hou dun	48000
 哲理	zhe li	48000
 商业圈	shang ye quan	48000
@@ -2233,50 +3205,126 @@ use_preset_vocabulary: false
 复苏	fu su	48000
 存在感	cun zai gan	48000
 学业有成	xue ye you cheng	48000
+对准	dui zhun	48000
+开营	kai ying	48000
 快攻	kuai gong	48000
 悔恨	hui hen	48000
 憋屈	bie qu	48000
+手艺	shou yi	48000
 扫兴	sao xing	48000
+押金	ya jin	48000
 排位赛	pai wei sai	48000
 排障	pai zhang	48000
 推脱	tui tuo	48000
+方言	fang yan	48000
 校队	xiao dui	48000
 棋牌	qi pai	48000
 橄榄球	gan lan qiu	48000
 步步高升	bu bu gao sheng	48000
+段子	duan zi	48000
 气场	qi chang	48000
+焕发	huan fa	48000
 犯愁	fan chou	48000
+猫主子	mao zhu zi	48000
 畸形	ji xing	48000
 白头偕老	bai tou xie lao	48000
 百年好合	bai nian hao he	48000
 笼统	long tong	48000
 精练	jing lian	48000
+糖炒	tang chao	48000
 节奏感	jie zou gan	48000
 衰败	shuai bai	48000
 观感	guan gan	48000
+解压	jie ya	48000
 言谈	yan tan	48000
 认同感	ren tong gan	48000
+诗歌	shi ge	48000
 遭罪	zao zui	48000
+钉子	ding zi	48000
+降级	jiang ji	48000
+限流	xian liu	48000
 陪练	pei lian	48000
+龙舟	long zhou	48000
+难	nan	47982
+阳	yang	47920
+创	chuang	47858
+历	li	47796
+史	shi	47734
+吊	diao	47672
+顺	shun	47610
+淡	dan	47548
+解	jie	47486
+岛	dao	47424
+铁	tie	47362
+砟	zha	47300
+道	dao	47238
+播	bo	47176
+割	ge	47114
+觉	jue	47052
+专栏	zhuan lan	47000
+借阅	jie yue	47000
+剪纸	jian zhi	47000
+名家	ming jia	47000
+埋点	mai dian	47000
+夜场	ye chang	47000
+市集	shi ji	47000
+归还	gui huan	47000
+民乐	min yue	47000
+民歌	min ge	47000
+水墨	shui mo	47000
+流派	liu pai	47000
+线性	xian xing	47000
+绿萝	lv luo	47000
+肢体	zhi ti	47000
+轮换	lun huan	47000
+盲	mang	46990
+票	piao	46928
+博	bo	46866
+沉	chen	46804
+浸	jin	46742
+售	shou	46680
+普	pu	46618
+少	shao	46556
+欢	huan	46494
+消	xiao	46432
+绩	ji	46370
+银	yin	46308
+调	diao	46246
+款	kuan	46184
+涨	zhang	46122
+易	yi	46060
 丰衣足食	feng yi zu shi	46000
+传染	chuan ran	46000
 僵局	jiang ju	46000
 全村	quan cun	46000
 八方	ba fang	46000
+博览	bo lan	46000
 叨扰	dao rao	46000
+唱腔	chang qiang	46000
+四件套	si jian tao	46000
 四分之一决赛	si fen zhi yi jue sai	46000
 四海	si hai	46000
 学有所成	xue you suo cheng	46000
+工坊	gong fang	46000
+工序	gong xu	46000
 循环赛	xun huan sai	46000
 抢占	qiang zhan	46000
 提纲	ti gang	46000
+插花	cha hua	46000
 故土	gu tu	46000
 更上一层楼	geng shang yi ceng lou	46000
+木雕	mu diao	46000
+杂技	za ji	46000
 气魄	qi po	46000
+热议	re yi	46000
 热身赛	re shen sai	46000
+熔断	rong duan	46000
 特训	te xun	46000
 症结	zheng jie	46000
+皮影	pi ying	46000
 省队	sheng dui	46000
 破局	po ju	46000
+窃听	qie ting	46000
 竞态	jing tai	46000
 纲要	gang yao	46000
 脚感	jiao gan	46000
@@ -2286,72 +3334,52 @@ use_preset_vocabulary: false
 金榜题名	jin bang ti ming	46000
 铅球	qian qiu	46000
 风调雨顺	feng tiao yu shun	46000
-丽	li	45000
-乡	xiang	45000
-乱	luan	45000
-亿	yi	45000
-份	fen	45000
-优	you	45000
-净	jing	45000
-删	shan	45000
-只	zhi	45000
-困	kun	45000
-圈	quan	45000
-型	xing	45000
-域	yu	45000
-套	tao	45000
-始	shi	45000
-封	feng	45000
-尾	wei	45000
-干	gan	45000
-弱	ruo	45000
-批	pi	45000
-旗	qi	45000
-朝	chao	45000
-板	ban	45000
-泪	lei	45000
-泳	yong	45000
-港	gang	45000
-湿	shi	45000
-片	pian	45000
-牌	pai	45000
-状	zhuang	45000
-疗	liao	45000
-疼	teng	45000
-疾	ji	45000
-盖	gai	45000
-省	sheng	45000
-眉	mei	45000
-破	po	45000
-签	qian	45000
-篇	pian	45000
-终	zhong	45000
-群	qun	45000
-胃	wei	45000
-脏	zang	45000
-腰	yao	45000
-舌	she	45000
-船	chuan	45000
-血	xue	45000
-觉	jiao	45000
-词	ci	45000
-辆	liang	45000
-退	tui	45000
-铺	pu	45000
-镇	zhen	45000
-闻	wen	45000
-降	jiang	45000
-零	ling	45000
-青	qing	45000
-静	jing	45000
-饱	bao	45000
-饿	e	45000
-香	xiang	45000
-驾	jia	45000
-骑	qi	45000
-麻	ma	45000
-鼠	shu	45000
-齐	qi	45000
+纪	ji	45998
+购	gou	45936
+经	jing	45874
+指	zhi	45812
+界	jie	45750
+餐	can	45688
+饮	yin	45626
+头	tou	45564
+济	ji	45502
+激	ji	45440
+惠	hui	45378
+障	zhang	45316
+租	zu	45254
+赁	lin	45192
+住	zhu	45130
+建	jian	45068
+校	xiao	45006
+专场	zhuan chang	45000
+佳作	jia zuo	45000
+凭证	ping zheng	45000
+口述	kou shu	45000
+手作	shou zuo	45000
+空指针	kong zhi zhen	45000
+签售	qian shou	45000
+舞剧	wu ju	45000
+茶道	cha dao	45000
+追捧	zhui peng	45000
+采风	cai feng	45000
+钩子	gou zi	45000
+陶艺	tao yi	45000
+毕	bi	44944
+势	shi	44882
+稳	wen	44820
+训	xun	44758
+劳	lao	44696
+旅	lv	44634
+游	you	44572
+步	bu	44510
+特	te	44448
+色	se	44386
+插	cha	44324
+翅	chi	44262
+膀	bang	44200
+域	yuan	44138
+效	xiao	44076
+港	gang	44014
 一心一意	yi xin yi yi	44000
 五湖	wu hu	44000
 保龄球	bao ling qiu	44000
@@ -2380,12 +3408,51 @@ use_preset_vocabulary: false
 胆识	dan shi	44000
 脚踏实地	jiao ta shi di	44000
 萧条	xiao tiao	44000
+藏品	cang pin	44000
 螺旋	luo xuan	44000
 赐教	ci jiao	44000
 跨栏	kua lan	44000
 逆商	ni shang	44000
+造纸	zao zhi	44000
+静心	jing xin	44000
 顾全大局	gu quan da ju	44000
 马到成功	ma dao cheng gong	44000
+贸	mao	43952
+集	ji	43890
+箱	xiang	43828
+吞	tu	43766
+吐	tun	43704
+融	rong	43642
+题	ti	43580
+摊	tan	43518
+岗	gang	43456
+持	chi	43394
+旺	wang	43332
+暑	shu	43270
+档	dang	43208
+佳	jia	43146
+爆	bao	43084
+乳	ru	43022
+养性	yang xing	43000
+售罄	shou qing	43000
+布隆	bu long	43000
+扎染	za ran	43000
+构	gou	42960
+鲜	xian	42898
+递	di	42836
+柜	gui	42774
+牌	pai	42712
+赢	ying	42650
+轻	qing	42588
+睐	lai	42526
+扩	kuo	42464
+订	ding	42402
+掀	xian	42340
+骑	qi	42278
+招	zhao	42216
+聘	pin	42154
+付	fu	42092
+食	shi	42030
 一举成名	yi ju cheng ming	42000
 一路顺风	yi lu shun feng	42000
 一鸣惊人	yi ming jing ren	42000
@@ -2407,6 +3474,7 @@ use_preset_vocabulary: false
 大展宏图	da zhan hong tu	42000
 对攻	dui gong	42000
 开开心心	kai kai xin xin	42000
+弱口令	ruo kou ling	42000
 快快乐乐	kuai kuai le le	42000
 战平	zhan ping	42000
 才华出众	cai hua chu zhong	42000
@@ -2417,6 +3485,7 @@ use_preset_vocabulary: false
 标枪	biao qiang	42000
 深入人心	shen ru ren xin	42000
 深谋远虑	shen mou yuan lv	42000
+漆器	qi qi	42000
 状态感	zhuang tai gan	42000
 理所当然	li suo dang ran	42000
 皮划艇	pi hua ting	42000
@@ -2425,6 +3494,7 @@ use_preset_vocabulary: false
 红红火火	hong hong huo huo	42000
 胸有成竹	xiong you cheng zhu	42000
 自由自在	zi you zi zai	42000
+蒸馏	zheng liu	42000
 见义勇为	jian yi yong wei	42000
 诚心诚意	cheng xin cheng yi	42000
 赛艇	sai ting	42000
@@ -2432,27 +3502,55 @@ use_preset_vocabulary: false
 锦上添花	jin shang tian hua	42000
 雄心壮志	xiong xin zhuang zhi	42000
 顺顺利利	shun shun li li	42000
+香道	xiang dao	42000
 高瞻远瞩	gao zhan yuan zhu	42000
 高高兴兴	gao gao xing xing	42000
 鹏程万里	peng cheng wan li	42000
+决	jue	41968
+蔬	shu	41906
+落	luo	41844
+足	zu	41782
+夏	xia	41720
+粮	liang	41658
+标	biao	41596
+撑	cheng	41534
+伞	san	41472
+洁	jie	41410
+项	xiang	41348
+碳	tan	41286
+跃	yue	41224
+逐	zhu	41162
+贴	tie	41100
+拉	la	41038
+宿	su	40976
+规	gui	40914
+范	fan	40852
+单	dan	40790
+日	ri	40728
+约	yue	40666
+优	you	40604
+司	si	40542
+冬	dong	40480
+绪	xu	40418
+梯	ti	40356
+征	zheng	40294
+延	yan	40232
+签	qian	40170
+输	shu	40108
+追	zhui	40046
 一丝不苟	yi si bu gou	40000
 一如既往	yi ru ji wang	40000
 一日千里	yi ri qian li	40000
 三心二意	san xin er yi	40000
 专心致志	zhuan xin zhi zhi	40000
-串	chuan	40000
-乏	fa	40000
-乳	ru	40000
 五彩缤纷	wu cai bin fen	40000
 五花八门	wu hua ba men	40000
 五颜六色	wu yan liu se	40000
-亡	wang	40000
 人山人海	ren shan ren hai	40000
 任劳任怨	ren lao ren yuan	40000
 兢兢业业	jing jing ye ye	40000
 全力以赴	quan li yi fu	40000
 全神贯注	quan shen guan zhu	40000
-剪	jian	40000
 勤勤恳恳	qin qin ken ken	40000
 千变万化	qian bian wan hua	40000
 压哨	ya shao	40000
@@ -2460,9 +3558,6 @@ use_preset_vocabulary: false
 吉祥如意	ji xiang ru yi	40000
 咫尺	zhi chi	40000
 喜气洋洋	xi qi yang yang	40000
-墨	mo	40000
-壮	zhuang	40000
-壳	ke	40000
 多种多样	duo zhong duo yang	40000
 大吉大利	da ji da li	40000
 天经地义	tian jing di yi	40000
@@ -2472,9 +3567,6 @@ use_preset_vocabulary: false
 家喻户晓	jia yu hu xiao	40000
 小心谨慎	xiao xin jin shen	40000
 岁岁平安	sui sui ping an	40000
-州	zhou	40000
-差	cha	40000
-币	bi	40000
 干干净净	gan gan jing jing	40000
 应有尽有	ying you jin you	40000
 形形色色	xing xing se se	40000
@@ -2488,62 +3580,71 @@ use_preset_vocabulary: false
 旗开得胜	qi kai de sheng	40000
 无拘无束	wu ju wu shu	40000
 明明白白	ming ming bai bai	40000
-枝	zhi	40000
-架	jia	40000
 欢天喜地	huan tian xi di	40000
-止	zhi	40000
-残	can	40000
 毋庸置疑	wu yong zhi yi	40000
-汁	zhi	40000
-汗	han	40000
-沉	chen	40000
-润	run	40000
-涨	zhang	40000
-液	ye	40000
 清清楚楚	qing qing chu chu	40000
-渴	ke	40000
-潮	chao	40000
 热热闹闹	re re nao nao	40000
 焕然一新	huan ran yi xin	40000
 生龙活虎	sheng long huo hu	40000
-症	zheng	40000
+的	di	40000
 神机妙算	shen ji miao suan	40000
 突飞猛进	tu fei meng jin	40000
-章	zhang	40000
 竭尽全力	jie jin quan li	40000
-粒	li	40000
-粘	zhan	40000
-缺	que	40000
 翻天覆地	fan tian fu di	40000
 聚精会神	ju jing hui shen	40000
-肚	du	40000
-肝	gan	40000
-肠	chang	40000
-肤	fu	40000
-肩	jian	40000
-肺	fei	40000
-肿	zhong	40000
-胸	xiong	40000
-脉	mai	40000
 脍炙人口	kuai zhi ren kou	40000
-腹	fu	40000
-膝	xi	40000
 舍己为人	she ji wei ren	40000
-衰	shuai	40000
-角	jiao	40000
 认认真真	ren ren zhen zhen	40000
-贴	tie	40000
-酸	suan	40000
-醉	zui	40000
 铁饼	tie bing	40000
 锲而不舍	qie er bu she	40000
 雄心勃勃	xiong xin bo bo	40000
 雪中送炭	xue zhong song tan	40000
 青出于蓝	qing chu yu lan	40000
-颗	ke	40000
 飞黄腾达	fei huang teng da	40000
-饥	ji	40000
 龙腾虎跃	long teng hu yue	40000
+镜	jing	39984
+二	er	39922
+了	liao	39900
+畅	chang	39860
+管	guan	39798
+冒	mao	39736
+滴	di	39674
+袋	dai	39612
+说	shui	39603
+遍	bian	39550
+地	di	39504
+环	huan	39488
+着	zhuo	39429
+着	zhao	39429
+垃	la	39426
+圾	ji	39364
+旁	pang	39302
+碍	ai	39240
+施	shi	39178
+得	dei	39156
+都	du	39132
+座	zuo	39116
+养	yang	39054
+驿	yi	38992
+会	kuai	38983
+失	shi	38930
+透	tou	38868
+津	jin	38806
+幅	fu	38744
+简	jian	38682
+摇	yao	38620
+积	ji	38558
+掌	zhang	38496
+办	ban	38434
+长	zhang	38412
+捷	jie	38372
+种	chong	38313
+均	jun	38310
+救	jiu	38248
+颤	chan	38186
+还	huan	38140
+所	suo	38124
+献	xian	38062
 一应俱全	yi ying ju quan	38000
 万事大吉	wan shi da ji	38000
 不遗余力	bu yi yu li	38000
@@ -2566,6 +3667,7 @@ use_preset_vocabulary: false
 安安稳稳	an an wen wen	38000
 家家户户	jia jia hu hu	38000
 尽心尽力	jin xin jin li	38000
+屋	wu	38000
 心不在焉	xin bu zai yan	38000
 心花怒放	xin hua nu fang	38000
 怡然自得	yi ran zi de	38000
@@ -2602,6 +3704,38 @@ use_preset_vocabulary: false
 面目一新	mian mu yi xin	38000
 顺理成章	shun li cheng zhang	38000
 马马虎虎	ma ma hu hu	38000
+亮	liang	37938
+相	xiang	37876
+抽	chou	37814
+厨	chu	37752
+灶	zao	37690
+焕	huan	37628
+碎	sui	37566
+厂	chang	37504
+变	bian	37442
+健	jian	37380
+际	ji	37318
+霞	xia	37256
+迷	mi	37194
+候	hou	37132
+栖	qi	37070
+栽	zai	37008
+植	zhi	36946
+赏	shang	36884
+岸	an	36822
+再	zai	36760
+兑	dui	36698
+废	fei	36636
+填	tian	36574
+埋	mai	36512
+迁	qian	36450
+徙	xi	36388
+具	ju	36326
+怀	huai	36264
+角	jiao	36202
+休	xiu	36140
+处	chu	36078
+篮	lan	36016
 上上下下	shang shang xia xia	36000
 争分夺秒	zheng fen duo miao	36000
 偷偷摸摸	tou tou mo mo	36000
@@ -2651,24 +3785,41 @@ use_preset_vocabulary: false
 雅俗共赏	ya su gong shang	36000
 鬼鬼祟祟	gui gui sui sui	36000
 鸦雀无声	ya que wu sheng	36000
-丑	chou	35000
-册	ce	35000
-匹	pi	35000
-堆	dui	35000
-差	chai	35000
-幼	you	35000
-府	fu	35000
-核	he	35000
-浮	fu	35000
-痒	yang	35000
-种	chong	35000
-肌	ji	35000
-肢	zhi	35000
-肾	shen	35000
-胀	zhang	35000
-臭	chou	35000
-跌	die	35000
-颈	jing	35000
+赛	sai	35954
+战	zhan	35892
+胜	sheng	35830
+给	ji	35784
+首	shou	35768
+轮	lun	35706
+松	song	35644
+泳	yong	35582
+乒	ping	35520
+乓	pang	35458
+球	qiu	35396
+混	hun	35334
+晋	jin	35272
+羽	yu	35210
+毛	mao	35148
+席	xi	35086
+员	yuan	35024
+店	dui	34965
+伤	shang	34962
+阵	zhen	34900
+秀	xiu	34838
+练	lian	34776
+奥	ao	34714
+向	xiang	34652
+巷	hang	34643
+滑	hua	34590
+宠	chong	34528
+攀	pan	34466
+岩	yan	34404
+竞	jing	34342
+亚	ya	34280
+围	wei	34218
+吸	xi	34156
+注	zhu	34094
+杭	hang	34032
 万籁俱寂	wan lai ju ji	34000
 前功尽弃	qian gong jin qi	34000
 功亏一篑	gong kui yi kui	34000
@@ -2698,6 +3849,40 @@ use_preset_vocabulary: false
 震耳欲聋	zhen er yu long	34000
 顺水推舟	shun shui tui zhou	34000
 龙凤呈祥	long feng cheng xiang	34000
+州	zhou	33970
+举	ju	33908
+斯	si	33846
+诺	nuo	33784
+克	ke	33722
+杆	gan	33660
+私	si	33598
+舟	zhou	33536
+擂	lei	33474
+鼓	gu	33412
+桨	jiang	33350
+争	zheng	33288
+乐	yue	33229
+拳	quan	33226
+置	zhi	33164
+刻	ke	33102
+丰	feng	33040
+富	fu	32978
+固	gu	32916
+呐	na	32854
+神	shen	32792
+扑	pu	32730
+锁	suo	32668
+局	ju	32606
+署	shu	32544
+锋	feng	32482
+踝	huai	32420
+转	zhuan	32358
+冠	guan	32296
+军	jun	32234
+记	ji	32172
+血	xie	32113
+损	sun	32110
+伸	shen	32048
 一败涂地	yi bai tu di	32000
 两面三刀	liang mian san dao	32000
 口蜜腹剑	kou mi fu jian	32000
@@ -2722,1378 +3907,391 @@ use_preset_vocabulary: false
 风尘仆仆	feng chen pu pu	32000
 风餐露宿	feng can lu su	32000
 马不停蹄	ma bu ting ti	32000
+肌	ji	31986
+原	yuan	31924
+耐	nai	31862
+益	yi	31800
+衣	yi	31738
+氛	fen	31676
+烈	lie	31614
+适	shi	31552
+获	huo	31490
+坊	fang	31428
+木	mu	31366
+雕	diao	31304
+承	cheng	31242
+剪	jian	31180
+呈	cheng	31118
+呼	hu	31056
+瘾	yin	30994
+徒	tu	30932
+派	pai	30870
+腔	qiang	30808
+奏	zou	30746
+典	dian	30684
+话	hua	30622
+系	ji	30576
+版	ban	30560
+讨	tao	30498
+肢	zhi	30436
+谁	shei	30377
+故	gu	30374
+领	ling	30312
+独	du	30250
+没	mo	30204
+立	li	30188
+曾	zeng	30179
+靠	kao	30126
+亿	yi	30064
+汉	han	30002
 一走了之	yi zou liao zhi	30000
 一路福星	yi lu fu xing	30000
-劣	lie	30000
-厘	li	30000
-喉	hou	30000
 妥妥帖帖	tuo tuo tie tie	30000
-巷	xiang	30000
-帖	tie	30000
 日夜兼程	ri ye jian cheng	30000
-柄	bing	30000
-毫	hao	30000
 溃不成军	kui bu cheng jun	30000
 漂洋过海	piao yang guo hai	30000
-瓣	ban	30000
-瘾	yin	30000
-筋	jin	30000
-臀	tun	30000
-艘	sou	30000
-角	jue	30000
 阳奉阴违	yang feng yin wei	30000
-革	ge	30000
-髓	sui	30000
+塑	su	29940
+弹	tan	29931
+筑	zhu	29878
+慧	hui	29816
+古	gu	29754
+坚	jian	29692
+朗	lang	29630
+诵	song	29568
+栏	lan	29506
+篇	pian	29444
+押	ya	29382
+烊	yang	29320
+碑	bei	29258
+漫	man	29196
+薄	bao	29162
+崛	jue	29134
+擎	qing	29072
+真	zhen	29010
+杀	sha	28948
+脱	tuo	28886
+近	jin	28824
+逗	dou	28762
+仰	yang	28700
+捧	peng	28638
+罄	qing	28576
+陶	tao	28514
+坯	pi	28452
+染	ran	28390
+颜	yan	28328
+渡	du	28266
+究	jiu	28204
+差	chai	28145
+漆	qi	28142
+序	xu	28080
+榫	sun	28018
 周周到道	zhou zhou dao dao	28000
 屡战屡败	lv zhan lv bai	28000
 皮笑肉不笑	pi xiao rou bu xiao	28000
 稳稳重重	wen wen chong chong	28000
 胁肩谄笑	xie jian chan xiao	28000
 远渡重洋	yuan du chong yang	28000
-梢	shao	25000
-义	yi	24000
-取	qu	24000
-太	tai	24000
-定	ding	24000
-平	ping	24000
-成	cheng	24000
-明	ming	24000
-民	min	24000
-气	qi	24000
-电	dian	24000
-行	xing	24000
-金	jin	24000
-买	mai	22000
-付	fu	22000
-价	jia	22000
-任	ren	22000
-低	di	22000
-例	li	22000
-保	bao	22000
-修	xiu	22000
-值	zhi	22000
-免	mian	22000
-决	jue	22000
-加	jia	22000
-务	wu	22000
-医	yi	22000
-半	ban	22000
-单	dan	22000
-卖	mai	22000
-原	yuan	22000
-反	fan	22000
-合	he	22000
-告	gao	22000
-售	shou	22000
-土	tu	22000
-坐	zuo	22000
-存	cun	22000
-完	wan	22000
-带	dai	22000
-建	jian	22000
-律	lv	22000
-微	wei	22000
-快	kuai	22000
-急	ji	22000
-慢	man	22000
-护	hu	22000
-按	an	22000
-据	ju	22000
-支	zhi	22000
-收	shou	22000
-数	shu	22000
-早	zao	22000
-易	yi	22000
-晚	wan	22000
-权	quan	22000
-正	zheng	22000
-油	you	22000
-深	shen	22000
-清	qing	22000
-源	yuan	22000
-满	man	22000
-热	re	22000
-照	zhao	22000
-白	bai	22000
-短	duan	22000
-石	shi	22000
-稳	wen	22000
-空	kong	22000
-立	li	22000
-简	jian	22000
-管	guan	22000
-精	jing	22000
-紧	jin	22000
-细	xi	22000
-药	yao	22000
-负	fu	22000
-责	ze	22000
-质	zhi	22000
-购	gou	22000
-费	fei	22000
-近	jin	22000
-远	yuan	22000
-连	lian	22000
-量	liang	22000
-银	yin	22000
-销	xiao	22000
-长	chang	22000
-阳	yang	22000
-靠	kao	22000
-项	xiang	22000
-领	ling	22000
-高	gao	22000
-余	yu	20000
-依	yi	20000
-借	jie	20000
-减	jian	20000
-刚	gang	20000
-卫	wei	20000
-危	wei	20000
-厚	hou	20000
-固	gu	20000
-均	jun	20000
-够	gou	20000
-失	shi	20000
-奇	qi	20000
-奖	jiang	20000
-守	shou	20000
-容	rong	20000
-宽	kuan	20000
-密	mi	20000
-尽	jin	20000
-巧	qiao	20000
-引	yin	20000
-强	qiang	20000
-户	hu	20000
-扫	sao	20000
-捷	jie	20000
-控	kong	20000
-擦	ca	20000
-敏	min	20000
-断	duan	20000
-杂	za	20000
-松	song	20000
-格	ge	20000
-款	kuan	20000
-毒	du	20000
-沙	sha	20000
-波	bo	20000
-洗	xi	20000
-浅	qian	20000
-灵	ling	20000
-爬	pa	20000
-痰	tan	20000
-益	yi	20000
-盐	yan	20000
-直	zhi	20000
-碰	peng	20000
-示	shi	20000
-离	li	20000
-租	zu	20000
-税	shui	20000
-糖	tang	20000
-纯	chun	20000
-续	xu	20000
-腑	fu	20000
-蕊	rui	20000
-补	bu	20000
-证	zheng	20000
-诉	su	20000
-赚	zhuan	20000
-赢	ying	20000
-赶	gan	20000
-超	chao	20000
-越	yue	20000
-足	zu	20000
-跟	gen	20000
-输	shu	20000
-迟	chi	20000
-追	zhui	20000
-逃	tao	20000
-速	su	20000
-造	zao	20000
-钢	gang	20000
-铁	tie	20000
-防	fang	20000
-除	chu	20000
-险	xian	20000
-随	sui	20000
-顺	shun	20000
-验	yan	20000
-亏	kui	18000
-侧	ce	18000
-倍	bei	18000
-充	chong	18000
-凭	ping	18000
-判	pan	18000
-察	cha	18000
-导	dao	18000
-废	fei	18000
-惠	hui	18000
-扣	kou	18000
-执	zhi	18000
-折	zhe	18000
-摸	mo	18000
-撞	zhuang	18000
-散	san	18000
-柔	rou	18000
-楚	chu	18000
-毁	hui	18000
-汇	hui	18000
-泥	ni	18000
-混	hun	18000
-滑	hua	18000
-灰	hui	18000
-煤	mei	18000
-献	xian	18000
-盈	ying	18000
-监	jian	18000
-督	du	18000
-矿	kuang	18000
-碎	sui	18000
-积	ji	18000
-综	zong	18000
-罚	fa	18000
-详	xiang	18000
-败	bai	18000
-账	zhang	18000
-赔	pei	18000
-铜	tong	18000
-陪	pei	18000
-额	e	18000
-鲜	xian	18000
-乘	cheng	15000
-了	liao	15000
-债	zhai	15000
-偶	ou	15000
-傻	sha	15000
-冻	dong	15000
-奔	ben	15000
-岩	yan	15000
-患	huan	15000
-拆	chai	15000
-挡	dang	15000
-捐	juan	15000
-捡	jian	15000
-摔	shuai	15000
-氧	yang	15000
-涕	ti	15000
-炎	yan	15000
-炭	tan	15000
-疏	shu	15000
-疫	yi	15000
-癌	ai	15000
-矮	ai	15000
-碳	tan	15000
-窄	zhai	15000
-笨	ben	15000
-缓	huan	15000
-聚	ju	15000
-聪	cong	15000
-裂	lie	15000
-贡	gong	15000
-贷	dai	15000
-赠	zeng	15000
-跨	kua	15000
-躺	tang	15000
-闲	xian	15000
-阻	zu	15000
-陈	chen	15000
-凝	ning	12000
-呆	dai	12000
-拦	lan	12000
-氢	qing	12000
-硅	gui	12000
-苗	miao	12000
-蒸	zheng	12000
-薄	bao	12000
-融	rong	12000
-逆	ni	12000
-都	du	12000
-钙	gai	12000
-嫩	nen	10000
-氮	dan	10000
-氯	lv	10000
-沸	fei	10000
-熔	rong	10000
-痴	chi	10000
-硫	liu	10000
-碱	jian	10000
-磷	lin	10000
-缝	feng	10000
-脂	zhi	10000
-菌	jun	10000
-钠	na	10000
-霉	mei	10000
-着	zhuo	8000
-会	kuai	6000
-没	mo	6000
-厉	li	5000
-呈	cheng	5000
-歉	qian	5000
-谦	qian	5000
-颁	ban	5000
-凌	ling	4500
-厄	e	4500
-渝	yu	4500
-潘	pan	4500
-琴	qin	4500
-甚	shen	4500
-硕	shuo	4500
-素	su	4500
-胶	jiao	4500
-虽	sui	4500
-识	shi	4500
-貌	mao	4500
-音	yin	4500
-食	shi	4500
-餐	can	4500
-首	shou	4500
-魔	mo	4500
-黄	huang	4500
-黑	hei	4500
-龙	long	4500
-凄	qi	4000
-凋	diao	4000
-卑	bei	4000
-吉	ji	4000
-和	huo	4000
-善	shan	4000
-悲	bei	4000
-慈	ci	4000
-淮	huai	4000
-潇	xiao	4000
-炫	xuan	4000
-玫	mei	4000
-琳	lin	4000
-畔	pan	4000
-皱	zhou	4000
-盗	dao	4000
-羞	xiu	4000
-芬	fen	4000
-芳	fang	4000
-荡	dang	4000
-莉	li	4000
-莱	lai	4000
-莲	lian	4000
-董	dong	4000
-蒋	jiang	4000
-蔡	cai	4000
-袁	yuan	4000
-议	yi	4000
-谱	pu	4000
-还	huan	4000
-鄙	bi	4000
-雕	diao	4000
-韩	han	4000
-鬼	gui	4000
-魂	hun	4000
-魏	wei	4000
-鮮	xian	4000
-鸟	niao	4000
-鼓	gu	4000
-傲	ao	3500
-勤	qin	3500
-哀	ai	3500
-忧	you	3500
-怒	nu	3500
-怨	yuan	3500
-恐	kong	3500
-恨	hen	3500
-恳	ken	3500
-恼	nao	3500
-惨	can	3500
-愁	chou	3500
-愤	fen	3500
-慌	huang	3500
-殷	yin	3500
-洋	yang	3500
-淤	yu	3500
-漳	zhang	3500
-潼	tong	3500
-灼	zhuo	3500
-烦	fan	3500
-焦	jiao	3500
-熏	xun	3500
-玛	ma	3500
-琪	qi	3500
-琼	qiong	3500
-瑜	yu	3500
-瑞	rui	3500
-甄	zhen	3500
-皂	zao	3500
-盏	zhan	3500
-瞪	deng	3500
-磊	lei	3500
-芭	ba	3500
-芽	ya	3500
-苍	cang	3500
-茎	jing	3500
-荆	jing	3500
-荷	he	3500
-菊	ju	3500
-萍	ping	3500
-萧	xiao	3500
-萨	sa	3500
-葛	ge	3500
-葡	pu	3500
-蓄	xu	3500
-蓉	rong	3500
-蓬	peng	3500
-蔚	wei	3500
-藤	teng	3500
-虚	xu	3500
-虾	xia	3500
-蚊	wen	3500
-蜜	mi	3500
-蝶	die	3500
-衬	chen	3500
-衷	zhong	3500
-袭	xi	3500
-谨	jin	3500
-谭	tan	3500
-迫	po	3500
-闹	nao	3500
-霜	shuang	3500
-霞	xia	3500
-露	lu	3500
-韦	wei	3500
-韵	yun	3500
-骄	jiao	3500
-鸣	ming	3500
-鸭	ya	3500
-鹏	peng	3500
-鹰	ying	3500
-鹿	lu	3500
-麦	mai	3500
-黎	li	3500
-默	mo	3500
-鼎	ding	3500
-齿	chi	3500
-龚	gong	3500
-龟	gui	3500
-伪	wei	3000
-俭	jian	3000
-凶	xiong	3000
-大	dai	3000
-寂	ji	3000
-得	dei	3000
-怯	qie	3000
-惧	ju	3000
-慨	kai	3000
-慷	kang	3000
-懦	nuo	3000
-挚	zhi	3000
-溢	yi	3000
-漱	shu	3000
-漾	yang	3000
-犀	xi	3000
-猩	xing	3000
-琅	lang	3000
-琵	pi	3000
-琶	pa	3000
-甸	dian	3000
-畏	wei	3000
-眩	xuan	3000
-眯	mi	3000
-眷	juan	3000
-眸	mou	3000
-着	zhao	3000
-磕	ke	3000
-祥	xiang	3000
-祸	huo	3000
-笋	sun	3000
-粟	su	3000
-絮	xu	3000
-耿	geng	3000
-聂	nie	3000
-胁	xie	3000
-芋	yu	3000
-苞	bao	3000
-苟	gou	3000
-茧	jian	3000
-荧	ying	3000
-莎	sha	3000
-莹	ying	3000
-莽	mang	3000
-菇	gu	3000
-葬	zang	3000
-葵	kui	3000
-蒂	di	3000
-蒲	pu	3000
-蔓	man	3000
-蔬	shu	3000
-藻	zao	3000
-虐	nve	3000
-虑	lv	3000
-虞	yu	3000
-蚕	can	3000
-蛛	zhu	3000
-蜡	la	3000
-蝉	chan	3000
-蟹	xie	3000
-蠢	chun	3000
-衔	xian	3000
-衫	shan	3000
-袖	xiu	3000
-裸	luo	3000
-裹	guo	3000
-誓	shi	3000
-译	yi	3000
-郁	yu	3000
-闷	men	3000
-霍	huo	3000
-鞭	bian	3000
-魁	kui	3000
-鸦	ya	3000
-鸽	ge	3000
-鸿	hong	3000
-鹅	e	3000
-鹊	que	3000
-鹤	he	3000
-鹭	lu	3000
-哗	hua	2500
-喧	xuan	2500
-嚷	rang	2500
-墓	mu	2500
-夷	yi	2500
-奢	she	2500
-宫	gong	2500
-寞	mo	2500
-寺	si	2500
-尘	chen	2500
-庙	miao	2500
-懊	ao	2500
-晴	qing	2500
-朗	lang	2500
-沿	yan	2500
-泉	quan	2500
-涉	she	2500
-溪	xi	2500
-灌	guan	2500
-煦	xu	2500
-熙	xi	2500
-熨	yun	2500
-狈	bei	2500
-猕	mi	2500
-猬	wei	2500
-猾	hua	2500
-玮	wei	2500
-珀	po	2500
-珑	long	2500
-琢	zhuo	2500
-琦	qi	2500
-瑕	xia	2500
-瑙	nao	2500
-瑾	jin	2500
-璐	lu	2500
-瓦	wa	2500
-瓮	weng	2500
-甥	sheng	2500
-甬	yong	2500
-痔	zhi	2500
-盔	kui	2500
-眶	kuang	2500
-稼	jia	2500
-竺	zhu	2500
-糯	nuo	2500
-紊	wen	2500
-羔	gao	2500
-聆	ling	2500
-舆	yu	2500
-舵	duo	2500
-舶	bo	2500
-芍	shao	2500
-茫	mang	2500
-茬	cha	2500
-茵	yin	2500
-茹	ru	2500
-荔	li	2500
-荫	yin	2500
-莓	mei	2500
-莺	ying	2500
-菠	bo	2500
-萱	xuan	2500
-蔑	mie	2500
-蔗	zhe	2500
-蔷	qiang	2500
-藕	ou	2500
-虏	lu	2500
-蛀	zhu	2500
-蜗	wo	2500
-蝴	hu	2500
-袄	ao	2500
-袍	pao	2500
-裴	pei	2500
-褐	he	2500
-观	guan	2500
-詹	zhan	2500
-讶	ya	2500
-谅	liang	2500
-躁	zao	2500
-阁	ge	2500
-陵	ling	2500
-雏	chu	2500
-霖	lin	2500
-霾	mai	2500
-靴	xue	2500
-韧	ren	2500
-韭	jiu	2500
-馨	xin	2500
-魅	mei	2500
-鸠	jiu	2500
-黏	nian	2500
-侈	chi	2000
-嚣	xiao	2000
-坑	keng	2000
-坟	fen	2000
-埃	ai	2000
-塑	su	2000
-寥	liao	2000
-廊	lang	2000
-弛	chi	2000
-殿	dian	2000
-污	wu	2000
-汪	wang	2000
-泊	bo	2000
-泛	fan	2000
-洒	sa	2000
-浇	jiao	2000
-浊	zhuo	2000
-浑	hun	2000
-浴	yu	2000
-涌	yong	2000
-淋	lin	2000
-渗	shen	2000
-渡	du	2000
-渺	miao	2000
-漂	piao	2000
-潭	tan	2000
-澄	cheng	2000
-澜	lan	2000
-瀚	han	2000
-牍	du	2000
-獭	ta	2000
-玺	xi	2000
-琥	hu	2000
-琰	yan	2000
-璀	cui	2000
-璜	huang	2000
-璧	bi	2000
-璨	can	2000
-瓯	ou	2000
-瘀	yu	2000
-瘸	que	2000
-瞰	kan	2000
-矗	chu	2000
-矾	fan	2000
-砖	zhuan	2000
-碑	bei	2000
-磋	cuo	2000
-磐	pan	2000
-祀	si	2000
-祟	sui	2000
-笠	li	2000
-箍	gu	2000
-胭	yan	2000
-胯	kua	2000
-胰	yi	2000
-舷	xian	2000
-芮	rui	2000
-芷	zhi	2000
-茜	qian	2000
-茨	ci	2000
-荞	qiao	2000
-荟	hui	2000
-荤	hun	2000
-菁	jing	2000
-葫	hu	2000
-蓓	bei	2000
-虹	hong	2000
-蚌	bang	2000
-蚝	hao	2000
-蚯	qiu	2000
-蛊	gu	2000
-蛤	ha	2000
-蜕	tui	2000
-蜘	zhi	2000
-蝎	xie	2000
-蝙	bian	2000
-蝠	fu	2000
-蟑	zhang	2000
-袒	tan	2000
-譬	pi	2000
-诀	jue	2000
-诵	song	2000
-谣	yao	2000
-豁	huo	2000
-钉	ding	2000
-铸	zhu	2000
-锻	duan	2000
-霆	ting	2000
-霏	fei	2000
-霓	ni	2000
-霹	pi	2000
-靶	ba	2000
-鞠	ju	2000
-韬	tao	2000
-頓	dun	2000
-麓	lu	2000
-黛	dai	2000
-黯	an	2000
-鼹	yan	2000
-冶	ye	1500
-刨	pao	1500
-垢	gou	1500
-庵	an	1500
-栓	shuan	1500
-檐	yan	1500
+卯	mao	27956
+根	gen	27894
+钉	ding	27832
+留	liu	27770
+命	ming	27708
+聊	liao	27646
+板	ban	27584
+思	si	27522
+麻	ma	27460
+烦	fan	27398
+感	gan	27336
+梦	meng	27274
+砍	kan	27212
+呗	bei	27150
+包	bao	27088
+财	cai	27026
+斗	dou	26964
+冰	bing	26902
+锅	guo	26840
+烧	shao	26778
+烤	kao	26716
+忘	wang	26654
+蒜	suan	26592
+各	ge	26530
+顿	dun	26468
+挑	tiao	26406
+困	kun	26344
+死	si	26282
+眯	mi	26220
+六	liu	26158
+赶	gan	26096
+峰	feng	26034
+率	shuai	25988
+挤	ji	25972
+迟	chi	25910
+循	xun	25848
+党	dang	25786
+噪	zao	25724
+瞬	shun	25662
+只	zhi	25600
+剩	sheng	25538
+卡	ka	25476
+码	ma	25414
+截	jie	25352
+扇	shan	25290
+硅	gui	25228
+脂	zhi	25166
+械	xie	25104
+键	jian	25042
+鼠	shu	24980
+击	ji	24918
+莫	mo	24856
+妙	miao	24794
+毒	du	24732
+紧	jin	24670
+端	duan	24608
+藏	zang	24599
+搬	ban	24546
+控	kong	24484
+防	fang	24422
+戳	chuo	24360
+丧	sang	24298
+待	dai	24236
+恐	kong	24174
+划	hua	24112
+泡	pao	24050
+肥	fei	23988
+始	shi	23926
+秤	cheng	23864
+忍	ren	23802
+占	zhan	23740
+抢	qiang	23678
+挂	gua	23616
+薅	hao	23554
+秘	mi	23492
+籍	ji	23430
+券	quan	23368
+凑	cou	23306
+扎	za	23260
+秃	tu	23244
+等	deng	23182
+催	cui	23120
+稍	shao	23058
+七	qi	22996
+退	tui	22934
+元	yuan	22872
+懂	dong	22810
+赞	zan	22748
+狂	kuang	22686
+魔	mo	22624
+拍	pai	22562
+滤	lv	22500
+重	chong	22491
+妈	ma	22438
+认	ren	22376
+素	su	22314
+罩	zhao	22252
+行	hang	22193
+掉	diao	22190
+咖	ka	22128
+啡	fei	22066
+抓	zhua	22004
+肚	du	21942
+咕	gu	21880
+强	qiang	21818
+假	jia	21756
+玩	wan	21694
+崩	beng	21632
+棚	peng	21570
+必	bi	21508
+塞	sai	21446
+攻	gong	21384
+页	ye	21322
+胡	hu	21260
+景	jing	21198
+拆	chai	21136
+沙	sha	21074
+遛	liu	21012
+疯	feng	20950
+铲	chan	20888
+屎	shi	20826
+终	zhong	20764
+萝	luo	20702
+浇	jiao	20640
+烂	lan	20578
+愈	yu	20516
+笋	sun	20454
+蝉	chan	20392
+鸣	ming	20330
+秋	qiu	20268
+响	xiang	20206
+撒	sa	20144
+滚	gun	20082
+炸	zha	20020
+啤	pi	19958
+煮	zhu	19896
+碗	wan	19834
+肠	chang	19772
+灵	ling	19710
+魂	hun	19648
+桂	gui	19586
+飘	piao	19524
+薯	shu	19462
+诱	you	19400
+炒	chao	19338
+栗	li	19276
+副	fu	19214
+武	wu	19152
+冻	dong	19090
+涕	ti	19028
+袖	xiu	18966
+嗡	weng	18904
+挠	nao	18842
+晒	shai	18780
+喷	pen	18718
+雾	wu	18656
+随	sui	18594
+携	xie	18532
+调	tiao	18498
+扔	reng	18470
+轰	hong	18408
+骚	sao	18346
+扰	rao	18284
+律	lv	18222
+诈	zha	18160
+函	han	18098
+索	suo	18036
+校	jiao	18002
+卷	juan	18000
+呀	ya	18000
+庙	miao	18000
+湖	hu	18000
+隆	long	17974
+削	xiao	17912
+谷	gu	17850
+微	wei	17788
+避	bi	17726
+容	rong	17664
+志	zhi	17602
+踪	zong	17540
+颈	jing	17478
+致	zhi	17416
+巡	xun	17354
+策	ce	17292
+熔	rong	17230
+止	zhi	17168
+限	xian	17106
+尽	jin	17044
+迭	die	16982
+栈	zhan	16920
+溢	yi	16858
+潜	qian	16796
+驱	qu	16734
+析	xi	16672
+仓	cang	16610
+凌	ling	16548
+馏	liu	16486
+义	yi	16424
+匹	pi	16362
+依	yi	16300
+赖	lai	16238
+兼	jian	16176
+扫	sao	16114
+描	miao	16052
+窃	qie	15990
+钥	yao	15928
+凭	ping	15866
+钩	gou	15804
+亦	yi	15742
+欲	yu	15680
+勿	wu	15618
+努	nu	15556
+寸	cun	15494
+阴	yin	15432
+径	jing	15370
+涯	ya	15308
+孤	gu	15246
+鹜	wu	15184
+忧	you	15122
+矩	ju	15060
+堤	di	14998
+溃	kui	14936
+穴	xue	14874
+祸	huo	14812
+倚	yi	14750
+伏	fu	14688
+翁	weng	14626
+鹬	yu	14564
+蚌	bang	14502
+渔	yu	14440
+螳	tang	14378
+螂	lang	14316
+捕	bu	14254
+亡	wang	14192
+牢	lao	14130
+辕	yuan	14068
+辙	zhe	14006
+愿	yuan	13944
+违	wei	13882
+掩	yan	13820
+盗	dao	13758
+铃	ling	13696
+欺	qi	13634
+剑	jian	13572
+拔	ba	13510
+苗	miao	13448
+守	shou	13386
+株	zhu	13324
+井	jing	13262
+杯	bei	13200
+薪	xin	13138
+锦	jin	13076
+添	tian	13014
+炭	tan	12952
+恶	e	12890
+若	ruo	12828
+浪	lang	12766
+沧	cang	12704
+疑	yi	12642
+柳	liu	12580
+暗	an	12518
+顶	ding	12456
+粒	li	12394
+辛	xin	12332
+晓	xiao	12270
+啼	ti	12208
+鹂	li	12146
+翠	cui	12084
+鹭	lu	12022
+桃	tao	11960
+潭	tan	11898
+尺	chi	11836
+汪	wang	11774
+伦	lun	11712
+碧	bi	11650
+唯	wei	11588
+江	jiang	11526
+漠	mo	11464
+烟	yan	11402
+秦	qin	11340
+劝	quan	11278
+君	jun	11216
+枫	feng	11154
+霜	shuang	11092
+叶	ye	11030
+纷	fen	10968
+竹	zhu	10906
+岁	sui	10844
+屠	tu	10782
+苏	su	10720
+久	jiu	10658
+婵	chan	10596
+娟	juan	10534
+丹	dan	10472
+汗	han	10410
+竟	jing	10348
+釜	fu	10286
+属	shu	10224
+楚	chu	10162
 欣欣	xin xin	1500
-毓	yu	1500
-汐	xi	1500
-汹	xiong	1500
-沏	qi	1500
-沐	mu	1500
-沧	cang	1500
-沫	mo	1500
 泛滥	fan lan	1500
-泼	po	1500
-洼	wa	1500
-淀	dian	1500
-渍	zi	1500
-溯	su	1500
-滔	tao	1500
-滤	lv	1500
-滥	lan	1500
-澎	peng	1500
-瀑	pu	1500
-焊	han	1500
-痂	jia	1500
-皋	gao	1500
-皑	ai	1500
-砌	qi	1500
-砧	zhen	1500
-碉	diao	1500
-磬	qing	1500
-祠	ci	1500
-笆	ba	1500
-笺	jian	1500
-篙	gao	1500
-籁	lai	1500
-糜	mi	1500
-罂	ying	1500
-羟	qiang	1500
-胱	guang	1500
-臊	sao	1500
-舀	yao	1500
-苋	xian	1500
-茯	fu	1500
-茴	hui	1500
-茸	rong	1500
-荀	xun	1500
-莘	shen	1500
-萦	ying	1500
-葆	bao	1500
-葳	wei	1500
-蓟	ji	1500
-蔫	nian	1500
-蔻	kou	1500
-蘑	mo	1500
-虱	shi	1500
-蚓	yin	1500
-蚤	zao	1500
-蛆	qu	1500
-蛎	li	1500
-蛔	hui	1500
-蛟	jiao	1500
-蜥	xi	1500
-蜷	quan	1500
-螃	pang	1500
-螺	luo	1500
 螺丝	luo si	1500
-蟒	mang	1500
-蠕	ru	1500
-衅	xin	1500
-衙	ya	1500
-袅	niao	1500
-裔	yi	1500
-褂	gua	1500
-讥	ji	1500
-讹	e	1500
-诬	wu	1500
-谛	di	1500
-谬	miu	1500
-钳	qian	1500
-锤	chui	1500
-锯	ju	1500
-镀	du	1500
-雯	wen	1500
-霁	ji	1500
-霄	xiao	1500
-霎	sha	1500
-霭	ai	1500
-韶	shao	1500
-鸢	yuan	1500
-黔	qian	1500
-龛	kan	1500
-亥	hai	1200
 向荣	xiang rong	1200
-涅	nie	1200
-涓	juan	1200
-湃	pai	1200
-秕	bi	1200
-罡	gang	1200
-耄	mao	1200
-耋	die	1200
-胄	zhou	1200
-舸	ge	1200
-艄	shao	1200
-芡	qian	1200
-芨	ji	1200
-苜	mu	1200
-苣	ju	1200
-苫	shan	1200
-茭	jiao	1200
-茱	zhu	1200
-荃	quan	1200
-荠	ji	1200
-莅	li	1200
-莞	guan	1200
-莠	you	1200
-藜	li	1200
-袈	jia	1200
-裱	biao	1200
-覃	qin	1200
-讪	shan	1200
-讫	qi	1200
-诘	jie	1200
-诙	hui	1200
-谑	xue	1200
-谗	chan	1200
-谤	bang	1200
-谧	mi	1200
-谩	man	1200
-铆	mao	1200
-锉	cuo	1200
-阙	que	1200
-阜	fu	1200
-雳	li	1200
-靛	dian	1200
-顫	chan	1200
-馏	liu	1200
-苻	fu	1000
-葩	pa	1000
-葭	jia	1000
-蜒	yan	1000
-蜚	fei	1000
-蜴	yi	1000
-螟	ming	1000
-蟀	shuai	1000
-蟋	xi	1000
-袂	mei	1000
-袤	mao	1000
-袱	fu	1000
-裆	dang	1000
-褓	bao	1000
-谆	zhun	1000
-谟	mo	1000
-頁	ye	1000
-項	xiang	1000
-頌	song	1000
-預	yu	1000
-頑	wan	1000
-頒	ban	1000
-頗	po	1000
-領	ling	1000
-頤	yi	1000
-頭	tou	1000
-頸	jing	1000
-頻	pin	1000
-題	ti	1000
-額	e	1000
-顛	dian	1000
-類	lei	1000
-顧	gu	1000
-顯	xian	1000
-風	feng	1000
-飄	piao	1000
-馬	ma	1000
-鼾	han	1000
-苴	ju	800
-荦	luo	800
-襁	qiang	800
-觊	ji	800
-觎	yu	800
-讦	jie	800
-谄	chan	800
-谪	zhe	800
-谯	qiao	800
-頃	qing	800
-頜	he	800
-頰	jia	800
-頹	tui	800
-顆	ke	800
-顎	e	800
-顱	lu	800
-颧	quan	800
-颯	sa	800
-飢	ji	800
-飯	fan	800
-飲	yin	800
-飽	bao	800
-餃	jiao	800
-餅	bing	800
-養	yang	800
-餓	e	800
-餘	yu	800
-館	guan	800
-駕	jia	800
-騎	qi	800
-驗	yan	800
-驚	jing	800
-讧	hong	600
-頡	jie	600
-頷	han	600
-颱	tai	600
-颶	ju	600
-飨	xiang	600
-飾	shi	600
-餌	er	600
-髮	fa	600
-麥	mai	600
-黃	huang	600
-點	dian	600
-齊	qi	600
-雒	luo	500
-颡	sang	500
-颳	gua	500
-颼	sou	500
-餒	nei	500
-餡	xian	500
-餵	wei	500
-駿	jun	500
-騰	teng	500
-鸵	tuo	500
-齋	zhai	500
-齡	ling	500
-龈	yin	500
-龋	qu	500
-雎	ju	400
-頏	hang	400
-顓	zhuan	400
-顙	sang	400
-顥	hao	400
-顰	pin	400
-顳	nie	400
-颺	yang	400
-飧	sun	400
-飼	si	400
-餉	xiang	400
-餞	jian	400
-饅	man	400
-饒	rao	400
-饕	tao	400
-馭	yu	400
-馮	feng	400
-馱	tuo	400
-馳	chi	400
-馴	xun	400
-駁	bo	400
-駒	ju	400
-駱	luo	400
-騙	pian	400
-騷	sao	400
-驅	qu	400
-驕	jiao	400
-驟	zhou	400
-骰	tou	400
-骷	ku	400
-髦	mao	400
-鬃	zong	400
-鬆	song	400
-鬥	dou	400
-鬧	nao	400
-魇	yan	400
-鮑	bao	400
-鯉	li	400
-鯨	jing	400
-鸨	bao	400
-鸩	zhen	400
-鸪	gu	400
-鸬	lu	400
-鸮	xiao	400
-鸯	yang	400
-鸳	yuan	400
-鸷	zhi	400
-鸾	luan	400
-鹃	juan	400
-鹄	hu	400
-鹉	wu	400
-鹌	an	400
-鹦	ying	400
-鹫	jiu	400
-麒	qi	400
-麟	lin	400
-黜	chu	400
-黝	you	400
-黠	xia	400
-龜	gui	400
-鞯	jian	300
-頫	fu	300
-頲	ting	300
-颥	ru	300
-飭	chi	300
-飴	yi	300
-餛	hun	300
-餬	hu	300
-餾	liu	300
-饉	jin	300
-饋	kui	300
-饌	zhuan	300
-饑	ji	300
-饗	xiang	300
-馗	kui	300
-駝	tuo	300
-駭	hai	300
-騁	cheng	300
-騏	qi	300
-騖	wu	300
-騫	qian	300
-驀	mo	300
-驍	xiao	300
-驢	lv	300
-驥	ji	300
-骯	ang	300
-髯	ran	300
-鬍	hu	300
-鬢	bin	300
-鬣	lie	300
-鬲	li	300
-魑	chi	300
-鯊	sha	300
-鸫	dong	300
-鹜	wu	300
-鹞	yao	300
-鹧	zhe	300
-鹬	yu	300
-鹳	guan	300
-麋	mi	300
-麝	she	300
-麵	mian	300
-麼	me	300
-麾	hui	300
-黍	shu	300
-黩	du	300
-龅	bao	300
-龇	zi	300
-龊	chuo	300
-龌	wo	300
-龔	gong	300
-韂	chan	200
-顬	ru	200
-飡	can	200
-飫	yu	200
-餱	hou	200
-餳	xing	200
-餺	bo	200
-餼	xi	200
-餽	kui	200
-饈	xiu	200
-饊	san	200
-馘	guo	200
-駔	zang	200
-駘	tai	200
-駙	fu	200
-駟	si	200
-駢	pian	200
-駸	qin	200
-騅	zhui	200
-騍	ke	200
-騭	zhi	200
-騮	liu	200
-騶	zou	200
-騸	shan	200
-驃	biao	200
-驊	hua	200
-驛	yi	200
-驤	xiang	200
-驪	li	200
-骱	jie	200
-骺	hou	200
-骼	ge	200
-骾	geng	200
-髀	bi	200
-髏	lou	200
-髑	du	200
-髖	kuan	200
-髟	biao	200
-髡	kun	200
-髣	fang	200
-髥	ran	200
-髫	tiao	200
-鬈	quan	200
-鬨	hong	200
-鬩	xi	200
-鬮	jiu	200
-鬯	chang	200
-魈	xiao	200
-魍	wang	200
-魎	liang	200
-魴	fang	200
-鮪	wei	200
-鮫	jiao	200
-鮭	gui	200
-鯁	geng	200
-鯛	diao	200
-鯢	ni	200
-鯤	kun	200
-鯧	chang	200
-鯪	ling	200
-鯰	nian	200
-鯽	ji	200
-鰂	zei	200
-鰈	die	200
-鰍	qiu	200
-鰐	e	200
-鰓	sai	200
-鰥	guan	200
-鰭	qi	200
-鰱	lian	200
-鰲	ao	200
-鰻	man	200
-鰾	biao	200
-鱉	bie	200
-鱒	zun	200
-鱗	lin	200
-鱷	e	200
-鱸	lu	200
-鸶	si	200
-鸸	er	200
-鸹	gua	200
-鸺	xiu	200
-鹁	bo	200
-鹂	li	200
-鹆	yu	200
-鹇	xian	200
-鹈	ti	200
-鹑	chun	200
-鹗	e	200
-鹘	gu	200
-鹚	ci	200
-鹩	liao	200
-鹪	jiao	200
-麂	ji	200
-麈	zhu	200
-麪	mian	200
-麽	mo	200
-黢	qu	200
-黥	qing	200
-黧	li	200
-黪	can	200
-黮	dan	200
-黵	dan	200
-黽	min	200
-鼬	you	200
-齁	hou	200
-齢	ling	200
-齣	chu	200
-齦	yin	200
-齪	chuo	200
-齬	yu	200
-齲	qu	200
-齶	e	200
-齷	wo	200
-龃	ju	200
-龉	yu	200
-鼈	bie	150
-驒	tan	100
-驦	shuang	100
-骽	tui	100
-髴	fu	100
-鬏	jiu	100
-魟	hong	100
-鮃	ping	100
-鮐	tai	100
-鯔	zi	100
-鯖	qing	100
-鯫	zou	100
-鯿	bian	100
-鰆	chun	100
-鰉	huang	100
-鰏	pi	100
-鰑	yang	100
-鰒	fu	100
-鰕	xia	100
-鰛	wen	100
-鰜	jian	100
-鰟	pang	100
-鰠	sao	100
-鰣	shi	100
-鰧	teng	100
-鰨	ta	100
-鰩	yao	100
-鰮	wen	100
-鰳	le	100
-鰵	min	100
-鰷	tiao	100
-鰹	jian	100
-鰺	shen	100
-鰼	xi	100
-鰽	qiu	100
-鱀	ji	100
-鱂	jiang	100
-鱃	xiu	100
-鱅	yong	100
-鱈	xue	100
-鱔	shan	100
-鱘	xun	100
-鱚	xi	100
-鱝	fen	100
-鱟	hou	100
-鱠	kuai	100
-鱣	zhan	100
-鱤	gan	100
-鱧	li	100
-鱨	chang	100
-鱭	ji	100
-鱮	xu	100
-鱯	hu	100
-鱲	lie	100
-鱺	li	100
-鸤	shi	100
-鹋	miao	100
-鹎	bei	100
-鹒	keng	100
-鹓	yuan	100
-鹕	hu	100
-鹙	qiu	100
-鹛	mei	100
-鹟	weng	100
-鹠	liu	100
-鹡	ji	100
-鹢	yi	100
-鹣	jian	100
-鹨	liu	100
-鹱	hu	100
-鹾	cuo	100
-麇	jun	100
-麑	ni	100
-麕	jun	100
-麩	fu	100
-麫	mian	100
-麮	qu	100
-麯	qu	100
-麰	mou	100
-麴	qu	100
-麶	chi	100
-麷	feng	100
-麹	qu	100
-黇	tian	100
-黌	hong	100
-黟	yi	100
-黰	zhen	100
-黲	can	100
-黳	yi	100
-黹	zhi	100
-黻	fu	100
-黼	fu	100
-鼂	chao	100
-鼃	wa	100
-鼇	ao	100
-鼉	tuo	100
-鼐	nai	100
-鼕	dong	100
-鼗	tao	100
-鼙	pi	100
-鼢	fen	100
-鼤	wen	100
-鼩	qu	100
-鼯	wu	100
-鼱	jing	100
-鼴	yan	100
-鼷	xi	100
-鼽	qiu	100
-齄	zha	100
-齆	weng	100
-齇	zha	100
-齈	nong	100
-齉	nang	100
-齎	ji	100
-齏	ji	100
-齔	chen	100
-齕	he	100
-齗	yin	100
-齘	xie	100
-齜	zi	100
-齟	ju	100
-齠	tiao	100
-齧	nie	100
-齩	yao	100
-龁	he	100
-龂	yin	100
-龆	tiao	100
-龕	kan	100
-鼊	bi	50
-鼏	mi	50
-鼒	zi	50
-鼚	chang	50
-鼛	gao	50
-鼜	qi	50
-鼝	yuan	50
-鼞	tang	50
-鼟	teng	50
-鼣	fei	50
-鼥	fa	50
-鼦	diao	50
-鼧	tuo	50
-鼨	zhong	50
-鼪	sheng	50
-鼫	shi	50
-鼭	si	50
-鼮	ting	50
-鼰	nu	50
-鼲	hun	50
-鼳	xi	50
-鼵	tu	50
-鼶	si	50
-鼸	xian	50
-鼺	lei	50
-鼼	yao	50
-齂	xi	50
-齃	e	50
-齅	xiu	50
-齌	ji	50
-齍	zi	50
-齓	chen	50
-齖	ya	50
-齙	bao	50
-齚	ze	50
-齝	chi	50
-齞	yan	50
-齤	quan	50
-齥	yi	50
-齨	jiu	50
-齫	yun	50
-齭	chu	50
-齮	yi	50
-齯	ni	50
-齰	ze	50
-齱	zou	50
-齳	yun	50
-齴	yan	50
-齵	ou	50
-齸	yi	50
-齹	ci	50
-齺	zou	50
-齻	dian	50
-齼	chu	50
-齽	jin	50
-齾	ya	50
-龀	chen	50
-龑	yan	50
-龒	long	50
-龓	long	50
-龖	da	50
-龗	ling	50
-龘	da	50

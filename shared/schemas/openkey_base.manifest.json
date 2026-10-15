@@ -1,9 +1,9 @@
 {
-  "entries": 4089,
+  "entries": 4287,
   "generated_by": "openkey-lexicon",
   "license": "CC0-1.0",
   "name": "openkey_base",
-  "sha256": "cb04fc7efb74da4375343d3f04dc6ba050e3f0726987775aa25ecbbaa9f9c838",
+  "sha256": "e13e8a83f225cd15f5f931fd64a9c8b45e7558e2ec6bddce61e8f982619cbd15",
   "source": "OpenKey 自制（DR-001）",
   "version": "0.1.0"
 }
