@@ -298,8 +298,13 @@ impl Session {
                 )
             };
             if ok != 0 {
-                // 预编辑消失即表示输入已全部消费（整段选择）→ 冲刷提交缓冲。
-                if self.context()?.preedit.is_none() {
+                // 整段选择判定：librime 选中后把该段标记为 confirmed 并前移
+                // composition，此时 `RimeGetContext` 仍会分配 preedit（空串），
+                // 因此以「预编辑为空」而非 NULL 判定输入已全部消费，再显式
+                // 冲刷提交缓冲（输入法语义：选中即上屏）。部分选择（后续仍有
+                // 未确认输入）保持组词，不冲刷。
+                let preedit = self.context()?.preedit.unwrap_or_default();
+                if preedit.is_empty() {
                     self.commit_composition()?;
                 }
             }
