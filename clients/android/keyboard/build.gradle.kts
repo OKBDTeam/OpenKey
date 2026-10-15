@@ -39,5 +39,5 @@ dependencies {
     // 根构件是空壳（无 class），实现类位于 -android 变体，必须显式依赖。
     implementation("androidx.lifecycle:lifecycle-runtime-android:2.8.6")
     implementation("androidx.lifecycle:lifecycle-viewmodel-android:2.8.6")
-    implementation("androidx.savedstate:savedstate-android:1.2.1")
+    implementation("androidx.savedstate:savedstate:1.2.1")
 }

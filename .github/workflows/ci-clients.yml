@@ -519,7 +519,7 @@ jobs:
 
       - name: 添加 iOS 模拟器 Rust target
         # stable 工具链已不再分发 x86_64 iOS 模拟器标准库，只用 arm64 模拟器。
-        run: rustup target add aarch64-apple-ios-simulator
+        run: rustup target add aarch64-apple-ios-sim
 
       - name: 安装 XcodeGen
         run: brew install xcodegen
@@ -532,7 +532,7 @@ jobs:
           # 需跨平台编译）。v0.1.0 先以 --no-default-features 保证工程可构建；
           # openkey-rime-ffi 的 librime 默认特性需 core 侧特性开关才能彻底关闭（见交付说明）。
           ok=true
-          for t in aarch64-apple-ios-simulator; do
+          for t in aarch64-apple-ios-sim; do
             if (cd core && cargo build --release --target "$t" -p openkey-ffi --no-default-features); then
               echo "$t 构建完成"
             else
@@ -552,7 +552,7 @@ jobs:
           fi
           # 放置位置按接口约定（clients-apple 侧 project.yml / README 为准，如不同以它为准）
           dst="clients/ios/core-binding"
-          for t in aarch64-apple-ios-simulator; do
+          for t in aarch64-apple-ios-sim; do
             mkdir -p "$dst/$t"
             src="core/target/$t/release/libopenkey_ffi.a"
             if [ -f "$src" ]; then cp "$src" "$dst/$t/"; else echo "::warning::缺少 $src"; fi
@@ -568,7 +568,9 @@ jobs:
             exit 0
           fi
           cd clients/ios
-          xcodegen generate
+          xcodegen --version
+          xcodegen generate --spec project.yml
+          ls -la | head -20
           # 工程 / scheme 名以 project.yml 为准；-derivedDataPath 固定产物位置便于收集
           xcodebuild -project OpenKey.xcodeproj -scheme OpenKey \
             -configuration Debug -derivedDataPath build \
