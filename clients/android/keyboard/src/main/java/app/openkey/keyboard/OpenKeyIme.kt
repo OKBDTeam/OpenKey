@@ -18,6 +18,8 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner
+import app.openkey.core.OpenKeyEngine
+import app.openkey.core.OpenKeySession
 
 /**
  * OpenKey 输入法服务（docs/02 4.4.2）。
@@ -84,11 +86,11 @@ class OpenKeyIme : InputMethodService() {
         refresh()
     }
 
-    override fun onFinishInput(finishingInput: Boolean) {
+    override fun onFinishInput() {
         // 保留会话（下次输入直接复用），仅清除组词状态。
         session?.clearComposition()
         refresh()
-        super.onFinishInput(finishingInput)
+        super.onFinishInput()
     }
 
     override fun onDestroyInputView() {

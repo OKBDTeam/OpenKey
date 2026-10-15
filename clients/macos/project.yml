@@ -17,6 +17,9 @@ name: OpenKey
 
 options:
   createIntermediateGroups: true
+  # 固定工程格式：XcodeGen 默认按本机 Xcode 生成，CI runner 的 Xcode 可能更旧
+  # （曾报 "future Xcode project file format (77)"）；此处锁定为 Xcode 15 格式。
+  xcodeVersion: "15.0"
   deploymentTarget:
     macOS: "13.0"
 

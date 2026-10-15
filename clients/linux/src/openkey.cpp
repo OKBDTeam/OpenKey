@@ -4,26 +4,31 @@
 // 对接点：core/ffi-headers/openkey.h（C ABI）。每个 InputContext 一个
 // OkSession；引擎为进程级单例（librime 全局状态由 fcitx5 单进程承载）。
 //
-// 按键分工：字母/标点经 ok_session_process_key 交 librime；组词状态下
-// 翻页（Page_Up/Page_Down/-/=/,/.）与数字选择（1-9）由本 addon 解析后调
-// ok_session_change_page / ok_session_select_candidate；空格选择高亮候选；
-// 回车上屏预编辑；Esc 清空。
+// 按键分工：组词态下的翻页（Page_Up/Page_Down/-/=/,/.）与数字选择（1-9）、
+// 空格选词、回车上屏、Esc 清空由本 addon 解析后调用 core 对应接口；其余按键
+// 经 ok_session_process_key 交 librime 判定是否消费。
+//
+// fcitx5 API 要点（5.0.x / 5.1.x）：
+//   - InputMethodEngineV2 的 deactivate/reset 第二参数是 InputContextEvent
+//     （不是 InputContext*），需 event.inputContext() 取上下文；
+//   - 候选列表用 DisplayOnlyCandidateList（setContent 传 vector<Text>），
+//     本 addon 不实现可交互候选动作（选中由本 addon 自行解析按键）。
 
-#include <fcitx/instance.h>
-#include <fcitx/inputmethodengine.h>
-#include <fcitx/inputcontext.h>
-#include <fcitx/candidatelist.h>
-#include <fcitx/addonmanager.h>
 #include <fcitx/addonfactory.h>
-#include <fcitx-utils/i18n.h>
+#include <fcitx/addonmanager.h>
+#include <fcitx/candidatelist.h>
+#include <fcitx/inputcontext.h>
+#include <fcitx/inputmethodengine.h>
+#include <fcitx/inputpanel.h>
+#include <fcitx/instance.h>
 #include <fcitx-utils/log.h>
 #include <fcitx-utils/standardpath.h>
 
 #include <cstdlib>
 #include <filesystem>
-#include <memory>
+#include <map>
 #include <string>
-#include <unordered_map>
+#include <vector>
 
 #include "openkey.h"
 
@@ -41,7 +46,6 @@ constexpr uint32_t kXK_minus = 0x002d;
 constexpr uint32_t kXK_equal = 0x003d;
 constexpr uint32_t kXK_comma = 0x002c;
 constexpr uint32_t kXK_period = 0x002e;
-constexpr uint32_t kXK_BackSpace = 0xff08;
 constexpr uint32_t kXK_Return = 0xff0d;
 constexpr uint32_t kXK_Escape = 0xff1b;
 constexpr uint32_t kXK_Page_Up = 0xff55;
@@ -62,6 +66,9 @@ std::string UserDataDir() {
   return base + "/openkey";
 }
 
+/// 会话表：InputContext 指针 → OkSession（deactivate 时清理）。
+using SessionMap = std::map<fcitx::InputContext *, OkSession *>;
+
 }  // namespace
 
 /// OpenKey 输入法引擎（fcitx5 InputMethodEngineV2）。
@@ -72,27 +79,27 @@ class OpenKeyEngine : public fcitx::InputMethodEngineV2 {
 
   void keyEvent(const fcitx::InputMethodEntry &entry,
                 fcitx::KeyEvent &keyEvent) override;
-  void reset(const fcitx::InputMethodEntry &entry,
-             fcitx::InputContext *ic) override;
   void deactivate(const fcitx::InputMethodEntry &entry,
-                  fcitx::InputContext *ic) override;
+                  fcitx::InputContextEvent &event) override;
+  void reset(const fcitx::InputMethodEntry &entry,
+             fcitx::InputContextEvent &event) override;
 
  private:
-  std::unordered_map<fcitx::InputContext *, OkSession *> sessions_;
+  SessionMap sessions_;
 
   OkSession *SessionFor(fcitx::InputContext *ic);
   void DestroySession(fcitx::InputContext *ic);
-  bool IsComposing(OkSession *session);
+  void ClearInputPanel(fcitx::InputContext *ic);
   void UpdateUI(fcitx::InputContext *ic, OkSession *session);
-  void CommitIfAny(fcitx::InputContext *ic, OkSession *session);
+  void CommitPending(fcitx::InputContext *ic, OkSession *session);
 };
 
 OpenKeyEngine::OpenKeyEngine(fcitx::Instance *instance) {
-  std::string shared = OPENKEY_SHARED_DATA_DIR;
-  std::string user = UserDataDir();
-  std::string db = user + "/openkey.db";
-  std::string components = user + "/components";
-  std::string log = user + "/log";
+  const std::string shared = OPENKEY_SHARED_DATA_DIR;
+  const std::string user = UserDataDir();
+  const std::string db = user + "/openkey.db";
+  const std::string components = user + "/components";
+  const std::string log = user + "/log";
   std::error_code ec;
   std::filesystem::create_directories(user, ec);
   std::filesystem::create_directories(components, ec);
@@ -112,6 +119,7 @@ OpenKeyEngine::OpenKeyEngine(fcitx::Instance *instance) {
     FCITX_INFO() << "OpenKey core 初始化完成（shared=" << shared
                  << ", user=" << user << "）";
   }
+  FCITX_UNUSED(instance);
 }
 
 OpenKeyEngine::~OpenKeyEngine() {
@@ -145,13 +153,10 @@ void OpenKeyEngine::DestroySession(fcitx::InputContext *ic) {
   }
 }
 
-bool OpenKeyEngine::IsComposing(OkSession *session) {
-  OkStatus status = {};
-  if (ok_session_get_status(session, &status) && status.is_composing) {
-    return true;
-  }
-  OkContext ctx = {};
-  return ok_session_get_context(session, &ctx) && ctx.preedit != nullptr;
+void OpenKeyEngine::ClearInputPanel(fcitx::InputContext *ic) {
+  ic->inputPanel().reset();
+  ic->updatePreedit();
+  ic->updateUserInterface(fcitx::UserInterfaceComponent::InputPanel);
 }
 
 void OpenKeyEngine::UpdateUI(fcitx::InputContext *ic, OkSession *session) {
@@ -170,8 +175,8 @@ void OpenKeyEngine::UpdateUI(fcitx::InputContext *ic, OkSession *session) {
   }
 
   if (ctx.num_candidates > 0) {
-    std::vector<std::unique_ptr<fcitx::Candidate>> candidates;
-    candidates.reserve(ctx.num_candidates);
+    std::vector<fcitx::Text> contents;
+    contents.reserve(ctx.num_candidates);
     for (size_t i = 0; i < ctx.num_candidates; ++i) {
       const OkCandidate &c = ctx.candidates[i];
       fcitx::Text text;
@@ -179,10 +184,12 @@ void OpenKeyEngine::UpdateUI(fcitx::InputContext *ic, OkSession *session) {
       if (c.comment && c.comment[0]) {
         text.append(std::string(" ") + c.comment);
       }
-      candidates.push_back(std::make_unique<fcitx::TextCandidate>(text));
+      contents.push_back(std::move(text));
     }
-    auto list = std::make_unique<fcitx::CandidateList>(std::move(candidates));
+    auto list = std::make_unique<fcitx::DisplayOnlyCandidateList>();
+    list->setContent(std::move(contents));
     list->setLayoutHint(fcitx::CandidateLayoutHint::Vertical);
+    list->setCursorIndex(static_cast<int>(ctx.highlighted_candidate_index));
     panel.setCandidateList(std::move(list));
   } else {
     panel.setCandidateList(nullptr);
@@ -191,10 +198,10 @@ void OpenKeyEngine::UpdateUI(fcitx::InputContext *ic, OkSession *session) {
   ic->updateUserInterface(fcitx::UserInterfaceComponent::InputPanel);
 }
 
-void OpenKeyEngine::CommitIfAny(fcitx::InputContext *ic, OkSession *session) {
+void OpenKeyEngine::CommitPending(fcitx::InputContext *ic, OkSession *session) {
   char buf[4096] = {0};
   if (ok_session_get_commit(session, buf, sizeof(buf)) && buf[0]) {
-    ic->commitString(buf);
+    ic->commitString(std::string(buf));
   }
 }
 
@@ -203,17 +210,22 @@ void OpenKeyEngine::keyEvent(const fcitx::InputMethodEntry &entry,
   if (keyEvent.isRelease()) {
     return;
   }
-  auto *ic = keyEvent.inputContext();
+  FCITX_UNUSED(entry);
+  fcitx::InputContext *ic = keyEvent.inputContext();
   OkSession *session = SessionFor(ic);
   if (!session) {
     return;
   }
   const fcitx::Key &key = keyEvent.key();
   const uint32_t sym = key.sym();
+  // KeyState 位定义与 X11 修饰掩码一致（Shift=1<<0, Ctrl=1<<2, Alt=1<<3）。
   const uint32_t mask = static_cast<uint32_t>(key.states());
 
-  if (IsComposing(session)) {
-    // 组词态：本 addon 解析翻页/选择/上屏/清空，其余交 librime。
+  OkContext ctx = {};
+  const bool composing =
+      ok_session_get_context(session, &ctx) && ctx.preedit != nullptr;
+
+  if (composing) {
     if (sym == kXK_Page_Up || sym == kXK_minus || sym == kXK_comma) {
       ok_session_change_page(session, true);
       keyEvent.filterAndAccept();
@@ -229,21 +241,21 @@ void OpenKeyEngine::keyEvent(const fcitx::InputMethodEntry &entry,
     if (sym >= kXK_1 && sym <= kXK_9) {
       ok_session_select_candidate(session, sym - kXK_1);
       keyEvent.filterAndAccept();
-      CommitIfAny(ic, session);
+      CommitPending(ic, session);
       UpdateUI(ic, session);
       return;
     }
     if (sym == kXK_space) {
       ok_session_select_candidate(session, 0);
       keyEvent.filterAndAccept();
-      CommitIfAny(ic, session);
+      CommitPending(ic, session);
       UpdateUI(ic, session);
       return;
     }
     if (sym == kXK_Return) {
       ok_session_commit_composition(session);
       keyEvent.filterAndAccept();
-      CommitIfAny(ic, session);
+      CommitPending(ic, session);
       UpdateUI(ic, session);
       return;
     }
@@ -257,26 +269,25 @@ void OpenKeyEngine::keyEvent(const fcitx::InputMethodEntry &entry,
 
   if (ok_session_process_key(session, sym, mask)) {
     keyEvent.filterAndAccept();
-    CommitIfAny(ic, session);
+    CommitPending(ic, session);
     UpdateUI(ic, session);
   }
 }
 
 void OpenKeyEngine::reset(const fcitx::InputMethodEntry &entry,
-                          fcitx::InputContext *ic) {
-  OkSession *session = SessionFor(ic);
-  if (session) {
+                          fcitx::InputContextEvent &event) {
+  FCITX_UNUSED(entry);
+  fcitx::InputContext *ic = event.inputContext();
+  if (OkSession *session = SessionFor(ic)) {
     ok_session_clear_composition(session);
   }
-  ic->inputPanel().reset();
-  ic->updatePreedit();
-  ic->updateUserInterface(fcitx::UserInterfaceComponent::InputPanel);
+  ClearInputPanel(ic);
 }
 
 void OpenKeyEngine::deactivate(const fcitx::InputMethodEntry &entry,
-                               fcitx::InputContext *ic) {
-  reset(entry, ic);
-  DestroySession(ic);
+                               fcitx::InputContextEvent &event) {
+  reset(entry, event);
+  DestroySession(event.inputContext());
 }
 
 class OpenKeyEngineFactory : public fcitx::AddonFactory {

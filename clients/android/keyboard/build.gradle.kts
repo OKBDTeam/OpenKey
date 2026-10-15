@@ -34,8 +34,7 @@ dependencies {
 
     // ComposeView 运行在 InputMethodService 窗口中，需要手动提供
     // ViewTreeLifecycleOwner / ViewTreeSavedStateRegistryOwner（见 OpenKeyIme）。
-    // 直接调用 ViewTreeLifecycleOwner.set() / ViewTreeSavedStateRegistryOwner.set()
-    // 静态方法即可，无需 ktx 扩展。
-    implementation("androidx.lifecycle:lifecycle-runtime:2.8.6")
-    implementation("androidx.savedstate:savedstate:1.2.1")
+    // 两者的静态 set() 扩展位于 -ktx 构件（非 ktx 包只有类本体）。
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+    implementation("androidx.savedstate:savedstate-ktx:1.2.1")
 }
