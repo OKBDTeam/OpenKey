@@ -1,0 +1,109 @@
+# OpenKey 主方案变体：模糊音（全拼 + 常见模糊音派生）
+# 模糊音规则为输入法业界通行设置（平舌/翘舌、鼻音、前后鼻音等）；algebra 表达
+# 由 OpenKey 自行编写，CC0-1.0。docs/02 5.1：模糊音为设置开关——v0.1.0 经
+# 「方案切换」实现（ok_session_select_schema 切换到本方案），细粒度分项开关
+# （分别控制 z/zh、n/l 等）留待后续里程碑以用户配置补丁实现。
+# encoding: utf-8
+
+schema:
+  schema_id: openkey_fuzzy
+  name: 开门拼音·模糊音
+  version: "0.1.0"
+  author:
+    - OpenKey Developers
+  description: |
+    开门拼音全拼 + 模糊音：平舌翘舌（z/zh、c/ch、s/sh）、鼻音（n/l、r/l）、
+    fn/h（f/h）、前后鼻音（ang/an、eng/en、ing/in、iang/uan、uang/uan）双向派生。
+
+switches:
+  - name: ascii_mode
+    reset: 0
+    states: [ 中文, ABC ]
+  - name: full_shape
+    states: [ 半角, 全角 ]
+  - name: ascii_punct
+    states: [ 。, ． ]
+
+engine:
+  processors:
+    - ascii_composer
+    - recognizer
+    - key_binder
+    - speller
+    - punctuator
+    - selector
+    - navigator
+    - express_editor
+  segmentors:
+    - ascii_segmentor
+    - matcher
+    - abc_segmentor
+    - punct_segmentor
+    - fallback_segmentor
+  translators:
+    - punct_translator
+    - script_translator
+  filters:
+    - uniquifier
+
+speller:
+  alphabet: zyxwvutsrqponmlkjihgfedcba
+  delimiter: " '"
+  algebra:
+    - erase/^xx$/
+    # ---- 模糊音派生（双向：非标准拼写命中标准音节，标准拼写也命中非标准音节）----
+    # 平舌 / 翘舌
+    - derive/^z(.)$/zh$1/
+    - derive/^zh(.)$/z$1/
+    - derive/^c(.)$/ch$1/
+    - derive/^ch(.)$/c$1/
+    - derive/^s(.)$/sh$1/
+    - derive/^sh(.)$/s$1/
+    # 鼻音 n/l、r/l
+    - derive/^l(.*)$/n$1/
+    - derive/^n(.*)$/l$1/
+    - derive/^r(.*)$/l$1/
+    - derive/^l(.*)$/r$1/
+    # f/h
+    - derive/^f(.*)$/h$1/
+    - derive/^h(.*)$/f$1/
+    # 前后鼻音（韵母）
+    - derive/ang$/an/
+    - derive/an$/ang/
+    - derive/eng$/en/
+    - derive/en$/eng/
+    - derive/ing$/in/
+    - derive/in$/ing/
+    - derive/iang$/uan/
+    - derive/uang$/uan/
+    - derive/uan$/iang/
+    - derive/uan$/uang/
+    # ---- 以下与主方案一致的基础拼写规则 ----
+    - abbrev/^([a-z]).+$/$1/
+    - abbrev/^([zcs]h).+$/$1/
+    - derive/^([nl])ve$/$1ue/
+    - derive/^([jqxy])u/$1v/
+    - derive/un$/uen/
+    - derive/ui$/uei/
+    - derive/iu$/iou/
+    - derive/([aeiou])ng$/$1gn/
+    - derive/([dtngkhrzcs])o(u|ng)$/$1o/
+    - derive/ong$/on/
+    - derive/ao$/oa/
+    - derive/([iu])a(o|ng?)$/a$1$2/
+
+translator:
+  dictionary: openkey_base
+  prism: openkey_base_fuzzy
+
+punctuator:
+  import_preset: default
+
+key_binder:
+  import_preset: default
+
+recognizer:
+  import_preset: default
+
+ascii_composer:
+  import_preset: default

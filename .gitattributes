@@ -1,0 +1,32 @@
+# 跨平台仓库：源码与数据文件统一 LF，避免 Windows 检出 CRLF 导致
+# 生成物 diff 噪声与 TSV/YAML 数据歧义。
+* text=auto
+
+*.h text eol=lf
+*.c text eol=lf
+*.cpp text eol=lf
+*.hpp text eol=lf
+*.rs text eol=lf
+*.kt text eol=lf
+*.kts text eol=lf
+*.swift text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.json text eol=lf
+*.tsv text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.def text eol=lf
+*.gitmodules text eol=lf
+
+# 二进制
+*.png binary
+*.jpg binary
+*.ico binary
+*.zip binary
+*.apk binary
+*.deb binary
+*.pdf binary

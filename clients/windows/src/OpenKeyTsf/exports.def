@@ -1,0 +1,10 @@
+;
+; 文件用途：OpenKeyTsf.dll 的模块定义文件：导出 COM 标准入口函数。
+; register.cpp 另外实现 DllRegisterServer / DllUnregisterServer（CTF TIP 注册）。
+;
+
+EXPORTS
+    DllGetClassObject   PRIVATE
+    DllCanUnloadNow     PRIVATE
+    DllRegisterServer   PRIVATE
+    DllUnregisterServer PRIVATE

@@ -1,6 +1,56 @@
 # WorkBuddy 本机协作数据（个人会话记忆，不入公开仓库）
 .workbuddy/
 
+# Rust / Cargo
+/target/
+**/target/
+Cargo.lock
+*.rlib
+*.rmeta
+
+# Build outputs
+/build/
+/cmake-build*/
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.pdb
+*.exp
+
+# IDE
+.idea/
+.vscode/
+*.user
+*.suo
+*.opensdf
+*.sdf
+
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Android
+*.apk
+*.aab
+local.properties
+.gradle/
+
+# Xcode
+xcuserdata/
+DerivedData/
+*.xcuserstate
+*.ipa
+
+# Packaging outputs
+/packages/
+/dist/
+
+# Logs & temp
+*.log
+*.tmp

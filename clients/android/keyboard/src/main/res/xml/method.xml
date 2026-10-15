@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 输入法子类型：中文（拼音）为主，英文为辅。 -->
+<input-method xmlns:android="http://schemas.android.com/apk/res/android"
+    android:settingsActivity="app.openkey.app.MainActivity"
+    android:supportsInlineSuggestions="true"
+    android:supportsSwitchingToNextInputMethod="true">
+
+    <subtype
+        android:label="@string/subtype_zh"
+        android:imeSubtypeLocale="zh_CN"
+        android:imeSubtypeMode="keyboard" />
+
+    <subtype
+        android:label="@string/subtype_en"
+        android:imeSubtypeLocale="en_US"
+        android:imeSubtypeMode="keyboard"
+        android:isAsciiCapable="true" />
+
+</input-method>

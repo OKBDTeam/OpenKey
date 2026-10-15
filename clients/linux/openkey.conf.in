@@ -1,0 +1,15 @@
+# OpenKey addon 配置（模板，CMake 以 OPENKEY_VERSION 填充）。
+[Addon]
+Name=OpenKey
+Comment=开门输入法 fcitx5 适配
+Category=InputMethod
+Version=@OPENKEY_VERSION@
+Library=libfcitx5-openkey.so
+Type=SharedLibrary
+OnDemand=True
+Configurable=True
+Dependencies=
+
+[Addon/Optional]
+# 可选：用户自定义的方案与词库目录（留空则用安装前缀 /usr/share/openkey）
+#SharedDataDir=

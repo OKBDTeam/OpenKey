@@ -1,0 +1,26 @@
+# Flatpak manifest：org.openkey.fcitx5
+# 基座为 Fcitx5 官方 flatpak（org.fcitx5.Platform / org.fcitx5.Sdk）。
+# 数据默认落在 ~/.var/app/org.openkey.fcitx5（沙箱内即用户目录），
+# 符合「数据不出本机」的隐私铁律（docs/02 5.2）。
+app-id: org.openkey.fcitx5
+runtime: org.fcitx5.Platform
+runtime-version: '23.08'
+sdk: org.fcitx5.Sdk
+command: fcitx5
+finish-args:
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --share=ipc
+  - --filesystem=xdg-data/openkey:create
+  - --talk-name=org.freedesktop.Notifications
+modules:
+  - name: openkey
+    buildsystem: simple
+    build-commands:
+      - cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/app
+      - cmake --build build
+      - cmake --install build
+    sources:
+      - type: dir
+        path: ../..

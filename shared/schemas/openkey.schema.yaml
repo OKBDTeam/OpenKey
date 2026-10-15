@@ -1,0 +1,89 @@
+# OpenKey 主方案：开门拼音（全拼）
+# 本文件由 OpenKey 编写，以 CC0-1.0 发布；speller algebra 的拼写派生规则沿用
+# Rime 社区通行写法（参考 librime data/minimal/luna_pinyin.schema.yaml，BSD-3-Clause）。
+# encoding: utf-8
+
+schema:
+  schema_id: openkey
+  name: 开门拼音
+  version: "0.1.0"
+  author:
+    - OpenKey Developers
+  description: |
+    OpenKey 主方案：全拼 + 内置 CC0 基础词库（openkey-base，由 tools/lexicon 构建）。
+    词频数据为用户词库预留同步通道（docs/02 3.3.4），不随本文件分发。
+
+switches:
+  - name: ascii_mode
+    reset: 0
+    states: [ 中文, ABC ]
+    abbrev: [ 中, Ａ ]
+  - name: full_shape
+    states: [ 半角, 全角 ]
+    abbrev: [ 半, 全 ]
+  - name: ascii_punct
+    states: [ 。, ． ]
+    abbrev: [ 。, ． ]
+  # 简繁切换依赖 OpenCC 配置数据，随词库中心组件提供后启用（docs/02 5.1）。
+  # - name: simplification
+  #   states: [ 简体, 傳統 ]
+  #   abbrev: [ 简, 繁 ]
+
+engine:
+  processors:
+    - ascii_composer
+    - recognizer
+    - key_binder
+    - speller
+    - punctuator
+    - selector
+    - navigator
+    - express_editor
+  segmentors:
+    - ascii_segmentor
+    - matcher
+    - abc_segmentor
+    - punct_segmentor
+    - fallback_segmentor
+  translators:
+    - punct_translator
+    - script_translator
+  filters:
+    - uniquifier
+
+speller:
+  alphabet: zyxwvutsrqponmlkjihgfedcba
+  delimiter: " '"
+  algebra:
+    - erase/^xx$/
+    # 首字母简拼
+    - abbrev/^([a-z]).+$/$1/
+    - abbrev/^([zcs]h).+$/$1/
+    # 常见拼写纠错派生
+    - derive/^([nl])ve$/$1ue/
+    - derive/^([jqxy])u/$1v/
+    - derive/un$/uen/
+    - derive/ui$/uei/
+    - derive/iu$/iou/
+    - derive/([aeiou])ng$/$1gn/
+    - derive/([dtngkhrzcs])o(u|ng)$/$1o/
+    - derive/ong$/on/
+    - derive/ao$/oa/
+    - derive/([iu])a(o|ng?)$/a$1$2/
+
+translator:
+  dictionary: openkey_base
+  preedit_format:
+    - xform/([nl])v/$1ü/
+
+punctuator:
+  import_preset: default
+
+key_binder:
+  import_preset: default
+
+recognizer:
+  import_preset: default
+
+ascii_composer:
+  import_preset: default

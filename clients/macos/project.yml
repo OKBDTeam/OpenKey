@@ -1,0 +1,158 @@
+# clients/macos/project.yml —— OpenKey macOS 输入法工程（XcodeGen 规格）。
+#
+# 与 CI 的约定（.github/workflows/ci-clients.yml 的 macos-client job）：
+#   1. CI 在 macos-14 上 brew install xcodegen 后执行 `xcodegen generate`；
+#   2. CI 把 core 产物放置到 core-binding/：
+#        libopenkey_ffi.a / libopenkey_ffi.dylib / librime.dylib / openkey.h
+#      （core 以 --target aarch64-apple-darwin 构建，librime 以 arm64 安装）
+#   3. CI 执行：
+#        xcodebuild -project OpenKey.xcodeproj -scheme OpenKey \
+#          -configuration Release -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+#   4. CI 按 *.app / *.inputmethod 收集产物（build/Build/Products/Release 下）。
+#
+# 因此本文件固定：工程名 OpenKey、scheme 名 OpenKey、target 名 OpenKey / OpenKeyInputMethod；
+# core 链接一律经 OTHER_LDFLAGS 引用 core-binding/ 下的文件（本地开发需先准备该目录，
+# 见 scripts/build-bundle.sh 与 README.md）。
+name: OpenKey
+
+options:
+  createIntermediateGroups: true
+  deploymentTarget:
+    macOS: "13.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    # CI 以 CODE_SIGNING_ALLOWED=NO 构建；此处显式关闭，保证本地 xcodegen + xcodebuild 一致。
+    # 分发前的 Developer ID 签名与公证见 README（TODO）与 scripts/build-bundle.sh。
+    CODE_SIGNING_ALLOWED: "NO"
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    ENABLE_HARDENED_RUNTIME: "NO"
+    ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+    # —— core 链接（文件由 CI 放置于 core-binding/；缺省时链接步骤会失败，属预期）——
+    # openkey.h 的编译期声明来自本地 SwiftPM 包 Packages/OpenKeyCore 的 C 目标，
+    # core-binding/openkey.h 仅作参考与校验用。
+    LIBRARY_SEARCH_PATHS:
+      - "$(SRCROOT)/core-binding"
+    OTHER_LDFLAGS:
+      - "$(SRCROOT)/core-binding/libopenkey_ffi.a"
+      - "$(SRCROOT)/core-binding/librime.dylib"
+      # Rust 静态库/librime 可能引用 C++ 符号；Security/SystemConfiguration 覆盖
+      # openkey-ffi 默认特性（reqwest native-tls）的系统框架依赖。
+      - "-lc++"
+      - "-framework Security"
+      - "-framework SystemConfiguration"
+    # librime.dylib 运行期查找路径；分发前由 scripts/build-bundle.sh 把 install name
+    # 改写为 @rpath/librime.dylib 并把库拷入各 bundle 的 Contents/Frameworks。
+    LD_RUNPATH_SEARCH_PATHS:
+      - "@executable_path/../Frameworks"
+
+packages:
+  # 本地 SwiftPM 包：C 目标 COpenKey（openkey.h + modulemap）+ Swift 封装 OpenKeyCore。
+  # iOS 工程（../ios/project.yml）复用同一路径，避免双份维护。
+  OpenKeyCore:
+    path: Packages/OpenKeyCore
+
+schemes:
+  # CI 使用的 scheme：同时构建设置 App 与输入法 bundle。
+  OpenKey:
+    build:
+      targets:
+        OpenKey: all
+        OpenKeyInputMethod: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+
+targets:
+  # 设置 App：方案/双拼/模糊音/中英切换（docs/02 4.2.1 的 OpenKey.app）。
+  OpenKey:
+    type: application
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - path: OpenKey.app
+    dependencies:
+      - package: OpenKeyCore
+      # 输入法 bundle 作为构建依赖（先于 App 构建）；构建后由下方 postBuildScripts
+      # 拷入 App/Contents/PlugIns，便于分发与 CI 收集。
+      - target: OpenKeyInputMethod
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.openkey.client
+        PRODUCT_NAME: OpenKey
+        GENERATE_INFOPLIST_FILE: "NO"
+    info:
+      path: OpenKey.app/Info.plist
+      properties:
+        CFBundleDisplayName: OpenKey
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+    postBuildScripts:
+      - name: 嵌入输入法到 OpenKey.app/Contents/PlugIns
+        script: |
+          # 输入法是 .inputmethod bundle；真正被系统识别的安装位置是
+          # /Library/Input Methods（见 scripts/build-bundle.sh）。这里拷入
+          # App/Contents/PlugIns 仅用于分发捆绑与 CI 产物收集，重复执行安全。
+          set -e
+          APP="${TARGET_BUILD_DIR}/OpenKey.app"
+          IM="${BUILT_PRODUCTS_DIR}/OpenKeyInputMethod.inputmethod"
+          if [ -d "$APP" ] && [ -d "$IM" ]; then
+            mkdir -p "$APP/Contents/PlugIns"
+            rm -rf "$APP/Contents/PlugIns/OpenKeyInputMethod.inputmethod"
+            cp -R "$IM" "$APP/Contents/PlugIns/"
+            echo "已嵌入输入法 -> $APP/Contents/PlugIns/OpenKeyInputMethod.inputmethod"
+          else
+            echo "notice: 未找到 $APP 或 $IM，跳过输入法嵌入"
+          fi
+
+  # 输入法 bundle（安装至 /Library/Input Methods）。
+  #
+  # 工程形态说明（与 team-lead 约定的偏差，README.md 有完整论证）：
+  # 真实可用的 macOS 输入法（Squirrel / azooKey / BSMInputMethod 等）都是
+  # "application 产品类型 + WRAPPER_EXTENSION=inputmethod"：
+  # 输入法以 LSBackgroundOnly 后台应用形态被系统拉起，需要可执行入口（@main AppDelegate）
+  # 来创建 IMKServer 并注册 NSConnection；app-extension 产品类型没有入口点，
+  # 其 NSExtensionPrincipalClass 机制与 IMK 不兼容。
+  # 产物仍是 OpenKeyInputMethod.inputmethod，CI 收集与嵌入逻辑不受影响。
+  OpenKeyInputMethod:
+    type: application
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - path: OpenKey.inputmethod
+    dependencies:
+      - package: OpenKeyCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.openkey.client.inputmethod.OpenKey
+        PRODUCT_NAME: OpenKeyInputMethod
+        # .inputmethod 包装扩展名（输入法 bundle 约定；CI 按 *.inputmethod 收集）。
+        WRAPPER_EXTENSION: inputmethod
+        GENERATE_INFOPLIST_FILE: "NO"
+    info:
+      path: OpenKey.inputmethod/Info.plist
+      properties:
+        CFBundleDisplayName: OpenKey 输入法
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        # —— macOS 输入法专用键（IMKServer Class Reference Table 1 / docs/02 4.2.1）——
+        # 后台应用形态：输入法不占 Dock。
+        LSBackgroundOnly: true
+        # 入口类：NSManualApplication（NSApplication 子类，init 时挂 AppDelegate 创建 IMKServer）。
+        NSPrincipalClass: $(PRODUCT_MODULE_NAME).NSManualApplication
+        # NSConnection 命名规范（macOS 10.7+）：必须是 $(PRODUCT_BUNDLE_IDENTIFIER)_Connection。
+        InputMethodConnectionName: $(PRODUCT_BUNDLE_IDENTIFIER)_Connection
+        # 每个输入客户端由 IMKServer 实例化的控制器类（Swift 类名需带模块前缀）。
+        InputMethodServerControllerClass: $(PRODUCT_MODULE_NAME).InputController
+        # 字符类别：决定输入源在系统设置中的归类（Squirrel 同款做法）。
+        tsInputMethodCharacterRepertoireKey:
+          - zh-Hans
+          - Latn
+        TISInputSourceID: $(PRODUCT_BUNDLE_IDENTIFIER)
+        TISIntendedLanguage: zh-Hans

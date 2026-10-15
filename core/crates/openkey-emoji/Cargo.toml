@@ -1,0 +1,26 @@
+[package]
+name = "openkey-emoji"
+description = "OpenKey 表情图像管线：解码/缩放/量化/gif 编码（docs/02 3.5，DR-003）"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+thiserror.workspace = true
+log.workspace = true
+sha2.workspace = true
+hex.workspace = true
+# 仅启用设计文档 3.5.1 所列源格式（png/jpeg/webp/gif）；不拉入 avif/exr/tiff
+# 等重解码器（rav1e 等），缩小主 App 依赖面与构建时间。
+# 注：当前 cargo 版本下 `workspace = true` 继承会忽略 `default-features = false`，
+# 故此处按同一版本范围（与 workspace 声明的 "0.25" 一致）直接声明。
+image = { version = "0.25", default-features = false, features = [
+  "png",
+  "jpeg",
+  "gif",
+  "webp",
+] }
+gif.workspace = true

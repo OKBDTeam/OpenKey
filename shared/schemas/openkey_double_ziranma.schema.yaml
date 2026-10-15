@@ -1,0 +1,106 @@
+# OpenKey 双拼方案：自然码双拼
+# 键位为自然码公开发布的标准键位（事实映射，参考维基百科「自然码」条目键位图）；
+# algebra 表达由 OpenKey 自行编写，CC0-1.0。
+# 与全拼主方案共用 openkey_base 词库，经 translator.prism 构建独立拼写索引。
+# encoding: utf-8
+
+schema:
+  schema_id: openkey_double_ziranma
+  name: 自然码双拼
+  version: "0.1.0"
+  author:
+    - OpenKey Developers
+  description: |
+    开门拼音 - 自然码双拼。键位：zh=V、ch=I、sh=U；
+    韵母键：Q=iu W=ia/ua E=e R=uan T=ue/ve Y=ing/uai O=o/uo P=un
+    S=iong/ong D=iang/uang F=en G=eng H=ang J=an K=ao L=ai Z=ei X=ie
+    C=iao V=ui/ü B=ou N=in M=ian；
+    零声母规则（自然码原始规则）：单字母韵母重复（啊=aa、哦=oo）；
+    双字母韵母直接输入（爱=ai、安=an、欧=ou）；三字母韵母重复首字母
+    （昂=ah、eng=eg）。
+
+switches:
+  - name: ascii_mode
+    reset: 0
+    states: [ 中文, ABC ]
+  - name: full_shape
+    states: [ 半角, 全角 ]
+  - name: ascii_punct
+    states: [ 。, ． ]
+
+engine:
+  processors:
+    - ascii_composer
+    - recognizer
+    - key_binder
+    - speller
+    - punctuator
+    - selector
+    - navigator
+    - express_editor
+  segmentors:
+    - ascii_segmentor
+    - matcher
+    - abc_segmentor
+    - punct_segmentor
+    - fallback_segmentor
+  translators:
+    - punct_translator
+    - script_translator
+  filters:
+    - uniquifier
+
+speller:
+  alphabet: zyxwvutsrqponmlkjihgfedcba
+  delimiter: " '"
+  algebra:
+    - erase/^xx$/
+    # 声母映射（zh/ch/sh）
+    - xform/^sh/u/
+    - xform/^ch/i/
+    - xform/^zh/v/
+    # 韵母映射（自然码标准键位）
+    - xform/iu$/q/
+    - xform/[iu]a$/w/
+    - xform/uan$/r/
+    - xform/[uv]e$/t/
+    - xform/ing$|uai$/y/
+    - xform/uo$/o/
+    - xform/un$/p/
+    - xform/(.)i?ong$/$1s/
+    - xform/[iu]ang$/d/
+    - xform/(.)en$/$1f/
+    - xform/(.)eng$/$1g/
+    - xform/(.)ang$/$1h/
+    - xform/(.)an$/$1j/
+    - xform/(.)ao$/$1k/
+    - xform/(.)ai$/$1l/
+    - xform/(.)ei$/$1z/
+    - xform/ie$/x/
+    - xform/iao$/c/
+    - xform/ui$/v/
+    - xform/(.)ou$/$1b/
+    - xform/in$/n/
+    - xform/ian$/m/
+    # 零声母（自然码原始规则）：单字母韵母重复；三字母韵母重复首字母
+    - xform/^([aoe])$/$1$1/
+    - xform/^ang$/ah/
+    - xform/^eng$/eg/
+    # 注：双字母零声母韵母（ai/an/ou/ei/en 等）保持全拼两键直接输入，
+    # 由词库中的全拼音节直接命中，与自然码原始规则一致。
+
+translator:
+  dictionary: openkey_base
+  prism: openkey_base_ziranma
+
+punctuator:
+  import_preset: default
+
+key_binder:
+  import_preset: default
+
+recognizer:
+  import_preset: default
+
+ascii_composer:
+  import_preset: default

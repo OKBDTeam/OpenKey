@@ -1,0 +1,16 @@
+[package]
+name = "openkey-data"
+description = "OpenKey 数据层：SQLite 打开与迁移、六类可同步条目 CRUD、组件注册表"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+rusqlite.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+log.workspace = true
+ulid.workspace = true

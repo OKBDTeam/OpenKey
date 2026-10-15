@@ -1,0 +1,26 @@
+{
+  "id": "smms",
+  "name": "SM.MS",
+  "version": 1,
+  "request": {
+    "method": "POST",
+    "url": "https://sm.ms/api/v2/upload",
+    "headers": {
+      "Authorization": "{token}"
+    },
+    "multipart": [
+      { "name": "smfile", "fromFile": true }
+    ]
+  },
+  "response": {
+    "urlPath": "$.data.url",
+    "deletePath": "$.data.delete",
+    "errorPath": "$.message",
+    "successWhen": "success == true"
+  },
+  "credential": {
+    "fields": [
+      { "name": "token", "kind": "token", "label": "API Token", "required": true }
+    ]
+  }
+}

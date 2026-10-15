@@ -1,0 +1,218 @@
+# ci-core.yml —— core（Rust workspace + librime submodule）与 tools/ 的持续集成。
+#
+# 触发：core/、shared/、tools/ 下的变更（push 与 pull_request）。
+# 设计依据：docs/02-技术设计与实施方案.md 第 7 章（质量保障与发布流水线）、7.1（测试矩阵）。
+#
+# Job 图：
+#   core-linux    ubuntu-24.04    apt 依赖 → 构建 librime → cargo test → clippy → fmt
+#                                   → 构建 tools（lexicon/bench，尽力运行）→ 校验 openkey.h 同步
+#   core-macos    macos-14        brew 依赖 → 构建 librime(aarch64) → cargo test → clippy → fmt
+#   core-windows  windows-latest  cargo test/clippy/fmt（--no-default-features，Windows 暂不链接 librime）
+#
+# 说明：tools/lexicon 与 tools/bench 由其他同事并行实现，凡涉及其 CLI 的步骤均为
+# "尽力而为"：入口就绪则运行，占位实现则打印 notice 后跳过（不吞掉真实构建错误——
+# 两个 crate 自身的编译失败仍会令本 job 失败）。
+
+name: ci-core
+
+on:
+  push:
+    paths:
+      - 'core/**'
+      - 'shared/**'
+      - 'tools/**'
+  pull_request:
+    paths:
+      - 'core/**'
+      - 'shared/**'
+      - 'tools/**'
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  core-linux:
+    name: core-linux（librime + 全量测试 + tools + 头文件校验）
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      # openkey-rime-ffi 的 build.rs 读取 LIBRIME_DIR 定位 librime 安装前缀（docs/02 3.1）。
+      LIBRIME_DIR: ${{ github.workspace }}/librime-install
+      # librime 以动态库链接（build.rs: cargo:rustc-link-lib=dylib=rime），
+      # 测试二进制运行期经 LD_LIBRARY_PATH 找到 librime.so。
+      LD_LIBRARY_PATH: ${{ github.workspace }}/librime-install/lib
+    steps:
+      - name: Checkout（含 librime submodule，锁 1.17.0）
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: 安装 Rust stable（clippy / rustfmt）
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: 安装 librime 依赖（apt 清单照抄 librime action-install-linux.sh）
+        run: |
+          sudo apt update
+          # libunwind-dev 修复 Ubuntu 22.04 glog 依赖 bug（librime 官方脚本注释）
+          sudo apt install -y libunwind-dev ninja-build \
+            libboost-locale-dev libboost-regex-dev libgoogle-glog-dev \
+            libleveldb-dev libmarisa-dev libyaml-cpp-dev libopencc-dev libgtest-dev
+
+      - name: 构建并安装 librime（core/vendor/librime，共享库）
+        run: |
+          cmake -S core/vendor/librime -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF \
+            -DCMAKE_INSTALL_PREFIX="$LIBRIME_DIR"
+          cmake --build build
+          cmake --install build
+
+      - name: core 单元 / 集成测试（链接 librime）
+        working-directory: core
+        run: cargo test --workspace
+
+      - name: clippy（警告即失败）
+        working-directory: core
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: rustfmt 检查（workspace + tools）
+        run: |
+          cargo fmt --manifest-path core/Cargo.toml --all -- --check
+          cargo fmt --manifest-path tools/lexicon/Cargo.toml -- --check
+          cargo fmt --manifest-path tools/bench/Cargo.toml -- --check
+
+      - name: 构建并校验词库（openkey-lexicon，docs/02 5.6）
+        shell: bash
+        run: |
+          seed=shared/schemas/lexicon/openkey-base.seed.tsv
+          if [ ! -f "$seed" ]; then
+            echo "::notice::种子词库未就绪，跳过词库构建"
+          else
+            cargo build --manifest-path tools/lexicon/Cargo.toml
+            cargo run --manifest-path tools/lexicon/Cargo.toml -- check --seed "$seed"
+            cargo run --manifest-path tools/lexicon/Cargo.toml -- build \
+              --seed "$seed" --out shared/schemas --version 0.1.0
+            # 生成物必须与提交版本一致：改词库必须同步重新生成并提交
+            if git diff --exit-code -- shared/schemas/openkey_base.dict.yaml shared/schemas/openkey_base.manifest.json; then
+              echo "词库生成物与提交版本一致"
+            else
+              echo "::error::openkey_base.dict.yaml / manifest.json 需重新生成并提交：cargo run --manifest-path tools/lexicon/Cargo.toml -- build --seed $seed --out shared/schemas --version 0.1.0"
+              exit 1
+            fi
+          fi
+
+      - name: 首屏命中率基准（openkey-bench，docs/02 7.2）
+        shell: bash
+        run: |
+          corpus=tools/bench-corpus/corpus.tsv
+          if [ ! -f "$corpus" ] || [ ! -f shared/schemas/openkey_base.dict.yaml ]; then
+            echo "::notice::语料或词库未就绪，跳过基准评测"
+          else
+            cargo build --manifest-path tools/bench/Cargo.toml
+            # 临时用户数据目录，避免污染 runner
+            cargo run --manifest-path tools/bench/Cargo.toml -- run \
+              --corpus "$corpus" --shared shared/schemas \
+              --report bench-report.md
+          fi
+
+      - name: 校验 openkey.h 与实现同步（cbindgen 产物）
+        working-directory: core
+        run: |
+          # openkey-ffi 的 build.rs 在构建时重写 core/ffi-headers/openkey.h；
+          # 若与提交版本有差异，说明有人改了 C ABI 但忘了重新生成头文件。
+          cargo build -p openkey-ffi
+          if git diff --exit-code -- ffi-headers/; then
+            echo "openkey.h 与实现同步"
+          else
+            echo "::error::openkey.h 需重新生成并提交：cd core && cargo build -p openkey-ffi"
+            exit 1
+          fi
+
+  core-macos:
+    name: core-macos（librime + 全量测试）
+    runs-on: macos-14
+    timeout-minutes: 45
+    env:
+      LIBRIME_DIR: ${{ github.workspace }}/librime-install
+      DYLD_FALLBACK_LIBRARY_PATH: ${{ github.workspace }}/librime-install/lib
+    steps:
+      - name: Checkout（含 librime submodule，锁 1.17.0）
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: 安装 Rust stable（clippy / rustfmt）
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: 安装 librime 依赖（Homebrew）
+        run: |
+          # runner 已带 cmake / ninja；显式声明保证存在（已安装则为 no-op）
+          brew install boost glog yaml-cpp leveldb marisa opencc cmake ninja
+
+      - name: 构建并安装 librime（aarch64-apple-darwin）
+        run: |
+          cmake -S core/vendor/librime -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF \
+            -DCMAKE_INSTALL_PREFIX="$LIBRIME_DIR" \
+            -DCMAKE_PREFIX_PATH="$(brew --prefix)" \
+            -DCMAKE_OSX_ARCHITECTURES=arm64
+          cmake --build build
+          cmake --install build
+          # 将 librime.dylib 的 install name 改为绝对路径：Rust 测试二进制默认不带
+          # LC_RPATH，@rpath 形式的 install name 会在运行期找不到库。
+          install_name_tool -id "$LIBRIME_DIR/lib/librime.dylib" "$LIBRIME_DIR/lib/librime.dylib"
+
+      - name: core 单元 / 集成测试（链接 librime）
+        working-directory: core
+        run: cargo test --workspace
+
+      - name: clippy（警告即失败）
+        working-directory: core
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: rustfmt 检查（workspace + tools）
+        run: |
+          cargo fmt --manifest-path core/Cargo.toml --all -- --check
+          cargo fmt --manifest-path tools/lexicon/Cargo.toml -- --check
+          cargo fmt --manifest-path tools/bench/Cargo.toml -- --check
+
+  core-windows:
+    name: core-windows（--no-default-features，暂不链接 librime）
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout（含 librime submodule，锁 1.17.0）
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: 安装 Rust stable（clippy / rustfmt）
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: core 单元 / 集成测试（--no-default-features）
+        working-directory: core
+        run: cargo test --workspace --no-default-features
+        # 说明：Windows 端 TSF 客户端里程碑（docs/02 4.1）接入前，rime-ffi 的 librime
+        # 特性在 Windows 关闭；--no-default-features 同时关闭 openkey-ffi 的 net 特性
+        # （reqwest native-tls）。链接 librime 的验证由 core-linux / core-macos 承担。
+
+      - name: clippy（--no-default-features 与测试保持一致）
+        working-directory: core
+        run: cargo clippy --workspace --all-targets --no-default-features -- -D warnings
+
+      - name: rustfmt 检查（workspace + tools）
+        run: |
+          cargo fmt --manifest-path core/Cargo.toml --all -- --check
+          cargo fmt --manifest-path tools/lexicon/Cargo.toml -- --check
+          cargo fmt --manifest-path tools/bench/Cargo.toml -- --check

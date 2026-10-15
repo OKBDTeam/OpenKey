@@ -1,0 +1,97 @@
+# OpenKey 双拼方案：智能 ABC 双拼
+# 键位为智能 ABC 双拼公开发布的标准键位（事实映射）；algebra 表达由 OpenKey 自行编写，CC0-1.0。
+# 与全拼主方案共用 openkey_base 词库，经 translator.prism 构建独立拼写索引。
+# encoding: utf-8
+
+schema:
+  schema_id: openkey_double_abc
+  name: 智能 ABC 双拼
+  version: "0.1.0"
+  author:
+    - OpenKey Developers
+  description: |
+    开门拼音 - 智能 ABC 双拼。键位：zh=A、ch=E、sh=V，ing=Y；
+    韵母键：Q=ei W=ian R=er/iu T=iang/uang O=o/uo P=uan S=iong/ong
+    D=ia/ua J=an Z=iao K=ao X=ie C=in/uai L=ai B=ou N=un M=ue/ui；
+    零声母规则：以 o 作前缀（啊=oa、爱=ol）。
+
+switches:
+  - name: ascii_mode
+    reset: 0
+    states: [ 中文, ABC ]
+  - name: full_shape
+    states: [ 半角, 全角 ]
+  - name: ascii_punct
+    states: [ 。, ． ]
+
+engine:
+  processors:
+    - ascii_composer
+    - recognizer
+    - key_binder
+    - speller
+    - punctuator
+    - selector
+    - navigator
+    - express_editor
+  segmentors:
+    - ascii_segmentor
+    - matcher
+    - abc_segmentor
+    - punct_segmentor
+    - fallback_segmentor
+  translators:
+    - punct_translator
+    - script_translator
+  filters:
+    - uniquifier
+
+speller:
+  alphabet: zyxwvutsrqponmlkjihgfedcba
+  delimiter: " '"
+  algebra:
+    - erase/^xx$/
+    # 声母映射（智能 ABC 特殊键位）
+    - xform/^zh/a/
+    - xform/^ch/e/
+    - xform/^sh/v/
+    # 零声母：加 o 前缀（a→oa、ai→oai、an→oan……）
+    - xform/^([aoe].*)$/o$1/
+    # 韵母映射（智能 ABC 标准键位）
+    - xform/ei$/q/
+    - xform/ian$/w/
+    - xform/er$|iu$/r/
+    - xform/[iu]ang$/t/
+    - xform/ing$/y/
+    - xform/uo$/o/
+    - xform/uan$/p/
+    - xform/(.)i?ong$/$1s/
+    - xform/[iu]a$/d/
+    - xform/en$/f/
+    - xform/eng$/g/
+    - xform/ang$/h/
+    - xform/an$/j/
+    - xform/iao$/z/
+    - xform/ao$/k/
+    - xform/in$|uai$/c/
+    - xform/ai$/l/
+    - xform/ie$/x/
+    - xform/ou$/b/
+    - xform/un$/n/
+    - xform/[uv]e$|ui$/m/
+
+translator:
+  dictionary: openkey_base
+  prism: openkey_base_abc
+
+punctuator:
+  import_preset: default
+
+key_binder:
+  import_preset: default
+
+recognizer:
+  import_preset: default
+
+ascii_composer:
+  import_preset: default

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ime_name">OpenKey 输入法</string>
+    <string name="subtype_zh">中文（拼音）</string>
+    <string name="subtype_en">英文</string>
+</resources>

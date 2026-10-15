@@ -1,0 +1,24 @@
+[package]
+name = "openkey-vault"
+description = "OpenKey 密码库：Bitwarden 协议栈（EncString/KDF/HKDF）、本地 vault 与锁定状态机、REST 抽象"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+log.workspace = true
+aes.workspace = true
+cbc = { workspace = true, features = ["alloc"] }
+hmac.workspace = true
+sha2.workspace = true
+pbkdf2 = { workspace = true, features = ["sha2"] }
+argon2.workspace = true
+base64.workspace = true
+rand.workspace = true
+zeroize.workspace = true

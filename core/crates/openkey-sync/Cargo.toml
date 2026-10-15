@@ -1,0 +1,19 @@
+[package]
+name = "openkey-sync"
+description = "OpenKey 同步引擎：HLC、oplog、LWW 合并、墓碑、快照合并（占位契约）"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+log.workspace = true
+sha2.workspace = true
+hex.workspace = true
+ulid.workspace = true
+openkey-data = { path = "../openkey-data" }

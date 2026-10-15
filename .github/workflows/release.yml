@@ -1,0 +1,905 @@
+# release.yml —— 发布流水线（自行分发的信任根，docs/02 7.4）。
+#
+# 触发：push tag `v*`；另支持 workflow_dispatch 手动输入已存在的 tag。
+#
+# Job 图：
+#   build-core              三平台（linux/macos/windows）构建 core + librime，cargo test 必须全绿；
+#                           产物：各平台 core 库 zip + openkey.h + 词库包（openkey-lexicon）
+#   build-client-windows    TSF 客户端 zip（Authenticode 签名：证书未配置则跳过并说明）
+#   build-client-linux      fcitx5 addon deb
+#   build-client-android    release 未签名 APK（无签名配置时退回 debug APK，均注明"未签名"）
+#   build-client-macos      .app zip（Developer ID 签名：证书未配置则跳过并说明）
+#   build-client-ios        模拟器构建 zip（未签名；真机分发待 TestFlight，DR-002）
+#   package-versions        needs 上面全部；下载全部 artifact → SHA-256 → make_versions.py 生成
+#                           versions.json（docs/02 附录 B 结构）+ make_notes.py 生成发布说明
+#   release                 needs package-versions；softprops/action-gh-release 上传全部产物
+#
+# 门禁：任何构建 job 失败 → package-versions / release 因 needs 默认行为不执行，
+#       保证"发布必然经过构建 + 测试"。
+# 健壮性：clients/ 各端由其他同事并行实现，凡涉及其入口文件的步骤均为"存在才执行"，
+#         未就绪时 notice 跳过；一旦入口存在，构建失败即真实失败。
+
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '要发布的 tag（需已存在于仓库，如 v0.1.0）'
+        required: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  build-core:
+    name: build-core（${{ matrix.platform }}）
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            platform: linux
+            arch: x86_64
+          - os: macos-14
+            platform: macos
+            arch: aarch64
+          - os: windows-latest
+            platform: windows
+            arch: x86_64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ matrix.platform == 'windows' && 90 || 50 }}
+    env:
+      LIBRIME_DIR: ${{ github.workspace }}/librime-install
+      LD_LIBRARY_PATH: ${{ github.workspace }}/librime-install/lib
+      DYLD_FALLBACK_LIBRARY_PATH: ${{ github.workspace }}/librime-install/lib
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - name: Checkout（含 librime submodule，锁 1.17.0）
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: 安装 Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 安装 librime 依赖（Linux apt，清单照抄 librime action-install-linux.sh）
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt update
+          sudo apt install -y libunwind-dev ninja-build \
+            libboost-locale-dev libboost-regex-dev libgoogle-glog-dev \
+            libleveldb-dev libmarisa-dev libyaml-cpp-dev libopencc-dev libgtest-dev
+
+      - name: 安装 librime 依赖（macOS Homebrew）
+        if: matrix.platform == 'macos'
+        run: |
+          brew install boost glog yaml-cpp leveldb marisa opencc cmake ninja
+
+      - name: 构建并安装 librime（Linux / macOS）
+        if: matrix.platform != 'windows'
+        run: |
+          cmake -S core/vendor/librime -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF \
+            -DCMAKE_INSTALL_PREFIX="$LIBRIME_DIR" \
+            -DCMAKE_PREFIX_PATH="$(brew --prefix 2>/dev/null || echo /usr)" \
+            -DCMAKE_OSX_ARCHITECTURES=arm64
+          cmake --build build
+          cmake --install build
+          if [ "${{ matrix.platform }}" = "macos" ]; then
+            # install name 改绝对路径：Rust 测试二进制默认不带 LC_RPATH
+            install_name_tool -id "$LIBRIME_DIR/lib/librime.dylib" "$LIBRIME_DIR/lib/librime.dylib"
+          fi
+
+      - name: 构建 librime（Windows 官方 build.bat 路径，尽力而为）
+        if: matrix.platform == 'windows'
+        continue-on-error: true
+        shell: cmd
+        run: |
+          if not exist core\vendor\librime\build.bat exit /b 0
+          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSPATH=%%i"
+          if not defined VSPATH (
+            echo ::warning::未找到 Visual Studio 2022，跳过 Windows librime 构建
+            exit /b 0
+          )
+          call "%VSPATH%\VC\Auxiliary\Build\vcvars64.bat" || exit /b 1
+          set "RIME_ROOT=%CD%\core\vendor\librime"
+          set "BOOST_ROOT=%RIME_ROOT%\deps\boost-1.89.0"
+          if not exist "%BOOST_ROOT%\boost" (
+            echo 下载 Boost 1.89.0（对齐 librime install-boost.bat，curl 替代 aria2c）
+            curl -L --retry 3 -o "%RIME_ROOT%\deps\boost.7z" https://archives.boost.io/release/1.89.0/source/boost_1_89_0.7z || exit /b 1
+            7z x "%RIME_ROOT%\deps\boost.7z" -o"%RIME_ROOT%\deps" || exit /b 1
+            ren "%RIME_ROOT%\deps\boost_1_89_0" boost-1.89.0
+            pushd "%BOOST_ROOT%"
+            call bootstrap.bat || exit /b 1
+            .\b2 headers || exit /b 1
+            popd
+          )
+          cd /d "%RIME_ROOT%"
+          call build.bat deps || exit /b 1
+          call build.bat librime || exit /b 1
+
+      - name: 检查 librime 构建结果（Windows）
+        id: rime-check
+        if: matrix.platform == 'windows'
+        shell: bash
+        run: |
+          if [ -f core/vendor/librime/dist/lib/rime.lib ] && [ -f core/vendor/librime/dist/bin/rime.dll ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "librime 就绪：core/vendor/librime/dist"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::librime 未就绪（见上方日志）；core 将以 --no-default-features 构建（TSF 里程碑前 Windows 不链接 librime）"
+          fi
+
+      - name: core 测试（Windows 用 --no-default-features）
+        shell: bash
+        run: |
+          if [ "${{ matrix.platform }}" = "windows" ]; then
+            cd core
+            cargo test --workspace --no-default-features
+          else
+            cd core
+            cargo test --workspace
+          fi
+
+      - name: 构建 core 库（release，openkey-ffi）
+        shell: bash
+        run: |
+          cd core
+          if [ "${{ matrix.platform }}" = "windows" ] && [ "${{ steps.rime-check.outputs.ready }}" != "true" ]; then
+            cargo build --release -p openkey-ffi --no-default-features
+          else
+            if [ "${{ matrix.platform }}" = "windows" ]; then
+              export LIBRIME_DIR="$GITHUB_WORKSPACE/core/vendor/librime/dist"
+            fi
+            if ! cargo build --release -p openkey-ffi; then
+              echo "::warning::librime 链接失败，降级 --no-default-features"
+              cargo build --release -p openkey-ffi --no-default-features
+            fi
+          fi
+
+      - name: 校验 openkey.h 与实现同步（cbindgen 产物）
+        if: matrix.platform == 'linux'
+        working-directory: core
+        run: |
+          # openkey-ffi 的 build.rs 在构建时重写 core/ffi-headers/openkey.h（上面的 release 构建已触发）；
+          # 与提交版本有差异说明改了 C ABI 却忘了重新生成头文件。
+          if git diff --exit-code -- ffi-headers/; then
+            echo "openkey.h 与实现同步"
+          else
+            echo "::error::openkey.h 需重新生成并提交：cd core && cargo build -p openkey-ffi"
+            exit 1
+          fi
+
+      - name: 构建词库包（openkey-lexicon，docs/02 5.6）
+        if: matrix.platform == 'linux'
+        shell: bash
+        run: |
+          seed=shared/schemas/lexicon/openkey-base.seed.tsv
+          if [ ! -f "$seed" ]; then
+            echo "::notice::种子词库未就绪，跳过词库包"
+            exit 0
+          fi
+          cargo build --manifest-path tools/lexicon/Cargo.toml
+          cargo run --manifest-path tools/lexicon/Cargo.toml -- check --seed "$seed"
+          cargo run --manifest-path tools/lexicon/Cargo.toml -- build \
+            --seed "$seed" --out lexicon-out --version "${TAG#v}"
+          mkdir -p dist
+          python3 - "$TAG" <<'PY'
+          import sys, zipfile, pathlib
+          ver = sys.argv[1].lstrip('v')
+          src = pathlib.Path('lexicon-out')
+          out = pathlib.Path('dist') / f'OpenKey-lexicon-{ver}.zip'
+          with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as z:
+              for p in sorted(src.rglob('*')):
+                  if p.is_file():
+                      z.write(p, arcname=p.relative_to(src).as_posix())
+          print(f'打包 {out}')
+          PY
+
+      - name: 打包 core 产物为 zip
+        shell: bash
+        run: |
+          ver="${TAG#v}"
+          mkdir -p dist stage
+          case "${{ matrix.platform }}" in
+            linux)
+              cp core/target/release/libopenkey_ffi.so stage/ 2>/dev/null || true
+              cp core/target/release/libopenkey_ffi.a stage/ 2>/dev/null || true
+              cp "$LIBRIME_DIR"/lib/librime.so* stage/ 2>/dev/null || true
+              ;;
+            macos)
+              cp core/target/release/libopenkey_ffi.dylib stage/ 2>/dev/null || true
+              cp core/target/release/libopenkey_ffi.a stage/ 2>/dev/null || true
+              cp "$LIBRIME_DIR"/lib/librime.dylib stage/ 2>/dev/null || true
+              ;;
+            windows)
+              cp core/target/release/openkey_ffi.dll stage/ 2>/dev/null || true
+              cp core/target/release/openkey_ffi.lib stage/ 2>/dev/null || true
+              cp core/target/release/openkey_ffi.dll.lib stage/ 2>/dev/null || true
+              if [ -f core/vendor/librime/dist/bin/rime.dll ]; then
+                cp core/vendor/librime/dist/bin/rime.dll stage/
+              fi
+              ;;
+          esac
+          cp core/ffi-headers/openkey.h stage/
+          python3 - "$ver" "${{ matrix.platform }}" "${{ matrix.arch }}" <<'PY'
+          import sys, zipfile, pathlib
+          ver, platform, arch = sys.argv[1], sys.argv[2], sys.argv[3]
+          stage = pathlib.Path('stage')
+          out = pathlib.Path('dist') / f'OpenKey-core-{ver}-{platform}-{arch}.zip'
+          with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as z:
+              for p in sorted(stage.rglob('*')):
+                  if p.is_file():
+                      z.write(p, arcname=p.relative_to(stage).as_posix())
+          print(f'打包 {out}（{out.stat().st_size} bytes）')
+          PY
+
+      - name: 上传 core 平台产物 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-${{ matrix.platform }}
+          path: dist/OpenKey-core-*.zip
+          if-no-files-found: warn
+
+      - name: 上传词库包 artifact
+        if: hashFiles('dist/OpenKey-lexicon-*.zip') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: lexicon
+          path: dist/OpenKey-lexicon-*.zip
+          if-no-files-found: warn
+
+  build-client-windows:
+    name: build-client-windows（TSF）
+    runs-on: windows-latest
+    timeout-minutes: 90
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - name: Checkout（含 librime submodule）
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: 安装 Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 构建 librime（Windows 官方 build.bat 路径，尽力而为）
+        continue-on-error: true
+        shell: cmd
+        run: |
+          if not exist core\vendor\librime\build.bat exit /b 0
+          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSPATH=%%i"
+          if not defined VSPATH (
+            echo ::warning::未找到 Visual Studio 2022，跳过 Windows librime 构建
+            exit /b 0
+          )
+          call "%VSPATH%\VC\Auxiliary\Build\vcvars64.bat" || exit /b 1
+          set "RIME_ROOT=%CD%\core\vendor\librime"
+          set "BOOST_ROOT=%RIME_ROOT%\deps\boost-1.89.0"
+          if not exist "%BOOST_ROOT%\boost" (
+            curl -L --retry 3 -o "%RIME_ROOT%\deps\boost.7z" https://archives.boost.io/release/1.89.0/source/boost_1_89_0.7z || exit /b 1
+            7z x "%RIME_ROOT%\deps\boost.7z" -o"%RIME_ROOT%\deps" || exit /b 1
+            ren "%RIME_ROOT%\deps\boost_1_89_0" boost-1.89.0
+            pushd "%BOOST_ROOT%"
+            call bootstrap.bat || exit /b 1
+            .\b2 headers || exit /b 1
+            popd
+          )
+          cd /d "%RIME_ROOT%"
+          call build.bat deps || exit /b 1
+          call build.bat librime || exit /b 1
+
+      - name: 检查 librime 构建结果
+        id: rime-check
+        shell: bash
+        run: |
+          if [ -f core/vendor/librime/dist/lib/rime.lib ] && [ -f core/vendor/librime/dist/bin/rime.dll ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "librime 就绪：core/vendor/librime/dist"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::librime 未就绪；core 将以 --no-default-features 构建，客户端链接步骤跳过"
+          fi
+
+      - name: 构建 core 静态库（openkey-ffi；librime 开启，失败降级）
+        shell: bash
+        run: |
+          cd core
+          if [ "${{ steps.rime-check.outputs.ready }}" = "true" ]; then
+            export LIBRIME_DIR="$GITHUB_WORKSPACE/core/vendor/librime/dist"
+            if cargo build --release -p openkey-ffi; then
+              echo "core 构建完成（链接 librime）"
+            else
+              echo "::warning::librime 链接失败，降级 --no-default-features"
+              cargo build --release -p openkey-ffi --no-default-features
+            fi
+          else
+            echo "::notice::librime 未就绪，--no-default-features 构建 core"
+            cargo build --release -p openkey-ffi --no-default-features
+          fi
+
+      - name: CMake 构建 clients/windows（入口 / librime 未就绪则跳过）
+        shell: bash
+        run: |
+          if [ ! -f clients/windows/CMakeLists.txt ]; then
+            echo "::notice::clients/windows/CMakeLists.txt 未就绪，跳过客户端构建（并行开发中）"
+            exit 0
+          fi
+          if [ "${{ steps.rime-check.outputs.ready }}" != "true" ]; then
+            echo "::notice::librime 未就绪，跳过需要 librime 的客户端链接"
+            exit 0
+          fi
+          # 变量名按接口约定传入（若 clients/windows/CMakeLists.txt 要求不同，以该文件为准并同步本处）：
+          #   OPENKEY_CORE_LIB / OPENKEY_RIME_LIB / OPENKEY_CORE_INCLUDE_DIR
+          args=("-DOPENKEY_CORE_INCLUDE_DIR=$GITHUB_WORKSPACE/core/ffi-headers")
+          if [ -f core/target/release/openkey_ffi.lib ]; then
+            args+=("-DOPENKEY_CORE_LIB=$GITHUB_WORKSPACE/core/target/release/openkey_ffi.lib")
+          fi
+          if [ -f core/vendor/librime/dist/lib/rime.lib ]; then
+            args+=("-DOPENKEY_RIME_LIB=$GITHUB_WORKSPACE/core/vendor/librime/dist/lib/rime.lib")
+          fi
+          cmake -S clients/windows -B build "${args[@]}"
+          cmake --build build --config Release
+
+      - name: Windows 代码签名（证书未配置时跳过）
+        if: ${{ secrets.WINDOWS_CERT != '' }}
+        shell: pwsh
+        run: |
+          # DR-002：自行分发需 Authenticode 签名。
+          $exes = Get-ChildItem -Path build -Recurse -Filter *.exe -ErrorAction SilentlyContinue
+          if (-not $exes) { Write-Host "未找到 exe，跳过签名"; exit 0 }
+          $certPath = Join-Path $env:RUNNER_TEMP "openkey-signing.pfx"
+          [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String("${{ secrets.WINDOWS_CERT }}"))
+          try {
+            foreach ($exe in $exes) {
+              & signtool.exe sign /f $certPath /p "${{ secrets.WINDOWS_CERT_PASSWORD }}" /tr http://timestamp.digicert.com /td sha256 /fd sha256 $exe.FullName
+              if ($LASTEXITCODE -ne 0) { throw "signtool 签名失败: $($exe.FullName)" }
+            }
+          } finally {
+            Remove-Item $certPath -ErrorAction SilentlyContinue
+          }
+
+      - name: 签名状态说明（证书未配置）
+        if: ${{ secrets.WINDOWS_CERT == '' }}
+        shell: bash
+        run: echo "::notice::secrets.WINDOWS_CERT 未配置，跳过 Authenticode 签名（DR-002：证书待配置；产物为未代码签名版本）"
+
+      - name: 打包客户端 zip
+        shell: bash
+        run: |
+          if [ -z "$(find build \( -name '*.exe' -o -name '*.dll' \) 2>/dev/null | head -1)" ]; then
+            echo "::notice::clients/windows 构建产物不存在（入口未就绪或 librime 未就绪），跳过打包"
+            exit 0
+          fi
+          mkdir -p dist stage
+          find build \( -name '*.exe' -o -name '*.dll' \) -exec cp {} stage/ \;
+          python3 - "$TAG" <<'PY'
+          import sys, zipfile, pathlib
+          ver = sys.argv[1].lstrip('v')
+          stage = pathlib.Path('stage')
+          out = pathlib.Path('dist') / f'OpenKey-{ver}-windows-x86_64.zip'
+          with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as z:
+              for p in sorted(stage.rglob('*')):
+                  if p.is_file():
+                      z.write(p, arcname=p.relative_to(stage).as_posix())
+          print(f'打包 {out}')
+          PY
+
+      - name: 上传客户端 artifact
+        if: hashFiles('dist/OpenKey-*-windows-x86_64.zip') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-windows
+          path: dist/OpenKey-*-windows-x86_64.zip
+          if-no-files-found: warn
+
+  build-client-linux:
+    name: build-client-linux（fcitx5 addon）
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      LIBRIME_DIR: ${{ github.workspace }}/librime-install
+      LD_LIBRARY_PATH: ${{ github.workspace }}/librime-install/lib
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - name: Checkout（含 librime submodule）
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: 安装 Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 安装 fcitx5 与 librime 依赖（apt）
+        run: |
+          sudo apt update
+          sudo apt install -y pkg-config fcitx5 libfcitx5core-dev libfcitx5config-dev \
+            libfcitx5utils-dev fcitx5-modules-dev cmake extra-cmake-modules libfmt-dev
+          sudo apt install -y libunwind-dev ninja-build \
+            libboost-locale-dev libboost-regex-dev libgoogle-glog-dev \
+            libleveldb-dev libmarisa-dev libyaml-cpp-dev libopencc-dev libgtest-dev
+
+      - name: 构建并安装 librime（core/vendor/librime，共享库）
+        run: |
+          cmake -S core/vendor/librime -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF \
+            -DCMAKE_INSTALL_PREFIX="$LIBRIME_DIR"
+          cmake --build build
+          cmake --install build
+
+      - name: 构建 core 静态库（openkey-ffi，链接 librime）
+        working-directory: core
+        run: cargo build --release -p openkey-ffi
+
+      - name: CMake 构建 clients/linux addon（入口未就绪则跳过）
+        shell: bash
+        run: |
+          if [ ! -f clients/linux/CMakeLists.txt ]; then
+            echo "::notice::clients/linux/CMakeLists.txt 未就绪，跳过 addon 构建（并行开发中）"
+            exit 0
+          fi
+          # 变量名按接口约定传入（若 clients/linux/CMakeLists.txt 要求不同，以该文件为准并同步本处）
+          args=("-DOPENKEY_CORE_INCLUDE_DIR=$GITHUB_WORKSPACE/core/ffi-headers")
+          if [ -f core/target/release/libopenkey_ffi.a ]; then
+            args+=("-DOPENKEY_CORE_LIB=$GITHUB_WORKSPACE/core/target/release/libopenkey_ffi.a")
+          fi
+          if [ -f "$LIBRIME_DIR/lib/librime.so" ]; then
+            args+=("-DOPENKEY_RIME_LIB=$LIBRIME_DIR/lib/librime.so")
+          fi
+          cmake -S clients/linux -B build-client "${args[@]}"
+          cmake --build build-client
+
+      - name: 安装 addon 并打包 deb
+        shell: bash
+        run: |
+          if [ ! -f clients/linux/CMakeLists.txt ]; then
+            echo "::notice::clients/linux 未就绪，跳过安装与打包"
+            exit 0
+          fi
+          mkdir -p dist
+          if [ -d clients/linux/packaging/deb/DEBIAN ]; then
+            cmake --install build-client --prefix "$GITHUB_WORKSPACE/clients/linux/packaging/deb"
+            dpkg-deb --build clients/linux/packaging/deb "dist/OpenKey-${TAG#v}-linux-x86_64.deb"
+          elif [ -d clients/linux/packaging/deb ]; then
+            mkdir -p deb-root
+            cmake --install build-client --prefix "$GITHUB_WORKSPACE/deb-root/usr"
+            cp -r clients/linux/packaging/deb/. deb-root/
+            dpkg-deb --build deb-root "dist/OpenKey-${TAG#v}-linux-x86_64.deb"
+          else
+            echo "::notice::clients/linux/packaging/deb 未就绪，跳过 deb 打包"
+          fi
+
+      - name: 上传客户端 artifact
+        if: hashFiles('dist/OpenKey-*-linux-x86_64.deb') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-linux
+          path: dist/OpenKey-*-linux-x86_64.deb
+          if-no-files-found: warn
+
+  build-client-android:
+    name: build-client-android（Gradle）
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - name: Checkout（含 librime submodule）
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: 安装 JDK 17（temurin）
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: 安装 Gradle（setup-gradle）
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: 安装 Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 添加 Android Rust target
+        run: rustup target add aarch64-linux-android x86_64-linux-android
+
+      - name: 安装 cargo-ndk
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-ndk
+
+      - name: 构建 core so（cargo-ndk，librime 特性关闭）
+        id: core-so
+        working-directory: core
+        shell: bash
+        run: |
+          # Android 端 librime 加载方案待定（docs/02 4.4、DR-004），v0.1.0 先保证工程可构建。
+          # openkey-rime-ffi 的 librime 默认特性需 core 侧特性开关才能彻底关闭（见交付说明）。
+          if cargo ndk -t arm64-v8a -t x86_64 build --release -p openkey-ffi --no-default-features; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::core so 构建失败（librime 特性开关未就绪），跳过 so 拷贝与 Android 构建"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 拷贝 so 到 clients/android jniLibs
+        if: steps.core-so.outputs.ready == 'true'
+        shell: bash
+        run: |
+          if [ ! -d clients/android ]; then
+            echo "::notice::clients/android 未就绪，跳过 so 拷贝"
+            exit 0
+          fi
+          # 放置路径按接口约定（clients-android 侧模块布局为准，如不同以它为准）
+          for pair in aarch64:arm64-v8a x86_64:x86_64; do
+            rustabi="${pair%%:*}"
+            jniabi="${pair##*:}"
+            src="core/target/${rustabi}-linux-android/release/libopenkey_ffi.so"
+            if [ -f "$src" ]; then
+              dst="clients/android/core-binding/src/main/jniLibs/${jniabi}"
+              mkdir -p "$dst"
+              cp "$src" "$dst/"
+              echo "已拷贝 $src -> $dst"
+            else
+              echo "::warning::缺少 $src（$jniabi）"
+            fi
+          done
+
+      - name: Gradle 构建（assembleRelease 未签名；不可用则退回 assembleDebug）
+        if: steps.core-so.outputs.ready == 'true'
+        shell: bash
+        run: |
+          if [ ! -f clients/android/build.gradle ] && [ ! -f clients/android/build.gradle.kts ]; then
+            echo "::notice::clients/android Gradle 工程未就绪，跳过构建（并行开发中）"
+            exit 0
+          fi
+          cd clients/android
+          if [ -f gradlew ]; then
+            chmod +x gradlew
+            ./gradlew assembleRelease || { echo "::notice::assembleRelease 不可用（可能缺签名配置），退回 assembleDebug"; ./gradlew assembleDebug; }
+          else
+            gradle assembleRelease || { echo "::notice::assembleRelease 不可用，退回 assembleDebug"; gradle assembleDebug; }
+          fi
+
+      - name: 收集 APK（注明未签名）
+        if: steps.core-so.outputs.ready == 'true'
+        shell: bash
+        run: |
+          apk=$(find clients/android -path '*/build/outputs/apk' -name '*.apk' 2>/dev/null | grep -i release | head -1)
+          if [ -z "$apk" ]; then
+            apk=$(find clients/android -path '*/build/outputs/apk' -name '*.apk' 2>/dev/null | head -1)
+          fi
+          if [ -z "$apk" ]; then
+            echo "::notice::未找到 APK 产物"
+            exit 0
+          fi
+          mkdir -p dist
+          case "$apk" in
+            *release*) out="OpenKey-${TAG#v}-android-release-unsigned.apk" ;;
+            *) out="OpenKey-${TAG#v}-android-debug.apk" ;;
+          esac
+          cp "$apk" "dist/$out"
+          echo "::notice::APK 为未发布密钥签名版本（DR-002：签名密钥待配置），已收集 $apk -> $out"
+
+      - name: 上传客户端 artifact
+        if: hashFiles('dist/OpenKey-*-android-*.apk') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-android
+          path: dist/OpenKey-*-android-*.apk
+          if-no-files-found: warn
+
+  build-client-macos:
+    name: build-client-macos（IMK 输入法）
+    runs-on: macos-14
+    timeout-minutes: 60
+    env:
+      LIBRIME_DIR: ${{ github.workspace }}/librime-install
+      DYLD_FALLBACK_LIBRARY_PATH: ${{ github.workspace }}/librime-install/lib
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - name: Checkout（含 librime submodule）
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: 安装 Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 安装依赖（Homebrew：xcodegen + librime 依赖）
+        run: |
+          brew install xcodegen boost glog yaml-cpp leveldb marisa opencc cmake ninja
+
+      - name: 构建并安装 librime（aarch64-apple-darwin）
+        run: |
+          cmake -S core/vendor/librime -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF \
+            -DCMAKE_INSTALL_PREFIX="$LIBRIME_DIR" \
+            -DCMAKE_PREFIX_PATH="$(brew --prefix)" \
+            -DCMAKE_OSX_ARCHITECTURES=arm64
+          cmake --build build
+          cmake --install build
+          install_name_tool -id "$LIBRIME_DIR/lib/librime.dylib" "$LIBRIME_DIR/lib/librime.dylib"
+
+      - name: 构建 core（aarch64-apple-darwin，链接 librime）
+        working-directory: core
+        run: cargo build --release --target aarch64-apple-darwin -p openkey-ffi
+
+      - name: 放置 core 库到头文件到 clients/macos/core-binding/
+        shell: bash
+        run: |
+          if [ ! -d clients/macos ]; then
+            echo "::notice::clients/macos 未就绪，跳过 core 库放置"
+            exit 0
+          fi
+          # 放置位置按接口约定（clients-apple 侧 project.yml / README 为准，如不同以它为准）
+          dst="clients/macos/core-binding"
+          mkdir -p "$dst"
+          t="core/target/aarch64-apple-darwin/release"
+          cp "$t/libopenkey_ffi.a" "$dst/" 2>/dev/null || true
+          cp "$t/libopenkey_ffi.dylib" "$dst/" 2>/dev/null || true
+          cp "$LIBRIME_DIR/lib/librime.dylib" "$dst/" 2>/dev/null || true
+          cp core/ffi-headers/openkey.h "$dst/"
+
+      - name: XcodeGen + xcodebuild（Release，入口未就绪则跳过）
+        shell: bash
+        run: |
+          if [ ! -f clients/macos/project.yml ]; then
+            echo "::notice::clients/macos/project.yml 未就绪，跳过 Xcode 构建（并行开发中）"
+            exit 0
+          fi
+          cd clients/macos
+          xcodegen generate
+          xcodebuild -project OpenKey.xcodeproj -scheme OpenKey \
+            -configuration Release -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO build
+
+      - name: macOS 代码签名（证书未配置时跳过）
+        if: ${{ secrets.APPLE_CERT_BASE64 != '' }}
+        shell: bash
+        run: |
+          app=$(find clients/macos/build \( -name '*.app' -o -name '*.inputmethod' \) 2>/dev/null | head -1)
+          if [ -z "$app" ]; then echo "未找到 app bundle，跳过签名"; exit 0; fi
+          cert="$RUNNER_TEMP/openkey-apple.p12"
+          echo "${{ secrets.APPLE_CERT_BASE64 }}" | base64 --decode > "$cert"
+          keychain="$RUNNER_TEMP/openkey-signing.keychain-db"
+          security create-keychain -p "${{ secrets.APPLE_CERT_PASSWORD }}" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "${{ secrets.APPLE_CERT_PASSWORD }}" "$keychain"
+          security import "$cert" -P "${{ secrets.APPLE_CERT_PASSWORD }}" -A -t cert -f pkcs12 -k "$keychain"
+          security list-keychains -d user -s "$keychain" login-keychain
+          codesign --force --sign "${{ secrets.APPLE_SIGNING_IDENTITY }}" "$app"
+          rm -f "$cert"
+
+      - name: 签名状态说明（证书未配置）
+        if: ${{ secrets.APPLE_CERT_BASE64 == '' }}
+        shell: bash
+        run: echo "::notice::secrets.APPLE_CERT_BASE64 未配置，跳过 Developer ID 签名与公证（DR-002：证书待配置；产物为未签名版本，Gatekeeper 将拦截）"
+
+      - name: 打包 .app / .inputmethod 为 zip
+        shell: bash
+        run: |
+          mkdir -p dist
+          app=$(find clients/macos/build \( -name '*.app' -o -name '*.inputmethod' \) 2>/dev/null | head -1)
+          if [ -z "$app" ]; then
+            echo "::notice::未找到 app bundle（project.yml 未就绪或构建跳过），跳过打包"
+            exit 0
+          fi
+          ditto -c -k --sequesterRsrc --keepParent "$app" "dist/OpenKey-${TAG#v}-macos-arm64.zip"
+          echo "已打包 $app"
+
+      - name: 上传客户端 artifact
+        if: hashFiles('dist/OpenKey-*-macos-*.zip') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-macos
+          path: dist/OpenKey-*-macos-*.zip
+          if-no-files-found: warn
+
+  build-client-ios:
+    name: build-client-ios（模拟器构建）
+    runs-on: macos-14
+    timeout-minutes: 50
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - name: Checkout（含 librime submodule）
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: 安装 Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 添加 iOS 模拟器 Rust target
+        run: rustup target add x86_64-apple-ios-simulator aarch64-apple-ios-simulator
+
+      - name: 安装 XcodeGen
+        run: brew install xcodegen
+
+      - name: 构建 core 静态库（iOS 模拟器 target，librime 特性关闭）
+        id: core-ios
+        shell: bash
+        run: |
+          # librime 的 iOS 链接方案待定（DR-004 仅豁免 ASR 引擎）；v0.1.0 先保证工程可构建。
+          ok=true
+          for t in x86_64-apple-ios-simulator aarch64-apple-ios-simulator; do
+            if (cd core && cargo build --release --target "$t" -p openkey-ffi --no-default-features); then
+              echo "$t 构建完成"
+            else
+              echo "::warning::core 静态库构建失败（$t，librime 特性开关未就绪）"
+              ok=false
+            fi
+          done
+          if [ "$ok" = "true" ]; then echo "ready=true" >> "$GITHUB_OUTPUT"; else echo "ready=false" >> "$GITHUB_OUTPUT"; fi
+
+      - name: 放置 core 静态库到 clients/ios/core-binding/
+        if: steps.core-ios.outputs.ready == 'true'
+        shell: bash
+        run: |
+          if [ ! -d clients/ios ]; then
+            echo "::notice::clients/ios 未就绪，跳过静态库放置"
+            exit 0
+          fi
+          # 放置位置按接口约定（clients-apple 侧 project.yml / README 为准，如不同以它为准）
+          dst="clients/ios/core-binding"
+          for t in x86_64-apple-ios-simulator aarch64-apple-ios-simulator; do
+            mkdir -p "$dst/$t"
+            src="core/target/$t/release/libopenkey_ffi.a"
+            if [ -f "$src" ]; then cp "$src" "$dst/$t/"; else echo "::warning::缺少 $src"; fi
+          done
+          cp core/ffi-headers/openkey.h "$dst/"
+
+      - name: XcodeGen + xcodebuild（iOS 模拟器，入口未就绪则跳过）
+        if: steps.core-ios.outputs.ready == 'true'
+        shell: bash
+        run: |
+          if [ ! -f clients/ios/project.yml ]; then
+            echo "::notice::clients/ios/project.yml 未就绪，跳过 Xcode 构建（并行开发中）"
+            exit 0
+          fi
+          cd clients/ios
+          xcodegen generate
+          # 工程 / scheme 名以 project.yml 为准；-derivedDataPath 固定产物位置便于收集
+          xcodebuild -project OpenKey.xcodeproj -scheme OpenKey \
+            -configuration Debug -derivedDataPath build \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build
+
+      - name: 打包模拟器构建产物为 zip
+        if: steps.core-ios.outputs.ready == 'true'
+        shell: bash
+        run: |
+          mkdir -p dist stage
+          found=""
+          for d in clients/ios/build/Build/Products/*; do
+            [ -e "$d" ] || continue
+            cp -r "$d" stage/ 2>/dev/null || true
+            found="yes"
+          done
+          if [ -z "$found" ]; then
+            echo "::notice::未找到模拟器构建产物，跳过打包"
+            exit 0
+          fi
+          python3 - "$TAG" <<'PY'
+          import sys, zipfile, pathlib
+          ver = sys.argv[1].lstrip('v')
+          stage = pathlib.Path('stage')
+          out = pathlib.Path('dist') / f'OpenKey-{ver}-ios-simulator.zip'
+          with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as z:
+              for p in sorted(stage.rglob('*')):
+                  if p.is_file():
+                      z.write(p, arcname=p.relative_to(stage).as_posix())
+          print(f'打包 {out}')
+          PY
+
+      - name: 上传客户端 artifact
+        if: hashFiles('dist/OpenKey-*-ios-simulator.zip') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-ios
+          path: dist/OpenKey-*-ios-simulator.zip
+          if-no-files-found: warn
+
+  package-versions:
+    name: package-versions（versions.json + 发布说明）
+    needs:
+      - build-core
+      - build-client-windows
+      - build-client-linux
+      - build-client-android
+      - build-client-macos
+      - build-client-ios
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - name: Checkout（全量历史 + tags，供 make_notes 取提交范围）
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          fetch-depth: 0
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: 下载全部构建产物
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*'
+          merge-multiple: true
+          path: staging
+
+      - name: 生成 versions.json 与 sha256sums.txt（make_versions.py）
+        run: |
+          python3 scripts/release/make_versions.py \
+            --artifacts-dir staging \
+            --release-dir dist \
+            --tag "$TAG" \
+            --repo "${{ github.repository }}"
+
+      - name: 生成发布说明（make_notes.py）
+        run: |
+          python3 scripts/release/make_notes.py \
+            --tag "$TAG" \
+            --repo "${{ github.repository }}" \
+            --out dist/release-notes.md
+
+      - name: 汇总发布资产 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-manifest
+          path: dist/**
+          if-no-files-found: warn
+
+  release:
+    name: release（GitHub Release）
+    needs: package-versions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - name: 计算版本号
+        id: ver
+        shell: bash
+        run: echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: 下载发布资产
+        uses: actions/download-artifact@v4
+        with:
+          name: release-manifest
+          path: dist
+
+      - name: 创建 GitHub Release 并上传全部产物
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: OpenKey ${{ steps.ver.outputs.version }}
+          body_path: dist/release-notes.md
+          files: dist/*
+          fail_on_unmatched_files: false

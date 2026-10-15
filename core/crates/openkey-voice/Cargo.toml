@@ -1,0 +1,18 @@
+[package]
+name = "openkey-voice"
+description = "OpenKey 语音组件：sherpa-onnx C API FFI + 流式识别生命周期（占位契约）"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+thiserror.workspace = true
+log.workspace = true
+
+[features]
+default = []
+# 链接 sherpa-onnx C API 共享库（仅用于组件包构建验证，不进主构建）。
+link-sherpa = []

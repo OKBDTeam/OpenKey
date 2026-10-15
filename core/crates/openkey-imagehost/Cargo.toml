@@ -1,0 +1,15 @@
+[package]
+name = "openkey-imagehost"
+description = "OpenKey 图床模板引擎：声明式 HTTP 模板 + JSONPath + 受限表达式（占位契约）"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+log.workspace = true

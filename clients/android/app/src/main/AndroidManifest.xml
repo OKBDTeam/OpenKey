@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 权限最小集（docs/02 4.4.3）：网络仅用于组件下载/同步/图床（功能开启后使用）。
+         不申请 READ_CLIPBOARD 类权限（遵循系统对输入法的窗口期豁免行为）。 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.OpenKey">
+
+        <activity
+            android:name="app.openkey.app.MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.OpenKey">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- OpenKeyIme 服务由 :keyboard 模块合并进来（见 keyboard/AndroidManifest.xml）。 -->
+        <!-- TODO（Phase 4）：OpenKeyAutofillService（API 26+，inline suggestions）。 -->
+
+    </application>
+
+</manifest>

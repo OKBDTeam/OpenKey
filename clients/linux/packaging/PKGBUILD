@@ -1,0 +1,30 @@
+# AUR PKGBUILD：openkey（fcitx5 前端）
+pkgname=openkey
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="开门输入法（OpenKey）——你的输入法，你的服务器（fcitx5 前端）"
+arch=('x86_64')
+url="https://github.com/leic4u/OpenKey"
+license=('GPL3')
+depends=('fcitx5>=5.0.14' 'librime')
+makedepends=('cmake>=3.16' 'gcc' 'pkgconf' 'rust' 'cargo')
+# core 静态库与 librime 头文件随源码包内的 build-core 目录提供
+# （发布流水线产出，见 .github/workflows/release.yml）。
+source=("$pkgname-$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cmake -B build -S "$pkgname-$pkgver" \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DOPENKEY_CORE_LIB="$PWD/$pkgname-$pkgver/build-core/libopenkey_ffi.a" \
+    -DOPENKEY_CORE_INCLUDE_DIR="$PWD/$pkgname-$pkgver/build-core/include" \
+    -DOPENKEY_RIME_LIB=/usr/lib/librime.so
+  cmake --build build
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+}

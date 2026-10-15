@@ -1,0 +1,9 @@
+// COpenKey 模块的显式 modulemap。
+//
+// openkey.h 是 core/crates/openkey-ffi 经 cbindgen 生成的 C ABI 头文件
+// （由 scripts/build-bundle.sh 从 core/ffi-headers/openkey.h 同步，勿手改）。
+// Swift 侧通过 `import COpenKey` 使用这些声明。
+module COpenKey {
+    header "openkey.h"
+    export *
+}

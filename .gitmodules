@@ -1,0 +1,5 @@
+[submodule "core/vendor/librime"]
+	path = core/vendor/librime
+	url = https://github.com/rime/librime.git
+	branch = 1.17.0
+	shallow = true

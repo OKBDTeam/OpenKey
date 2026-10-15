@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Compose 自带 Material3 主题，XML 主题仅需一个无 ActionBar 的宿主壳。 -->
+    <style name="Theme.OpenKey" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

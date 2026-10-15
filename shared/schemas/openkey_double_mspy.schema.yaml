@@ -1,0 +1,103 @@
+# OpenKey 双拼方案：微软双拼
+# 键位为微软双拼公开发布的标准键位（事实映射）；algebra 表达由 OpenKey 自行编写，CC0-1.0。
+# 与全拼主方案共用 openkey_base 词库，经 translator.prism 构建独立拼写索引。
+# encoding: utf-8
+
+schema:
+  schema_id: openkey_double_mspy
+  name: 微软双拼
+  version: "0.1.0"
+  author:
+    - OpenKey Developers
+  description: |
+    开门拼音 - 微软双拼。键位：zh=V、ch=I、sh=U，ing=分号键；
+    零声母规则：以 o 作前缀（啊=oa、爱=ol、安=oj、昂=oh）。
+
+switches:
+  - name: ascii_mode
+    reset: 0
+    states: [ 中文, ABC ]
+  - name: full_shape
+    states: [ 半角, 全角 ]
+  - name: ascii_punct
+    states: [ 。, ． ]
+
+engine:
+  processors:
+    - ascii_composer
+    - recognizer
+    - key_binder
+    - speller
+    - punctuator
+    - selector
+    - navigator
+    - express_editor
+  segmentors:
+    - ascii_segmentor
+    - matcher
+    - abc_segmentor
+    - punct_segmentor
+    - fallback_segmentor
+  translators:
+    - punct_translator
+    - script_translator
+  filters:
+    - uniquifier
+
+speller:
+  # 分号键参与编码（ing），故 alphabet 含 ";"；initials 不含，保证单独输入 ";" 可直接上屏
+  alphabet: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA;
+  initials: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA
+  delimiter: " '"
+  algebra:
+    - erase/^xx$/
+    - derive/^([jqxy])u$/$1v/
+    # 零声母：先加 o 前缀（a→oa、ai→oai、an→oan、ang→oang、e→oe、ou→oou……）
+    - derive/^([aoe].*)$/o$1/
+    # 再由后续韵母规则把带 o 前缀的拼写折叠为两键（oai→ol、oan→oj、oang→oh……）
+    - xform/^([ae])(.*)$/$1$1$2/
+    # 韵母映射（微软标准键位）
+    - xform/iu$/q/
+    - xform/[iu]a$/w/
+    - xform/er$|[uv]an$/r/
+    - xform/[uv]e$/t/
+    - xform/v$|uai$/y/
+    # 声母映射（zh/ch/sh）
+    - xform/^sh/u/
+    - xform/^ch/i/
+    - xform/^zh/v/
+    # 其余韵母
+    - xform/uo$/o/
+    - xform/[uv]n$/p/
+    - xform/(.)i?ong$/$1s/
+    - xform/[iu]ang$/d/
+    - xform/(.)en$/$1f/
+    - xform/(.)eng$/$1g/
+    - xform/(.)ang$/$1h/
+    - xform/ian$/m/
+    - xform/(.)an$/$1j/
+    - xform/iao$/c/
+    - xform/(.)ao$/$1k/
+    - xform/(.)ai$/$1l/
+    - xform/(.)ei$/$1z/
+    - xform/ie$/x/
+    - xform/ui$/v/
+    - xform/(.)ou$/$1b/
+    - xform/in$/n/
+    - xform/ing$/;/
+
+translator:
+  dictionary: openkey_base
+  prism: openkey_base_mspy
+
+punctuator:
+  import_preset: default
+
+key_binder:
+  import_preset: default
+
+recognizer:
+  import_preset: default
+
+ascii_composer:
+  import_preset: default

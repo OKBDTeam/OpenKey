@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- IME 服务声明：BIND_INPUT_METHOD 保证只有系统能绑定本服务。
+         本模块为 library，最终随 :app 打包；android:settingsActivity 指向
+         主 App 的 MainActivity（合并清单时存在）。 -->
+    <application>
+        <service
+            android:name="app.openkey.keyboard.OpenKeyIme"
+            android:label="@string/ime_name"
+            android:exported="true"
+            android:permission="android.permission.BIND_INPUT_METHOD">
+            <intent-filter>
+                <action android:name="android.view.InputMethod" />
+            </intent-filter>
+            <meta-data
+                android:name="android.view.im"
+                android:resource="@xml/method" />
+        </service>
+    </application>
+
+</manifest>

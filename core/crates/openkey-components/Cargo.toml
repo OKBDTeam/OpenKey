@@ -1,0 +1,27 @@
+[package]
+name = "openkey-components"
+description = "OpenKey 组件分发基建：versions.json 清单、SHA-256 校验、原子解压、版本切换与回滚"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+log.workspace = true
+sha2.workspace = true
+hex.workspace = true
+zip.workspace = true
+
+[features]
+default = ["net"]
+# reqwest 网络下载实现；关闭后仅保留本地校验/解压逻辑（测试用）。
+net = ["dep:reqwest"]
+
+[dependencies.reqwest]
+workspace = true
+optional = true

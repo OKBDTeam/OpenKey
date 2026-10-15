@@ -1,0 +1,33 @@
+[package]
+name = "openkey-ffi"
+description = "OpenKey 统一 C ABI 导出层：五端客户端唯一入口（cbindgen 生成 openkey.h）"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+openkey-rime-ffi = { path = "../openkey-rime-ffi", default-features = false }
+openkey-data = { path = "../openkey-data" }
+openkey-components = { path = "../openkey-components", default-features = false }
+serde_json.workspace = true
+thiserror.workspace = true
+log.workspace = true
+
+[features]
+# librime 经特性传递启用（Windows 的 --no-default-features 构建整体关闭）。
+default = ["net", "librime"]
+librime = ["openkey-rime-ffi/librime"]
+net = ["dep:reqwest", "openkey-components/net"]
+
+[dependencies.reqwest]
+workspace = true
+optional = true
+
+[build-dependencies]
+cbindgen = "0.29"

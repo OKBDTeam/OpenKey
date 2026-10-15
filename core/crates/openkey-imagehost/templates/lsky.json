@@ -1,0 +1,27 @@
+{
+  "id": "lsky",
+  "name": "兰空图床 Lsky Pro",
+  "version": 1,
+  "request": {
+    "method": "POST",
+    "url": "https://{host}/api/v1/upload",
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "multipart": [
+      { "name": "file", "fromFile": true }
+    ]
+  },
+  "response": {
+    "urlPath": "$.data.links.url",
+    "deletePath": "$.data.links.delete_url",
+    "errorPath": "$.message",
+    "successWhen": "status == true"
+  },
+  "credential": {
+    "fields": [
+      { "name": "host", "kind": "text", "label": "图床地址（不含 https://）", "required": true },
+      { "name": "token", "kind": "token", "label": "API Token", "required": true }
+    ]
+  }
+}

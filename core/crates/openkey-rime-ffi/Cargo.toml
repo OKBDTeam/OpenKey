@@ -1,0 +1,20 @@
+[package]
+name = "openkey-rime-ffi"
+description = "OpenKey librime 会话桥：初始化/会话/按键/候选/部署触发/userdb 快照"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+thiserror.workspace = true
+log.workspace = true
+
+[features]
+# 注意：librime 不置于 default——由 openkey-ffi 经特性传递显式启用，
+# 这样 `cargo test --workspace --no-default-features`（Windows  CI）才能
+# 真正关闭 librime 链接；Linux/macOS 的默认构建由 openkey-ffi 的 default
+# 特性传递启用。单独测试本 crate 时用 `--features librime`。
+librime = []

@@ -1,0 +1,27 @@
+{
+  "id": "chevereto",
+  "name": "Chevereto",
+  "version": 1,
+  "request": {
+    "method": "POST",
+    "url": "https://{host}/api/1/upload",
+    "headers": {
+      "X-API-Key": "{token}"
+    },
+    "multipart": [
+      { "name": "source", "fromFile": true },
+      { "name": "format", "value": "json" }
+    ]
+  },
+  "response": {
+    "urlPath": "$.image.url",
+    "errorPath": "$.error.message",
+    "successWhen": "status_code == 200"
+  },
+  "credential": {
+    "fields": [
+      { "name": "host", "kind": "text", "label": "图床地址（不含 https://）", "required": true },
+      { "name": "token", "kind": "token", "label": "API Key", "required": true }
+    ]
+  }
+}

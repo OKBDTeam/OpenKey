@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 临时图标：蓝底白色钥匙轮廓。TODO（Phase 1）：替换为 CC0/自制正式图标。 -->
+    <path
+        android:fillColor="#1E6FD9"
+        android:pathData="M0,0h108v108h-108z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M34,44a12,12 0,1,0 24,0a12,12 0,1,0 -24,0zM52,40h30v7h-30zM64,47v7h-5v-7zM74,47v7h-5v-7z" />
+</vector>

@@ -1,0 +1,59 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/openkey-rime-ffi",
+    "crates/openkey-data",
+    "crates/openkey-sync",
+    "crates/openkey-vault",
+    "crates/openkey-emoji",
+    "crates/openkey-voice",
+    "crates/openkey-components",
+    "crates/openkey-imagehost",
+    "crates/openkey-ffi",
+]
+# 注：tools/ 下的构建工具位于 workspace 根目录之外，按 docs/02 2.2 的目录约定
+# 独立成 crate（自带 manifest），由各自 CI 步骤构建，不纳入本 workspace。
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/leic4u/OpenKey"
+publish = false
+
+[workspace.lints.rust]
+# 全 workspace 统一严格度：警告即失败由 CI 的 `-D warnings` 落实。
+missing_debug_implementations = "warn"
+trivial_numeric_casts = "warn"
+
+[workspace.lints.clippy]
+all = "warn"
+
+[workspace.dependencies]
+# ---- 基础 ----
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+log = "0.4"
+# ---- 数据层 ----
+rusqlite = { version = "0.40", features = ["bundled"] }
+ulid = "3"
+# ---- 加密（openkey-vault）----
+aes = "0.9"
+cbc = "0.2"
+hmac = "0.13"
+sha2 = "0.11"
+pbkdf2 = "0.13"
+argon2 = "0.6"
+base64 = "0.23"
+rand = "0.10"
+zeroize = { version = "1", features = ["zeroize_derive"] }
+# ---- 图像（openkey-emoji）----
+image = "0.25"
+gif = "0.14"
+# ---- 组件分发（openkey-components）----
+zip = { version = "9", default-features = false, features = ["deflate"] }
+reqwest = { version = "0.13", default-features = false, features = ["blocking", "native-tls", "json"] }
+# ---- 工具链 ----
+hex = "0.4"

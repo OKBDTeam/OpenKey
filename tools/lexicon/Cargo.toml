@@ -1,0 +1,16 @@
+[package]
+name = "openkey-lexicon"
+description = "OpenKey CC0 种子词库 → rime 词典（openkey-base.dict.yaml）+ 清单（版本/哈希）构建器"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/leic4u/OpenKey"
+publish = false
+
+[dependencies]
+thiserror = "2"
+log = { version = "0.4", features = ["std"] }
+serde_json = "1"
+sha2 = "0.11"
+hex = "0.4"

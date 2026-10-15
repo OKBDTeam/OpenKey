@@ -1,0 +1,14 @@
+[package]
+name = "openkey-bench"
+description = "OpenKey 黄金语料首屏命中率评测（docs/02 7.2）"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/leic4u/OpenKey"
+publish = false
+
+[dependencies]
+openkey-rime-ffi = { path = "../../core/crates/openkey-rime-ffi" }
+thiserror = "2"
+log = "0.4"
