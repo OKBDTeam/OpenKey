@@ -31,6 +31,9 @@ settings:
     CURRENT_PROJECT_VERSION: "1"
     # CI 以 CODE_SIGNING_ALLOWED=NO 构建；此处显式关闭，保证本地 xcodegen + xcodebuild 一致。
     # 分发前的 Developer ID 签名与公证见 README（TODO）与 scripts/build-bundle.sh。
+    # core 静态库由 aarch64-apple-darwin 构建，锁定 arm64 以免链接架构不匹配。
+    ARCHS: arm64
+    ONLY_ACTIVE_ARCH: "NO"
     CODE_SIGNING_ALLOWED: "NO"
     CODE_SIGN_IDENTITY: "-"
     CODE_SIGN_STYLE: Manual

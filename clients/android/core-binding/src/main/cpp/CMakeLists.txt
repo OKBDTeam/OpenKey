@@ -35,6 +35,7 @@ endif()
 # NDK 的 lld 默认对 SHARED 库强制 --no-undefined，而 ok_* 的实际提供者
 # 是随 APK 分发的 libopenkey_ffi.so（运行期先加载），链接期强制解析既不
 # 必要也会让「先编 shim 后放 core so」的构建顺序无法工作。
+# 用 ignore-all（而非 ignore-in-shared-libs）：未定义符号来自本目标的 .o，
+# 只有 ignore-all 能覆盖；它覆盖 NDK 默认附加的 --no-undefined。
 target_link_options(openkey_jni_shim PRIVATE
-    "LINKER:--allow-shlib-undefined"
-    "LINKER:--unresolved-symbols=ignore-in-shared-libs")
+    "LINKER:--unresolved-symbols=ignore-all")

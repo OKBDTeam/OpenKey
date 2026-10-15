@@ -25,32 +25,6 @@ final class CredentialProviderViewController: ASCredentialProviderViewController
         extensionContext.completeRequest(withSelectedCredentialIdentities: identities)
     }
 
-    override func prepareInterface(forExtensionContext: ASCredentialExtensionContext) {
-        // 骨架：最小界面（占位列表 + 说明）。Phase 4 替换为 vault 条目列表。
-        view.backgroundColor = .systemBackground
-        let label = UILabel()
-        label.text = "开门密码\n自动填充将在 Phase 4 接入本地 vault 后启用。"
-        label.numberOfLines = 0
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(label)
-        NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            label.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, constant: -48),
-        ])
-
-        let cancel = UIButton(type: .system)
-        cancel.setTitle("取消", for: .normal)
-        cancel.addTarget(self, action: #selector(cancelRequest), for: .touchUpInside)
-        cancel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(cancel)
-        NSLayoutConstraint.activate([
-            cancel.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 16),
-            cancel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-        ])
-    }
-
     @objc private func cancelRequest() {
         extensionContext.cancelRequest(withError: NSError(domain: ASExtensionErrorDomain,
                                                           code: ASExtensionError.userCanceled.rawValue))
