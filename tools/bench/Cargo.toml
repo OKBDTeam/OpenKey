@@ -9,6 +9,6 @@ repository = "https://github.com/leic4u/OpenKey"
 publish = false
 
 [dependencies]
-openkey-rime-ffi = { path = "../../core/crates/openkey-rime-ffi" }
+openkey-rime-ffi = { path = "../../core/crates/openkey-rime-ffi", features = ["librime"] }
 thiserror = "2"
 log = "0.4"
