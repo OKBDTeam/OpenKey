@@ -149,7 +149,16 @@ fn input_pipeline_end_to_end() {
         .position(|c| c.text == "你好")
         .expect("候选列表应含“你好”");
     assert!(session.select_candidate(index).unwrap());
-    assert_eq!(session.commit().unwrap().as_deref(), Some("你好"));
+    let after = session.context().unwrap();
+    let committed = session.commit().unwrap();
+    assert_eq!(
+        committed.as_deref(),
+        Some("你好"),
+        "选择后未上屏：preedit={:?} preview={:?} candidates={}",
+        after.preedit,
+        after.commit_text_preview,
+        after.candidates.len()
+    );
 
     // 上屏后回到空闲。
     let ctx = session.context().unwrap();

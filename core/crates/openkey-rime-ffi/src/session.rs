@@ -22,6 +22,9 @@ pub struct Candidate {
 pub struct Context {
     /// 预编辑文本（编码串），未组词时为 `None`。
     pub preedit: Option<String>,
+    /// 待提交文本预览：已确认段的文本（librime `commit_text_preview`）。
+    /// 整段选择后此值等于整个预编辑，可据此判定「输入已全部消费」。
+    pub commit_text_preview: Option<String>,
     /// 光标位置（字符数）。
     pub cursor_pos: i32,
     /// 选择区起止（字符数，`sel_start < sel_end` 表示有选择）。
@@ -187,6 +190,10 @@ impl Session {
                 if !comp.preedit.is_null() {
                     out.preedit = Some(cstr_to_string(comp.preedit));
                 }
+                // commit_text_preview 由 free_context 统一释放，此处只读取拷贝。
+                if !ctx.commit_text_preview.is_null() {
+                    out.commit_text_preview = Some(cstr_to_string(ctx.commit_text_preview));
+                }
                 let menu = &ctx.menu;
                 out.page_no = menu.page_no;
                 out.page_size = menu.page_size;
@@ -299,13 +306,18 @@ impl Session {
             };
             if ok != 0 {
                 // 整段选择判定：librime 选中后把该段标记为 confirmed 并前移
-                // composition，此时 `RimeGetContext` 仍会分配 preedit（空串），
-                // 因此以「预编辑为空」而非 NULL 判定输入已全部消费，再显式
-                // 冲刷提交缓冲（输入法语义：选中即上屏）。部分选择（后续仍有
-                // 未确认输入）保持组词，不冲刷。
-                let preedit = self.context()?.preedit.unwrap_or_default();
-                if preedit.is_empty() {
-                    self.commit_composition()?;
+                // composition（`_auto_commit` 默认关闭，不写提交缓冲）。此时
+                // `RimeGetContext` 的 preedit 等于已确认文本，而
+                // `commit_text_preview` 给出「待提交文本」——两者相等即表示
+                // 输入已全部消费，显式冲刷提交缓冲（输入法语义：选中即上屏）。
+                // 部分选择（后续仍有未确认输入）时 preedit 还包含原始字母，
+                // 两者不等，保持组词不冲刷。
+                let ctx = self.context()?;
+                let preedit = ctx.preedit.unwrap_or_default();
+                if let Some(preview) = ctx.commit_text_preview.as_deref() {
+                    if !preview.is_empty() && preview == preedit {
+                        self.commit_composition()?;
+                    }
                 }
             }
             Ok(ok != 0)
