@@ -696,7 +696,12 @@ jobs:
           APPLE_CERT_BASE64: ${{ secrets.APPLE_CERT_BASE64 }}
         shell: bash
         run: |
-          app=$(find clients/macos/build \( -name '*.app' -o -name '*.inputmethod' \) 2>/dev/null | head -1)
+          # 输入法 bundle：OpenKeyInputMethod.app（构建产物）改名后的 .inputmethod
+          if [ -d clients/macos/build/Build/Products/Release/OpenKeyInputMethod.inputmethod ]; then
+            app=clients/macos/build/Build/Products/Release/OpenKeyInputMethod.inputmethod
+          else
+            app=$(find clients/macos/build \( -name '*.app' -o -name '*.inputmethod' \) 2>/dev/null | head -1)
+          fi
           if [ -z "$app" ]; then echo "未找到 app bundle，跳过签名"; exit 0; fi
           cert="$RUNNER_TEMP/openkey-apple.p12"
           echo "${{ secrets.APPLE_CERT_BASE64 }}" | base64 --decode > "$cert"
@@ -720,7 +725,12 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          app=$(find clients/macos/build \( -name '*.app' -o -name '*.inputmethod' \) 2>/dev/null | head -1)
+          # 输入法 bundle：OpenKeyInputMethod.app（构建产物）改名后的 .inputmethod
+          if [ -d clients/macos/build/Build/Products/Release/OpenKeyInputMethod.inputmethod ]; then
+            app=clients/macos/build/Build/Products/Release/OpenKeyInputMethod.inputmethod
+          else
+            app=$(find clients/macos/build \( -name '*.app' -o -name '*.inputmethod' \) 2>/dev/null | head -1)
+          fi
           if [ -z "$app" ]; then
             echo "::notice::未找到 app bundle（project.yml 未就绪或构建跳过），跳过打包"
             exit 0

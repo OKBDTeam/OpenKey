@@ -5,6 +5,7 @@
 // core 持久化到主 App 容器；App Group 共享留待 Phase 3 同步接线）。
 
 import SwiftUI
+import OpenKeyCore
 
 @main
 struct OpenKeyApp: App {

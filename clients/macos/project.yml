@@ -107,7 +107,11 @@ targets:
           # App/Contents/PlugIns 仅用于分发捆绑与 CI 产物收集，重复执行安全。
           set -e
           APP="${TARGET_BUILD_DIR}/OpenKey.app"
+          # 输入法产物：可执行 App bundle 改名为 .inputmethod（输入法约定）
           IM="${BUILT_PRODUCTS_DIR}/OpenKeyInputMethod.inputmethod"
+          if [ ! -d "$IM" ] && [ -d "${BUILT_PRODUCTS_DIR}/OpenKeyInputMethod.app" ]; then
+            cp -R "${BUILT_PRODUCTS_DIR}/OpenKeyInputMethod.app" "$IM"
+          fi
           if [ -d "$APP" ] && [ -d "$IM" ]; then
             mkdir -p "$APP/Contents/PlugIns"
             rm -rf "$APP/Contents/PlugIns/OpenKeyInputMethod.inputmethod"
@@ -121,7 +125,7 @@ targets:
   #
   # 工程形态说明（与 team-lead 约定的偏差，README.md 有完整论证）：
   # 真实可用的 macOS 输入法（Squirrel / azooKey / BSMInputMethod 等）都是
-  # "application 产品类型 + WRAPPER_EXTENSION=inputmethod"：
+  # "application 产品类型 + 打包阶段改名为 .inputmethod"（WRAPPER_EXTENSION 会让产物
   # 输入法以 LSBackgroundOnly 后台应用形态被系统拉起，需要可执行入口（@main AppDelegate）
   # 来创建 IMKServer 并注册 NSConnection；app-extension 产品类型没有入口点，
   # 其 NSExtensionPrincipalClass 机制与 IMK 不兼容。
@@ -138,8 +142,10 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.openkey.client.inputmethod.OpenKey
         PRODUCT_NAME: OpenKeyInputMethod
-        # .inputmethod 包装扩展名（输入法 bundle 约定；CI 按 *.inputmethod 收集）。
-        WRAPPER_EXTENSION: inputmethod
+        # 不设 WRAPPER_EXTENSION：包装扩展会把产物类型变为 mh_bundle（无 _main
+        # 入口）。输入法需要进程入口（系统以后台应用方式拉起并创建 IMKServer），
+        # 因此这里产出可执行 App bundle，再由打包脚本改名为 .inputmethod
+        # （见下方 postBuildScripts 与 README 的形态说明）。
         GENERATE_INFOPLIST_FILE: "NO"
     info:
       path: OpenKey.inputmethod/Info.plist
