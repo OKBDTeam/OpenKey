@@ -67,8 +67,8 @@ set(OPENKEY_VERSION "0.1.0" CACHE STRING "OpenKey addon 版本")
 configure_file(openkey.conf.in "${CMAKE_CURRENT_BINARY_DIR}/openkey.conf" @ONLY)
 
 # ---- 安装规则（docs/02 2.2 目录约定）---------------------------------------
-install(TARGETS fcitx5-openkey DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/fcitx5")
-install(FILES openkeypinyin.conf
-        DESTINATION "${CMAKE_INSTALL_PREFIX}/share/fcitx5/inputmethod")
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/openkey.conf"
-        DESTINATION "${CMAKE_INSTALL_PREFIX}/share/fcitx5/addon")
+# 安装目标用相对路径：`cmake --install --prefix <dir>` 阶段才决定前缀，
+# 便于 CI 打包到暂存目录（绝对 DESTINATION 会锁死配置期 CMAKE_INSTALL_PREFIX）。
+install(TARGETS fcitx5-openkey DESTINATION lib/fcitx5)
+install(FILES openkeypinyin.conf DESTINATION share/fcitx5/inputmethod)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/openkey.conf" DESTINATION share/fcitx5/addon)

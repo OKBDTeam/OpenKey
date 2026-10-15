@@ -16,4 +16,20 @@ add_library(openkey_jni_shim SHARED openkey_jni_shim.c)
 target_include_directories(openkey_jni_shim PRIVATE "${OPENKEY_HEADER_DIR}")
 target_compile_options(openkey_jni_shim PRIVATE -Wall -Wextra)
 
-# 纯 C 工程，不链接 Android 系统库（ok_* 符号运行时由 libopenkey_ffi.so 提供）。
+# 链接 core 动态库：NDK 链接器对 SHARED 库强制 -Wl,--no-undefined，
+# ok_* 符号必须在此解析（core so 由 CI 放入 jniLibs/<abi>/，随 APK 一起分发，
+# 运行期 System.loadLibrary("openkey_ffi") 先加载，shim 再依赖其符号）。
+# 本地若尚未放入 core so，则跳过链接（shim 仍可编译，便于先看编译错误）。
+set(OPENKEY_CORE_SO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../jniLibs/${ANDROID_ABI}")
+find_library(OPENKEY_CORE_SO NAMES openkey_ffi
+             PATHS "${OPENKEY_CORE_SO_DIR}" NO_DEFAULT_PATH)
+if (OPENKEY_CORE_SO)
+    message(STATUS "链接 core: ${OPENKEY_CORE_SO}")
+    target_link_libraries(openkey_jni_shim PRIVATE "${OPENKEY_CORE_SO}")
+    # 运行期按加载顺序解析（System.loadLibrary 先 core 后 shim）
+    target_link_options(openkey_jni_shim PRIVATE "LINKER:--allow-shlib-undefined")
+else()
+    message(WARNING
+        "未找到 ${OPENKEY_CORE_SO_DIR}/libopenkey_ffi.so：跳过链接。"
+        "本地产物运行期不可用；CI 会先放入 core so。")
+endif()

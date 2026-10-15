@@ -640,7 +640,8 @@ jobs:
           curl -fsSL --retry 3 -o /tmp/xcodegen.zip \
             https://github.com/yonaskolb/XcodeGen/releases/download/2.42.0/xcodegen.zip
           unzip -q -o /tmp/xcodegen.zip -d /tmp/xcodegen
-          echo "/tmp/xcodegen/bin" >> "$GITHUB_PATH"
+          XGBIN="$(dirname "$(find /tmp/xcodegen -type f -name xcodegen -perm -u+x | head -1)")"
+          echo "$XGBIN" >> "$GITHUB_PATH"
 
 
       - name: 构建并安装 librime（aarch64-apple-darwin）
@@ -757,7 +758,15 @@ jobs:
         run: rustup target add aarch64-apple-ios-sim
 
       - name: 安装 XcodeGen
-        run: brew install xcodegen
+        # 同 macOS job：固定 XcodeGen 2.42.0（最新版生成 objectVersion 77，
+        # runner 的 Xcode 15.4 无法打开）。
+        run: |
+          curl -fsSL --retry 3 -o /tmp/xcodegen.zip \
+            https://github.com/yonaskolb/XcodeGen/releases/download/2.42.0/xcodegen.zip
+          unzip -q -o /tmp/xcodegen.zip -d /tmp/xcodegen
+          XGBIN="$(dirname "$(find /tmp/xcodegen -type f -name xcodegen -perm -u+x | head -1)")"
+          echo "$XGBIN" >> "$GITHUB_PATH"
+          "$XGBIN/xcodegen" --version
 
       - name: 构建 core 静态库（iOS 模拟器 target，librime 特性关闭）
         id: core-ios
