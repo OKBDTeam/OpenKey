@@ -115,7 +115,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" \
             -DVCPKG_TARGET_TRIPLET=x64-windows-static-md \
             -DBUILD_STATIC=ON -DBUILD_SHARED_LIBS=ON \
-            -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
+            -DBUILD_TEST=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
           cmake --build librime-build --config Release --parallel
           cmake --install librime-build --prefix core/vendor/librime/dist
           ls core/vendor/librime/dist/lib core/vendor/librime/dist/bin 2>/dev/null || true
