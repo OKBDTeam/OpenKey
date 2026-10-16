@@ -112,7 +112,11 @@ jobs:
             curl -L --retry 3 -o boost.7z \
               https://archives.boost.io/release/1.89.0/source/boost_1_89_0.7z
             7z x boost.7z -ocore/vendor/librime/deps
+            # 解压产物是 boost_1_89_0（下划线）；对齐 librime install-boost.bat
+            # 的 BOOST_ROOT 约定（连字符），便于 find_package(Boost) 识别版本。
+            mv core/vendor/librime/deps/boost_1_89_0 "$BOOST_DIR"
           fi
+          ls "$BOOST_DIR/boost/version.hpp" >/dev/null
           echo "BOOST_ROOT=$BOOST_DIR" >> "$GITHUB_ENV"
 
       - name: 构建 librime（CMake + vcpkg 工具链）
