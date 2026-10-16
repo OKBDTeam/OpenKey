@@ -21,12 +21,12 @@ clients/macos/
 │           ├── OpenKeyPaths.swift   #     数据目录约定（~/Library/Application Support/OpenKey）
 │           ├── OpenKeySettings.swift#     设置项读写 + 双拼/模糊音方案解析（双端共用）
 │           └── X11Keysym.swift      #     按键 → X11 keysym/修饰键映射（core 输入约定）
-├── OpenKey.inputmethod/             # 输入法 bundle（安装至 /Library/Input Methods）
+├── InputMethod/                    # 输入法 bundle 源码（安装至 /Library/Input Methods）
 │   ├── InputMethodServer.swift      #   NSManualApplication + @main AppDelegate（创建 IMKServer）
 │   │                                #   + IMKServer 子类 + 进程共享引擎 EngineProvider
 │   ├── InputController.swift        #   IMKInputController 子类：按键管线/上屏/会话生命周期
 │   └── CandidatePanel.swift         #   自绘候选条（NSPanel，不用系统 IMKCandidates）
-├── OpenKey.app/                     # 设置 App（SwiftUI）
+├── OpenKeyApp/                     # 设置 App 源码（SwiftUI）
 │   ├── OpenKeyApp.swift             #   @main 入口
 │   ├── SettingsModel.swift          #   视图模型（懒加载引擎、读写设置）
 │   └── SettingsView.swift           #   方案选择/双拼/模糊音/中英切换
@@ -114,7 +114,7 @@ scripts/build-bundle.sh --install   # sudo 拷贝到 /Library/Input Methods
    产物仍是 `OpenKeyInputMethod.inputmethod`，CI 收集/嵌入逻辑不受影响。
 2. **输入法控制器用系统 IMKit（IMKServer + IMKInputController）而非 IMKSwift**
    （docs/02 2.5 选型偏差）。IMKit 是 Apple 官方框架、零第三方依赖；IMKSwift 对
-   Swift 6 并发更友好，计划在 Phase 2 评估切换（切换只影响 `OpenKey.inputmethod/` 内文件，
+   Swift 6 并发更友好，计划在 Phase 2 评估切换（切换只影响 `InputMethod/` 内文件，
    core 交互层 `OpenKeyCore` 不变）。
 3. **预编辑不走 `setMarkedText`**：预编辑只在自绘候选面板展示，宿主内联预编辑留待 Phase 2。
 4. **候选面板定位用鼠标位置兜底**：TODO 接 `IMKTextInput` 的 caret 矩形。

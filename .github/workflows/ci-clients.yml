@@ -353,6 +353,14 @@ jobs:
             fi
           done
 
+      - name: 依赖诊断（keyboard 编译类路径）
+        if: always()
+        shell: bash
+        run: |
+          cd clients/android
+          ./gradlew :keyboard:dependencies --configuration debugCompileClasspath \
+            | grep -iE "lifecycle|savedstate" || echo "（classpath 中未见 lifecycle/savedstate）"
+
       - name: Gradle 构建（assembleDebug）
         if: steps.core-so.outputs.ready == 'true'
         shell: bash

@@ -77,12 +77,16 @@ schemes:
 
 targets:
   # 设置 App：方案/双拼/模糊音/中英切换（docs/02 4.2.1 的 OpenKey.app）。
+  # 注意：源目录不用带扩展名的名字（OpenKey.app / OpenKey.inputmethod）——
+  # XcodeGen 会把带扩展名的路径当成单文件引用，导致目录内源文件不进 target
+  # （曾表现为链接期 _main undefined）。目录名与产物名解耦，产物名由
+  # PRODUCT_NAME 控制。
   OpenKey:
     type: application
     platform: macOS
     deploymentTarget: "13.0"
     sources:
-      - path: OpenKey.app
+      - path: OpenKeyApp
     dependencies:
       - package: OpenKeyCore
       # 输入法 bundle 作为构建依赖（先于 App 构建）；构建后由下方 postBuildScripts
@@ -94,7 +98,7 @@ targets:
         PRODUCT_NAME: OpenKey
         GENERATE_INFOPLIST_FILE: "NO"
     info:
-      path: OpenKey.app/Info.plist
+      path: OpenKeyApp/Info.plist
       properties:
         CFBundleDisplayName: OpenKey
         CFBundleShortVersionString: "0.1.0"
@@ -135,7 +139,7 @@ targets:
     platform: macOS
     deploymentTarget: "13.0"
     sources:
-      - path: OpenKey.inputmethod
+      - path: InputMethod
     dependencies:
       - package: OpenKeyCore
     settings:
@@ -148,7 +152,7 @@ targets:
         # （见下方 postBuildScripts 与 README 的形态说明）。
         GENERATE_INFOPLIST_FILE: "NO"
     info:
-      path: OpenKey.inputmethod/Info.plist
+      path: InputMethod/Info.plist
       properties:
         CFBundleDisplayName: OpenKey 输入法
         CFBundleShortVersionString: "0.1.0"

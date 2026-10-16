@@ -35,9 +35,13 @@ dependencies {
     // ComposeView 运行在 InputMethodService 窗口中，需要手动提供
     // ViewTreeLifecycleOwner / ViewTreeViewModelStoreOwner /
     // ViewTreeSavedStateRegistryOwner（见 OpenKeyIme）。
-    // 注意：AndroidX 自 2024 年起 KMP 拆分，lifecycle-runtime / savedstate 等
-    // 根构件是空壳（无 class），实现类位于 -android 变体，必须显式依赖。
-    implementation("androidx.lifecycle:lifecycle-runtime-android:2.8.6")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-android:2.8.6")
+    // 注意：AndroidX 自 2024 年起 KMP 拆分——lifecycle 各库的 root 坐标
+    // （如 lifecycle-runtime）只带 Gradle Module Metadata，通过 available-at
+    // 重定向到 -android 变体；必须依赖 root 坐标，直接依赖 -android 变体
+    // 会因 KMP 变体名（release*）与 AGP 的 debug variant 不匹配而拿不到类
+    // （曾表现为 ViewTree* Unresolved reference）。savedstate 1.2.x 尚未
+    // KMP 化，直接依赖即可。
+    implementation("androidx.lifecycle:lifecycle-runtime:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.6")
     implementation("androidx.savedstate:savedstate:1.2.1")
 }

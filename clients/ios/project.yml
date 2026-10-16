@@ -1,15 +1,15 @@
 # clients/ios/project.yml —— OpenKey iOS 工程（XcodeGen 规格，docs/02 4.5）。
 #
 # 与 CI 的约定（.github/workflows/ci-clients.yml 的 ios-client job）：
-#   1. CI 构建 core 静态库（--target x86_64-apple-ios-simulator 与
-#      aarch64-apple-ios-simulator，--no-default-features：iOS 端 librime 链接
+#   1. CI 构建 core 静态库（--target aarch64-apple-ios-sim，--no-default-features：
+#      iOS 端 librime 链接
 #      方案待定，DR-004 仅豁免 ASR 引擎）；
 #   2. CI 把 libopenkey_ffi.a 放到 core-binding/<target>/，openkey.h 放到
 #      core-binding/；
 #   3. CI 执行：
 #        xcodebuild -project OpenKey.xcodeproj -scheme OpenKey -configuration Debug \
 #          -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
-#   4. CI 收集 build/Build/Products/* 打包为 OpenKey-<ver>-ios-simulator.zip。
+#   4. CI 收集 build/Build/Products/* 打包为 OpenKey-<ver>-ios-sim.zip。
 #
 # 本地开发同样先准备 core-binding/（见 README）。
 name: OpenKey
@@ -34,8 +34,7 @@ settings:
     ENABLE_USER_SCRIPT_SANDBOXING: "NO"
     # —— core 链接：静态库按模拟器架构分目录放置，链接器按搜索路径自取 ——
     LIBRARY_SEARCH_PATHS:
-      - "$(SRCROOT)/core-binding/x86_64-apple-ios-simulator"
-      - "$(SRCROOT)/core-binding/aarch64-apple-ios-simulator"
+      - "$(SRCROOT)/core-binding/aarch64-apple-ios-sim"
       - "$(SRCROOT)/core-binding"
     OTHER_LDFLAGS:
       - "-lopenkey_ffi"
