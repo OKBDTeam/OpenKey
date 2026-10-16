@@ -107,7 +107,13 @@ jobs:
             -DBUILD_TEST=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
           cmake --build librime-build --config Release --parallel
           cmake --install librime-build --prefix core/vendor/librime/dist
-          ls core/vendor/librime/dist/lib core/vendor/librime/dist/bin 2>/dev/null || true
+          # librime 的 CMake 对库用绝对安装路径（Windows 默认
+          # C:/Program Files (x86)/rime/lib），--prefix 对其无效；复制回
+          # dist/lib 供「检查 librime 构建结果」与 core 链接使用。
+          mkdir -p core/vendor/librime/dist/lib
+          cp "C:/Program Files (x86)/rime/lib/rime.lib" core/vendor/librime/dist/lib/ 2>/dev/null || true
+          cp "C:/Program Files (x86)/rime/lib/rime.dll" core/vendor/librime/dist/lib/ 2>/dev/null || true
+          ls core/vendor/librime/dist/lib core/vendor/librime/dist/bin
 
       - name: 检查 librime 构建结果
         id: rime-check
