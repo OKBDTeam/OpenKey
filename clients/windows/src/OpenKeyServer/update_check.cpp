@@ -8,6 +8,8 @@
 
 #include <winhttp.h>
 
+#include <cstdlib>  // atoi / _countof
+#include <cwchar>
 #include <vector>
 
 #include "openkey_client.h"  // ok_version_string

@@ -17,6 +17,7 @@
 #include <shellapi.h>
 #include <shlobj.h>
 
+#include <cstdlib>  // getenv
 #include <string>
 #include <vector>
 
@@ -57,13 +58,13 @@ std::string ExeDirectory() {
 }
 
 std::string AppDataDir() {
-  PWSTR appdata = nullptr;
-  std::wstring dir = L"OpenKey";
-  if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &appdata)) &&
-      appdata) {
-    dir = std::wstring(appdata) + L"\\OpenKey";
-    CoTaskMemFree(appdata);
-  }
+  // %APPDATA%\OpenKey（与 OpenKeyServer 的目录约定一致，docs/02 4.1.4）。
+  // 用环境变量而非 SHGetKnownFolderPath：避免引入 knownfolders GUID 的
+  // 额外链接依赖（uuid.lib 之外的符号），且行为与 Server 侧完全一致。
+  wchar_t buf[MAX_PATH] = {0};
+  DWORD n = GetEnvironmentVariableW(L"APPDATA", buf, MAX_PATH);
+  std::wstring dir = (n > 0 && n < MAX_PATH) ? std::wstring(buf) : L".";
+  dir += L"\\OpenKey";
   int len = WideCharToMultiByte(CP_UTF8, 0, dir.data(), (int)dir.size(), nullptr, 0,
                                 nullptr, nullptr);
   std::string out(len, '\0');

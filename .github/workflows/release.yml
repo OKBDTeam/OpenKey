@@ -431,8 +431,37 @@ jobs:
           fi
           mkdir -p dist stage
           find build \( -name '*.exe' -o -name '*.dll' \) -exec cp {} stage/ \;
+          # librime 运行时：rime.dll 必须与 OpenKeyServer.exe 同级（DLL 搜索路径首选 exe 目录）
+          if [ -f core/vendor/librime/dist/bin/rime.dll ]; then
+            cp core/vendor/librime/dist/bin/rime.dll stage/
+          elif [ -f core/vendor/librime/dist/lib/rime.dll ]; then
+            cp core/vendor/librime/dist/lib/rime.dll stage/
+          fi
+          # 共享数据（方案/词库）：Server 约定 <exe 目录>\shared（docs/02 4.1.4）
+          mkdir -p stage/shared
+          cp -r shared/schemas/. stage/shared/
+          cp LICENSE THIRD_PARTY_NOTICES.md stage/ 2>/dev/null || true
+          # 安装/卸载脚本（regsvr32 注册/注销 TSF；需管理员权限）
+          python3 - <<'PY'
+          import pathlib
+          stage = pathlib.Path('stage')
+          (stage / 'install.bat').write_text(
+              '@echo off\r\n'
+              'REM 开门输入法：注册 TSF 文本服务（需管理员权限）\r\n'
+              'regsvr32 /s "%~dp0OpenKeyTsf.dll"\r\n'
+              'echo OpenKeyTsf.dll 已注册，请在 设置 - 时间和语言 - 语言 中添加 OpenKey。\r\n'
+              'pause\r\n', encoding='utf-8')
+          (stage / 'uninstall.bat').write_text(
+              '@echo off\r\n'
+              'REM 开门输入法：注销 TSF 文本服务（需管理员权限）\r\n'
+              'regsvr32 /u /s "%~dp0OpenKeyTsf.dll"\r\n'
+              'echo OpenKeyTsf.dll 已注销。\r\n'
+              'pause\r\n', encoding='utf-8')
+          PY
           python3 - "$TAG" <<'PY'
           import sys, zipfile, pathlib
+          # 控制台默认 GBK：打印中文路径会 UnicodeEncodeError
+          sys.stdout.reconfigure(encoding='utf-8', errors='replace')
           ver = sys.argv[1].lstrip('v')
           stage = pathlib.Path('stage')
           out = pathlib.Path('dist') / f'OpenKey-{ver}-windows-x86_64.zip'
@@ -443,13 +472,23 @@ jobs:
           print(f'打包 {out}')
           PY
 
+      - name: 校验 Windows 客户端产物（缺失即失败）
+        # 教训：此前 Windows 作业因 librime 未就绪而「跳过构建」却仍报成功，
+        # 结果 v0.1.0 发布了没有 Windows 包的版本。此处显式拦截。
+        shell: bash
+        run: |
+          if [ -z "$(ls dist/OpenKey-*-windows-x86_64.zip 2>/dev/null)" ]; then
+            echo "::error::Windows 客户端 zip 未生成（librime 未就绪或 TSF 构建失败），中止发布"
+            exit 1
+          fi
+          ls -l dist/OpenKey-*-windows-x86_64.zip
+
       - name: 上传客户端 artifact
-        if: hashFiles('dist/OpenKey-*-windows-x86_64.zip') != ''
         uses: actions/upload-artifact@v4
         with:
           name: app-windows
           path: dist/OpenKey-*-windows-x86_64.zip
-          if-no-files-found: warn
+          if-no-files-found: error
 
   build-client-linux:
     name: build-client-linux（fcitx5 addon）

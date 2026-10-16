@@ -28,6 +28,12 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
+# 源码为无 BOM 的 UTF-8（含中文注释与界面串）：显式指定源字符集与执行字符集，
+# 否则 MSVC 按 ANSI 代码页解析，产生 C4819 警告并使窄字符串字面量乱码。
+if(MSVC)
+  add_compile_options(/utf-8)
+endif()
+
 # ---- core / librime 路径解析 -------------------------------------------------
 if(NOT DEFINED OPENKEY_CORE_INCLUDE_DIR AND DEFINED ENV{LIBRIME_DIR})
   set(OPENKEY_CORE_INCLUDE_DIR "$ENV{LIBRIME_DIR}/include")

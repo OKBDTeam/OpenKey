@@ -12,12 +12,18 @@
 
 #include "text_service.h"
 
+#include <string>
+
+#include "openkey_client.h"  // openkey::Context / openkey::Candidate
 #include "pipe_protocol.h"
 
-namespace openkey {
+/* 协议栈与 core 封装都定义在 openkey / openkey::pipe 命名空间内；本文件是
+ * 全局命名空间下的 COM 实现，用 using 简化调用，避免逐处加限定。 */
+using namespace openkey;
+using namespace openkey::pipe;
+
 /* 注意：Server 协议只收 UTF-8；本文件的预编辑/上屏文本来自 Server 响应，
  * 已由 pipe_protocol 解码为 UTF-8 std::string，转宽字符用 Utf8ToWide。 */
-}  // namespace openkey
 
 /* ------------------------------------------------------------------ */
 /* OpenKeyEditSession                                                   */
@@ -137,6 +143,10 @@ STDMETHODIMP OpenKeyTextService::Deactivate() {
     context_->Release();
     context_ = nullptr;
   }
+  if (keystroke_mgr_) {
+    keystroke_mgr_->Release();
+    keystroke_mgr_ = nullptr;
+  }
   if (ptim_) {
     ptim_->Release();
     ptim_ = nullptr;
@@ -147,24 +157,44 @@ STDMETHODIMP OpenKeyTextService::Deactivate() {
 
 bool OpenKeyTextService::AdviseSinks(ITfContext* context_for_composition) {
   if (!ptim_) return false;
-  ITfSource* source = nullptr;
-  if (FAILED(ptim_->QueryInterface(IID_ITfSource, &source)) || !source) {
-    return false;
+
+  // 按键接收器：优先 ITfKeystrokeMgr::AdviseKeyEventSink（微软 SampleIME 的
+  // 注册路径）；该路径不可用时退回 ITfSource::AdviseSink（部分宿主只暴露
+  // 后者）。两条路径互斥，cookie / 句柄分别记录以便对称注销。
+  ITfKeystrokeMgr* keystroke = nullptr;
+  if (SUCCEEDED(ptim_->QueryInterface(IID_ITfKeystrokeMgr,
+                                      reinterpret_cast<void**>(&keystroke))) &&
+      keystroke) {
+    if (SUCCEEDED(keystroke->AdviseKeyEventSink(
+            tid_, static_cast<ITfKeyEventSink*>(this), TRUE))) {
+      keystroke_mgr_ = keystroke;  // 引用移交成员，Deactivate 时释放
+    } else {
+      keystroke->Release();
+    }
   }
-  source->AdviseSink(IID_ITfKeyEventSink,
-                     static_cast<ITfKeyEventSink*>(this), &key_event_cookie_);
-  source->AdviseSink(IID_ITfThreadMgrEventSink,
-                     static_cast<ITfThreadMgrEventSink*>(this),
-                     &thread_mgr_cookie_);
-  source->Release();
+
+  ITfSource* source = nullptr;
+  if (SUCCEEDED(ptim_->QueryInterface(IID_ITfSource,
+                                      reinterpret_cast<void**>(&source))) &&
+      source) {
+    if (!keystroke_mgr_) {
+      source->AdviseSink(IID_ITfKeyEventSink,
+                         static_cast<ITfKeyEventSink*>(this),
+                         &key_event_cookie_);
+    }
+    source->AdviseSink(IID_ITfThreadMgrEventSink,
+                       static_cast<ITfThreadMgrEventSink*>(this),
+                       &thread_mgr_cookie_);
+    source->Release();
+  }
 
   // 组词事件接收器：TSF 惯例是挂到上下文对象的 ITfSource。
   // 若该 QI 失败（个别宿主封装差异），退化为挂到线程管理器；两者都失败
   // 时仅失去 OnCompositionTerminated 回调，不影响主流程（组词状态本地跟踪）。
   if (context_for_composition) {
     ITfSource* ctx_source = nullptr;
-    if (SUCCEEDED(context_for_composition->QueryInterface(IID_ITfSource,
-                                                          &ctx_source)) &&
+    if (SUCCEEDED(context_for_composition->QueryInterface(
+            IID_ITfSource, reinterpret_cast<void**>(&ctx_source))) &&
         ctx_source) {
       ctx_source->AdviseSink(IID_ITfCompositionSink,
                              static_cast<ITfCompositionSink*>(this),
@@ -176,9 +206,16 @@ bool OpenKeyTextService::AdviseSinks(ITfContext* context_for_composition) {
 }
 
 void OpenKeyTextService::UnadviseSinks() {
+  if (keystroke_mgr_) {
+    keystroke_mgr_->UnadviseKeyEventSink(tid_);
+    keystroke_mgr_->Release();
+    keystroke_mgr_ = nullptr;
+  }
   if (ptim_) {
     ITfSource* source = nullptr;
-    if (SUCCEEDED(ptim_->QueryInterface(IID_ITfSource, &source)) && source) {
+    if (SUCCEEDED(ptim_->QueryInterface(IID_ITfSource,
+                                        reinterpret_cast<void**>(&source))) &&
+        source) {
       if (key_event_cookie_ != TF_INVALID_COOKIE) {
         source->UnadviseSink(key_event_cookie_);
         key_event_cookie_ = TF_INVALID_COOKIE;
@@ -192,7 +229,8 @@ void OpenKeyTextService::UnadviseSinks() {
   }
   if (context_) {
     ITfSource* ctx_source = nullptr;
-    if (SUCCEEDED(context_->QueryInterface(IID_ITfSource, &ctx_source)) &&
+    if (SUCCEEDED(context_->QueryInterface(
+            IID_ITfSource, reinterpret_cast<void**>(&ctx_source))) &&
         ctx_source) {
       if (composition_cookie_ != TF_INVALID_COOKIE) {
         ctx_source->UnadviseSink(composition_cookie_);
@@ -223,7 +261,8 @@ void OpenKeyTextService::TrackContext(ITfDocumentMgr* pdim) {
   composing_ = false;
   candidates_.Hide();
   ITfSource* ctx_source = nullptr;
-  if (SUCCEEDED(context_->QueryInterface(IID_ITfSource, &ctx_source)) &&
+  if (SUCCEEDED(context_->QueryInterface(
+          IID_ITfSource, reinterpret_cast<void**>(&ctx_source))) &&
       ctx_source) {
     ctx_source->AdviseSink(IID_ITfCompositionSink,
                            static_cast<ITfCompositionSink*>(this),
@@ -286,7 +325,17 @@ bool OpenKeyTextService::RequestEditSession(
   if (!ptim_) return false;
   ITfContext* ctx = context_;
   if (!ctx) {
-    if (FAILED(ptim_->GetFocus(&ctx)) || !ctx) return false;
+    // 焦点文档 -> 栈顶上下文（GetFocus 返回 ITfDocumentMgr）
+    ITfDocumentMgr* dim = nullptr;
+    if (FAILED(ptim_->GetFocus(&dim)) || !dim) {
+      if (dim) dim->Release();
+      return false;
+    }
+    if (FAILED(dim->GetTop(&ctx)) || !ctx) {
+      dim->Release();
+      return false;
+    }
+    dim->Release();  // ctx 的引用由 GetTop 转交调用方
   } else {
     ctx->AddRef();
   }
@@ -301,41 +350,83 @@ bool OpenKeyTextService::RequestEditSession(
   return SUCCEEDED(hr) && SUCCEEDED(hr_session);
 }
 
-STDMETHODIMP OpenKeyTextService::OnTestKeyDown(ITfKeyEvent* pKeyEvent) {
-  UINT vk = 0;
-  if (!pKeyEvent || FAILED(pKeyEvent->GetKeyCode(&vk))) return S_FALSE;
-  if (vk == VK_PROCESSKEY) return S_FALSE;
+STDMETHODIMP OpenKeyTextService::OnSetFocus(BOOL fForeground) {
+  // 按键接收器侧的前后台焦点通知；Server 会话按线程 ID 标识，无需处理。
+  (void)fForeground;
+  return S_OK;
+}
+
+STDMETHODIMP OpenKeyTextService::OnTestKeyDown(ITfContext* pic, WPARAM wParam,
+                                               LPARAM lParam, BOOL* pfEaten) {
+  (void)pic;
+  (void)lParam;
+  if (!pfEaten) return E_INVALIDARG;
+  *pfEaten = FALSE;
+  UINT vk = static_cast<UINT>(wParam);
+  if (vk == VK_PROCESSKEY) return S_OK;
   uint32_t mask = CurrentKeyMask();
   // 组合键（Ctrl/Alt）一律放行；AltGr（部分布局 Ctrl+Alt）列入 TODO。
-  if (mask & (kMaskControl | kMaskAlt)) return S_FALSE;
+  if (mask & (kMaskControl | kMaskAlt)) return S_OK;
   bool shift = (mask & kMaskShift) != 0;
   uint32_t keysym = VkToKeysymForEvent(vk, shift);
-  if (!keysym) return S_FALSE;
-  if (composing_) return S_OK;  // 组词中：所有可映射键都吃
-  if (ascii_mode_) return S_FALSE;  // 英文模式：全放行
+  if (!keysym) return S_OK;
+  if (composing_) {  // 组词中：所有可映射键都吃
+    *pfEaten = TRUE;
+    return S_OK;
+  }
+  if (ascii_mode_) return S_OK;  // 英文模式：全放行
   // 非组词中文模式：可打印 ASCII 可能开启组词，吃掉由引擎裁决
-  return (keysym >= 0x20 && keysym <= 0x7E) ? S_OK : S_FALSE;
+  if (keysym >= 0x20 && keysym <= 0x7E) *pfEaten = TRUE;
+  return S_OK;
 }
 
-STDMETHODIMP OpenKeyTextService::OnTestKeyUp(ITfKeyEvent* pKeyEvent) {
-  (void)pKeyEvent;
-  return S_FALSE;
+STDMETHODIMP OpenKeyTextService::OnTestKeyUp(ITfContext* pic, WPARAM wParam,
+                                             LPARAM lParam, BOOL* pfEaten) {
+  (void)pic;
+  (void)wParam;
+  (void)lParam;
+  if (!pfEaten) return E_INVALIDARG;
+  *pfEaten = FALSE;
+  return S_OK;
 }
 
-STDMETHODIMP OpenKeyTextService::OnKeyUp(ITfKeyEvent* pKeyEvent) {
-  (void)pKeyEvent;
-  return S_FALSE;
+STDMETHODIMP OpenKeyTextService::OnKeyUp(ITfContext* pic, WPARAM wParam,
+                                         LPARAM lParam, BOOL* pfEaten) {
+  (void)pic;
+  (void)wParam;
+  (void)lParam;
+  if (!pfEaten) return E_INVALIDARG;
+  *pfEaten = FALSE;
+  return S_OK;
 }
 
-STDMETHODIMP OpenKeyTextService::OnKeyDown(ITfKeyEvent* pKeyEvent) {
-  UINT vk = 0;
-  if (!pKeyEvent || FAILED(pKeyEvent->GetKeyCode(&vk))) return S_FALSE;
-  if (vk == VK_PROCESSKEY) return S_FALSE;
+STDMETHODIMP OpenKeyTextService::OnPreservedKey(ITfContext* pic, REFGUID rguid,
+                                                BOOL* pfEaten) {
+  (void)pic;
+  (void)rguid;
+  if (!pfEaten) return E_INVALIDARG;
+  *pfEaten = FALSE;  // 一期不注册保留键
+  return S_OK;
+}
+
+STDMETHODIMP OpenKeyTextService::OnKeyDown(ITfContext* pic, WPARAM wParam,
+                                           LPARAM lParam, BOOL* pfEaten) {
+  (void)lParam;
+  if (!pfEaten) return E_INVALIDARG;
+  *pfEaten = FALSE;
+  // 按键回调自带上下文：焦点通知未到时用它兜底（与 OnSetFocus 同一对象）。
+  if (pic && pic != context_) {
+    if (context_) context_->Release();
+    context_ = pic;
+    context_->AddRef();
+  }
+  UINT vk = static_cast<UINT>(wParam);
+  if (vk == VK_PROCESSKEY) return S_OK;
   uint32_t mask = CurrentKeyMask();
-  if (mask & (kMaskControl | kMaskAlt)) return S_FALSE;
+  if (mask & (kMaskControl | kMaskAlt)) return S_OK;
   bool shift = (mask & kMaskShift) != 0;
   uint32_t keysym = VkToKeysymForEvent(vk, shift);
-  if (!keysym) return S_FALSE;
+  if (!keysym) return S_OK;
 
   if (!session_ready_ && !EnsureSession()) {
     // Server 未启动：透传模式。此前若已吃掉可打印键，插入原字符兜底。
@@ -344,9 +435,10 @@ STDMETHODIMP OpenKeyTextService::OnKeyDown(ITfKeyEvent* pKeyEvent) {
         EndComposition(ec, true);
         InsertLiteral(ec, keysym);
       });
+      *pfEaten = TRUE;
       return S_OK;
     }
-    return S_FALSE;
+    return S_OK;  // 非可打印键：交由宿主处理
   }
 
   pipe::FieldMap req;
@@ -370,9 +462,10 @@ STDMETHODIMP OpenKeyTextService::OnKeyDown(ITfKeyEvent* pKeyEvent) {
             EndComposition(ec, true);
             InsertLiteral(ec, keysym);
           });
+          *pfEaten = TRUE;
           return S_OK;
         }
-        return S_FALSE;
+        return S_OK;
       }
     }
     long long v = 0;
@@ -387,9 +480,10 @@ STDMETHODIMP OpenKeyTextService::OnKeyDown(ITfKeyEvent* pKeyEvent) {
         EndComposition(ec, true);
         InsertLiteral(ec, keysym);
       });
+      *pfEaten = TRUE;
       return S_OK;
     }
-    return S_FALSE;
+    return S_OK;
   }
 
   if (!consumed) {
@@ -399,17 +493,24 @@ STDMETHODIMP OpenKeyTextService::OnKeyDown(ITfKeyEvent* pKeyEvent) {
       InsertLiteral(ec, keysym);
       candidates_.Hide();
     });
+    *pfEaten = TRUE;
     return S_OK;
   }
 
   RequestEditSession([this](TfEditCookie ec) { this->UpdateUi(ec); });
+  *pfEaten = TRUE;
   return S_OK;
 }
 
 void OpenKeyTextService::UpdateUi(TfEditCookie ec) {
   if (!context_ && ptim_) {
-    ITfContext* ctx = nullptr;
-    if (SUCCEEDED(ptim_->GetFocus(&ctx)) && ctx) context_ = ctx;
+    // ITfThreadMgr::GetFocus 返回的是文档管理器，需再取栈顶上下文。
+    ITfDocumentMgr* dim = nullptr;
+    if (SUCCEEDED(ptim_->GetFocus(&dim)) && dim) {
+      ITfContext* ctx = nullptr;
+      if (SUCCEEDED(dim->GetTop(&ctx)) && ctx) context_ = ctx;
+      dim->Release();
+    }
   }
   if (!context_) return;
 
@@ -436,12 +537,7 @@ void OpenKeyTextService::UpdateUi(TfEditCookie ec) {
                                   static_cast<LONG>(text.size()));
     } else {
       // 无组词时在光标插入 commit
-      ITfRange* sel = nullptr;
-      if (SUCCEEDED(context_->GetSelection(ec, TF_DEFAULT_SELECTION, &sel)) &&
-          sel) {
-        sel->SetText(ec, 0, text.c_str(), static_cast<LONG>(text.size()));
-        sel->Release();
-      }
+      WriteTextAtSelection(ec, text);
     }
     EndComposition(ec, false);
     candidates_.Hide();
@@ -494,17 +590,24 @@ void OpenKeyTextService::UpdateUi(TfEditCookie ec) {
   // 3) 确保组词对象
   if (!composition_) {
     ITfContextComposition* comp = nullptr;
-    if (FAILED(context_->QueryInterface(IID_ITfContextComposition, &comp)) ||
+    if (FAILED(context_->QueryInterface(IID_ITfContextComposition,
+                                        reinterpret_cast<void**>(&comp))) ||
         !comp) {
       return;
     }
-    ITfRange* sel = nullptr;
-    if (FAILED(context_->GetSelection(ec, TF_DEFAULT_SELECTION, &sel)) || !sel) {
+    // 取当前选区作为组词起始范围（TF_SELECTION 形式，见 msctf.h）。
+    TF_SELECTION sel{};
+    ULONG fetched = 0;
+    if (FAILED(context_->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &sel,
+                                      &fetched)) ||
+        fetched != 1 || !sel.range) {
+      if (sel.range) sel.range->Release();
       comp->Release();
       return;
     }
-    HRESULT hr = comp->StartComposition(ec, sel, &composition_);
-    sel->Release();
+    HRESULT hr = comp->StartComposition(
+        ec, sel.range, static_cast<ITfCompositionSink*>(this), &composition_);
+    sel.range->Release();
     comp->Release();
     if (FAILED(hr) || !composition_) return;
     if (FAILED(composition_->GetRange(&composition_range_)) ||
@@ -564,16 +667,32 @@ void OpenKeyTextService::EndComposition(TfEditCookie ec, bool discard) {
   composing_ = false;
 }
 
+/* 在光标处写入文本：取当前选区（TF_SELECTION）-> SetText -> 回写选区，
+ * 使光标停在插入文本之后（TSF 惯例：只 SetText 不 SetSelection 会导致
+ * 光标停留在原处，连续输入时字符顺序错乱）。 */
+bool OpenKeyTextService::WriteTextAtSelection(TfEditCookie ec,
+                                              const std::wstring& text) {
+  if (!context_) return false;
+  TF_SELECTION sel{};
+  ULONG fetched = 0;
+  if (FAILED(context_->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &sel,
+                                    &fetched)) ||
+      fetched != 1 || !sel.range) {
+    if (sel.range) sel.range->Release();
+    return false;
+  }
+  sel.range->SetText(ec, 0, text.c_str(), static_cast<LONG>(text.size()));
+  context_->SetSelection(ec, 1, &sel);
+  sel.range->Release();
+  return true;
+}
+
 void OpenKeyTextService::InsertLiteral(TfEditCookie ec, uint32_t keysym) {
   if (!context_) return;
   if (keysym == 0 || keysym > 0xFFFF) return;
   wchar_t ch = static_cast<wchar_t>(keysym);
   if (ch < 0x20) return;
-  ITfRange* sel = nullptr;
-  if (SUCCEEDED(context_->GetSelection(ec, TF_DEFAULT_SELECTION, &sel)) && sel) {
-    sel->SetText(ec, 0, &ch, 1);
-    sel->Release();
-  }
+  WriteTextAtSelection(ec, std::wstring(1, ch));
 }
 
 void OpenKeyTextService::RefreshCandidates() {

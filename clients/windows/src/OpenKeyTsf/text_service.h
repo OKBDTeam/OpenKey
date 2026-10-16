@@ -90,11 +90,19 @@ class OpenKeyTextService : public ITfTextInputProcessorEx,
   // ITfTextInputProcessorEx
   STDMETHODIMP ActivateEx(ITfThreadMgr* ptim, TfClientId tid, DWORD flags) override;
 
-  // ITfKeyEventSink
-  STDMETHODIMP OnKeyDown(ITfKeyEvent* pKeyEvent) override;
-  STDMETHODIMP OnKeyUp(ITfKeyEvent* pKeyEvent) override;
-  STDMETHODIMP OnTestKeyDown(ITfKeyEvent* pKeyEvent) override;
-  STDMETHODIMP OnTestKeyUp(ITfKeyEvent* pKeyEvent) override;
+  // ITfKeyEventSink（msctf.h 的真实签名：按键经 (wParam, lParam) 传入，
+  // 是否吃掉由 *pfEaten 返回；OnSetFocus/OnPreservedKey 亦为纯虚，必须实现）
+  STDMETHODIMP OnSetFocus(BOOL fForeground) override;
+  STDMETHODIMP OnTestKeyDown(ITfContext* pic, WPARAM wParam, LPARAM lParam,
+                             BOOL* pfEaten) override;
+  STDMETHODIMP OnTestKeyUp(ITfContext* pic, WPARAM wParam, LPARAM lParam,
+                           BOOL* pfEaten) override;
+  STDMETHODIMP OnKeyDown(ITfContext* pic, WPARAM wParam, LPARAM lParam,
+                         BOOL* pfEaten) override;
+  STDMETHODIMP OnKeyUp(ITfContext* pic, WPARAM wParam, LPARAM lParam,
+                       BOOL* pfEaten) override;
+  STDMETHODIMP OnPreservedKey(ITfContext* pic, REFGUID rguid,
+                              BOOL* pfEaten) override;
 
   // ITfThreadMgrEventSink
   STDMETHODIMP OnInitDocumentMgr(ITfDocumentMgr* pdim) override;
@@ -121,6 +129,9 @@ class OpenKeyTextService : public ITfTextInputProcessorEx,
   // 结束当前组词（ec 内调用；discard=true 时不写入文本）
   void EndComposition(TfEditCookie ec, bool discard);
 
+  // 在光标处写入文本（内部用 TF_SELECTION 取选区范围并回写光标位置）
+  bool WriteTextAtSelection(TfEditCookie ec, const std::wstring& text);
+
   // 在光标处插入原字符（按键未被引擎消费时的兜底）
   void InsertLiteral(TfEditCookie ec, uint32_t keysym);
 
@@ -141,6 +152,7 @@ class OpenKeyTextService : public ITfTextInputProcessorEx,
   ULONG ref_ = 1;
 
   ITfThreadMgr* ptim_ = nullptr;
+  ITfKeystrokeMgr* keystroke_mgr_ = nullptr;  // 按键接收器注册通道（可为空）
   TfClientId tid_ = 0;
   DWORD key_event_cookie_ = TF_INVALID_COOKIE;
   DWORD thread_mgr_cookie_ = TF_INVALID_COOKIE;

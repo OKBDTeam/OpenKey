@@ -67,88 +67,86 @@ Engine::Engine(Engine&& other) noexcept = default;
 Engine& Engine::operator=(Engine&& other) noexcept = default;
 
 bool Engine::Deploy() {
-  if (!engine_) return false;
-  return ok_engine_deploy(engine_) != 0;
+  if (!engine_.get()) return false;
+  return ok_engine_deploy(engine_.get()) != 0;
 }
 
 uintptr_t Engine::SchemaCount() const {
-  if (!engine_) return 0;
-  return ok_engine_schema_count(engine_);
+  if (!engine_.get()) return 0;
+  return ok_engine_schema_count(engine_.get());
 }
 
 std::vector<SchemaInfo> Engine::SchemaList() const {
   std::vector<SchemaInfo> out;
-  if (!engine_) return out;
-  uintptr_t n = ok_engine_schema_count(engine_);
+  if (!engine_.get()) return out;
+  uintptr_t n = ok_engine_schema_count(engine_.get());
   out.reserve(n);
   for (uintptr_t i = 0; i < n; ++i) {
-    SchemaInfo info;
-    std::string id;
     std::array<char, 256> name_buf{};  // 方案名上限 255 字符
-    // ReadBuf 逐级扩容 id 缓冲区；每次成功都把 id 捕获到局部变量。
-    if (!ReadBuf(
-            [&](char* id_buf, size_t id_len) {
-              if (!ok_engine_schema_at(engine_, i, id_buf, id_len,
-                                       name_buf.data(), name_buf.size())) {
-                return false;
-              }
-              id = id_buf;
-              return true;
-            },
-            "ok_engine_schema_at")) {
+    try {
+      // ReadBuf 逐级扩容 id 缓冲区；写入失败（下标越界/缓冲区不足）时抛
+      // runtime_error，此处按截断处理，不向上抛（方案列表允许部分可见）。
+      std::string id = ReadBuf(
+          [&](char* id_buf, size_t id_len) {
+            return ok_engine_schema_at(engine_.get(), i, id_buf, id_len,
+                                       name_buf.data(), name_buf.size()) != 0;
+          },
+          "ok_engine_schema_at");
+      SchemaInfo info;
+      info.id = std::move(id);
+      info.name = name_buf.data();
+      out.push_back(std::move(info));
+    } catch (const std::runtime_error&) {
       break;  // 越界或失败：截断
     }
-    info.id = id;
-    info.name = name_buf.data();
-    out.push_back(std::move(info));
   }
   return out;
 }
 
 bool Engine::SyncUserData() {
-  if (!engine_) return false;
-  return ok_engine_sync_user_data(engine_) != 0;
+  if (!engine_.get()) return false;
+  return ok_engine_sync_user_data(engine_.get()) != 0;
 }
 
 bool Engine::SyncExport(const std::string& dest_dir) {
-  if (!engine_) return false;
-  return ok_engine_sync_export(engine_, dest_dir.c_str()) != 0;
+  if (!engine_.get()) return false;
+  return ok_engine_sync_export(engine_.get(), dest_dir.c_str()) != 0;
 }
 
 bool Engine::SyncImport(const std::string& src_dir) {
-  if (!engine_) return false;
-  return ok_engine_sync_import(engine_, src_dir.c_str()) != 0;
+  if (!engine_.get()) return false;
+  return ok_engine_sync_import(engine_.get(), src_dir.c_str()) != 0;
 }
 
 std::string Engine::LastError() const {
-  const char* s = ok_last_error(engine_);
+  const char* s = ok_last_error(engine_.get());
   return s ? std::string(s) : std::string();
 }
 
 bool Engine::ComponentInstalled(const std::string& name) const {
-  if (!engine_) return false;
-  return ok_component_installed(engine_, name.c_str()) != 0;
+  if (!engine_.get()) return false;
+  return ok_component_installed(engine_.get(), name.c_str()) != 0;
 }
 
 std::string Engine::ComponentCurrentVersion(const std::string& name) const {
-  if (!engine_) return {};
+  if (!engine_.get()) return {};
   return ReadBuf(
       [&](char* buf, size_t len) {
-        return ok_component_current_version(engine_, name.c_str(), buf, len) != 0;
+        return ok_component_current_version(engine_.get(), name.c_str(), buf, len) != 0;
       },
       "ok_component_current_version");
 }
 
 bool Engine::SetSetting(const std::string& key, const std::string& value_json) {
-  if (!engine_) return false;
-  return ok_setting_set(engine_, key.c_str(), value_json.c_str()) != 0;
+  if (!engine_.get()) return false;
+  return ok_setting_set(engine_.get(), key.c_str(), value_json.c_str()) != 0;
 }
 
 bool Engine::GetSetting(const std::string& key, std::string* value_json) {
-  if (!engine_) return false;
+  if (!engine_.get()) return false;
   *value_json = ReadBuf(
       [&](char* buf, size_t len) {
-        return ok_setting_get(engine_, key.c_str(), buf, len) != 0;
+        return ok_setting_get(engine_.get(), key.c_str(), buf, len) != 0;
       },
       "ok_setting_get");
   return true;
@@ -171,23 +169,23 @@ Session::Session(Session&& other) noexcept = default;
 Session& Session::operator=(Session&& other) noexcept = default;
 
 bool Session::ProcessKey(uint32_t keycode, uint32_t mask) {
-  if (!session_) return false;
-  return ok_session_process_key(session_, keycode, mask) != 0;
+  if (!session_.get()) return false;
+  return ok_session_process_key(session_.get(), keycode, mask) != 0;
 }
 
 bool Session::CommitComposition() {
-  if (!session_) return false;
-  return ok_session_commit_composition(session_) != 0;
+  if (!session_.get()) return false;
+  return ok_session_commit_composition(session_.get()) != 0;
 }
 
 void Session::ClearComposition() {
-  if (session_) ok_session_clear_composition(session_);
+  if (session_.get()) ok_session_clear_composition(session_.get());
 }
 
 bool Session::GetContext(Context* out) {
-  if (!session_) return false;
+  if (!session_.get()) return false;
   OkContext ctx{};
-  if (!ok_session_get_context(session_, &ctx)) return false;
+  if (!ok_session_get_context(session_.get(), &ctx)) return false;
   out->preedit = ctx.preedit ? ctx.preedit : "";
   out->composing = !out->preedit.empty();
   out->cursor_pos = ctx.cursor_pos;
@@ -212,9 +210,9 @@ bool Session::GetContext(Context* out) {
 }
 
 bool Session::GetCommit(std::string* out) {
-  if (!session_) return false;
+  if (!session_.get()) return false;
   std::vector<char> buf(4096, '\0');
-  if (!ok_session_get_commit(session_, buf.data(), buf.size())) {
+  if (!ok_session_get_commit(session_.get(), buf.data(), buf.size())) {
     return false;  // 无待上屏文本或缓冲区过小（4KB 对单次提交足够）
   }
   *out = buf.data();
@@ -222,9 +220,9 @@ bool Session::GetCommit(std::string* out) {
 }
 
 bool Session::GetStatus(Status* out) {
-  if (!session_) return false;
+  if (!session_.get()) return false;
   OkStatus st{};
-  if (!ok_session_get_status(session_, &st)) return false;
+  if (!ok_session_get_status(session_.get(), &st)) return false;
   out->schema_id = st.schema_id ? st.schema_id : "";
   out->schema_name = st.schema_name ? st.schema_name : "";
   out->is_composing = st.is_composing != 0;
@@ -235,33 +233,33 @@ bool Session::GetStatus(Status* out) {
 }
 
 bool Session::SelectCandidate(size_t index) {
-  if (!session_) return false;
-  return ok_session_select_candidate(session_, index) != 0;
+  if (!session_.get()) return false;
+  return ok_session_select_candidate(session_.get(), index) != 0;
 }
 
 bool Session::ChangePage(bool backward) {
-  if (!session_) return false;
-  return ok_session_change_page(session_, backward ? 1 : 0) != 0;
+  if (!session_.get()) return false;
+  return ok_session_change_page(session_.get(), backward ? 1 : 0) != 0;
 }
 
 bool Session::SetOption(const std::string& option, bool value) {
-  if (!session_) return false;
-  return ok_session_set_option(session_, option.c_str(), value ? 1 : 0) != 0;
+  if (!session_.get()) return false;
+  return ok_session_set_option(session_.get(), option.c_str(), value ? 1 : 0) != 0;
 }
 
 bool Session::GetOption(const std::string& option) {
-  if (!session_) return false;
-  return ok_session_get_option(session_, option.c_str()) != 0;
+  if (!session_.get()) return false;
+  return ok_session_get_option(session_.get(), option.c_str()) != 0;
 }
 
 bool Session::SelectSchema(const std::string& schema_id) {
-  if (!session_) return false;
-  return ok_session_select_schema(session_, schema_id.c_str()) != 0;
+  if (!session_.get()) return false;
+  return ok_session_select_schema(session_.get(), schema_id.c_str()) != 0;
 }
 
 std::string Session::CurrentSchema() const {
-  if (!session_) return {};
-  const char* s = ok_session_current_schema(session_);
+  if (!session_.get()) return {};
+  const char* s = ok_session_current_schema(session_.get());
   return s ? std::string(s) : std::string();
 }
 

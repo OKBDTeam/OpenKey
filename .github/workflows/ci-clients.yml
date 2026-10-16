@@ -207,8 +207,37 @@ jobs:
           fi
           mkdir -p dist stage
           find build \( -name '*.exe' -o -name '*.dll' \) -exec cp {} stage/ \;
+          # librime 运行时：rime.dll 必须与 OpenKeyServer.exe 同级（DLL 搜索路径首选 exe 目录）
+          if [ -f core/vendor/librime/dist/bin/rime.dll ]; then
+            cp core/vendor/librime/dist/bin/rime.dll stage/
+          elif [ -f core/vendor/librime/dist/lib/rime.dll ]; then
+            cp core/vendor/librime/dist/lib/rime.dll stage/
+          fi
+          # 共享数据（方案/词库）：Server 约定 <exe 目录>\shared（docs/02 4.1.4）
+          mkdir -p stage/shared
+          cp -r shared/schemas/. stage/shared/
+          cp LICENSE THIRD_PARTY_NOTICES.md stage/ 2>/dev/null || true
+          # 安装/卸载脚本（regsvr32 注册/注销 TSF；需管理员权限）
           python3 - <<'PY'
-          import pathlib, zipfile
+          import pathlib
+          stage = pathlib.Path('stage')
+          (stage / 'install.bat').write_text(
+              '@echo off\r\n'
+              'REM 开门输入法：注册 TSF 文本服务（需管理员权限）\r\n'
+              'regsvr32 /s "%~dp0OpenKeyTsf.dll"\r\n'
+              'echo OpenKeyTsf.dll 已注册，请在 设置 - 时间和语言 - 语言 中添加 OpenKey。\r\n'
+              'pause\r\n', encoding='utf-8')
+          (stage / 'uninstall.bat').write_text(
+              '@echo off\r\n'
+              'REM 开门输入法：注销 TSF 文本服务（需管理员权限）\r\n'
+              'regsvr32 /u /s "%~dp0OpenKeyTsf.dll"\r\n'
+              'echo OpenKeyTsf.dll 已注销。\r\n'
+              'pause\r\n', encoding='utf-8')
+          PY
+          python3 - <<'PY'
+          import pathlib, zipfile, sys
+          # 控制台默认 GBK：打印中文路径会 UnicodeEncodeError
+          sys.stdout.reconfigure(encoding='utf-8', errors='replace')
           stage = pathlib.Path('stage')
           out = pathlib.Path('dist/OpenKey-windows-x86_64.zip')
           with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as z:

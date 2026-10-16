@@ -83,7 +83,7 @@ class Engine {
   Engine& operator=(const Engine&) = delete;
 
   bool IsValid() const { return engine_ != nullptr; }
-  OkEngine* Get() const { return engine_; }
+  OkEngine* Get() const { return engine_.get(); }
 
   /* 触发重新部署。 */
   bool Deploy();
@@ -133,7 +133,7 @@ class Session {
   Session& operator=(const Session&) = delete;
 
   bool IsValid() const { return session_ != nullptr; }
-  OkSession* Get() const { return session_; }
+  OkSession* Get() const { return session_.get(); }
 
   /* 处理按键：keycode 为 X11 keysym，mask 见 keysym_map.h。
    * 返回是否被 librime 消费。 */

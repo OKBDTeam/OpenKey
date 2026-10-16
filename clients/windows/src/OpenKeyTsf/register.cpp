@@ -20,6 +20,7 @@
 
 #include <windows.h>
 
+#include <cwchar>  // wcslen
 #include <string>
 
 #include "text_service.h"
