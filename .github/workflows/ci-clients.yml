@@ -64,9 +64,12 @@ jobs:
           # 自然命中（vcpkg toolchain 把 find 根路径限制在 installed 内，装到
           # 别处纵有 CMAKE_PREFIX_PATH 也可能被屏蔽）。
           VCPKG_PREFIX="C:/vcpkg/installed/x64-windows-static"
+          # CRT 与 rime.dll 一致用静态（MultiThreaded）：glog 默认 /MD 会引用
+          # __imp_* import 形式符号，/MT 链接的 rime.dll 无法解析。
           cmake -S core/vendor/librime/deps/glog -B glog-build \
             -DCMAKE_INSTALL_PREFIX="$VCPKG_PREFIX" \
             -DWITH_GFLAGS=OFF -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF \
+            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded \
             -DCMAKE_BUILD_TYPE=Release
           cmake --build glog-build --config Release --parallel
           cmake --install glog-build
