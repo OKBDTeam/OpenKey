@@ -300,6 +300,9 @@ jobs:
 
       - name: 安装 Gradle（setup-gradle）
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+          cache-disabled: true
 
       - name: 安装 Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -357,15 +360,19 @@ jobs:
         if: always()
         shell: bash
         run: |
+          echo "HEAD=$(git rev-parse HEAD)"
+          echo "--- CI 上 keyboard/build.gradle.kts 的依赖声明:"
+          git show HEAD:clients/android/keyboard/build.gradle.kts | sed -n '27,50p'
           cd clients/android
+          gradle -v | grep -E "^Gradle " || true
           set +e
-          ./gradlew :keyboard:dependencies --configuration debugCompileClasspath \
+          gradle :keyboard:dependencies --configuration debugCompileClasspath \
             --console=plain > /tmp/deps.txt 2>&1
-          echo "gradlew exit=$?"
+          echo "gradle exit=$?"
           echo "--- 命中 lifecycle/savedstate 的行:"
           grep -iE "lifecycle|savedstate" /tmp/deps.txt | head -20
           echo "--- 输出末尾（判断任务是否失败）:"
-          tail -8 /tmp/deps.txt
+          tail -10 /tmp/deps.txt
 
       - name: Gradle 构建（assembleDebug）
         if: steps.core-so.outputs.ready == 'true'
