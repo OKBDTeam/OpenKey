@@ -90,9 +90,12 @@ jobs:
           cmake -S core/vendor/librime -B librime-build \
             -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" \
             -DVCPKG_TARGET_TRIPLET=x64-windows-static \
-            # 允许 find_package 同时搜 vcpkg 与本地 glog-install（默认 ONLY 会
-            # 把非 vcpkg 路径全部屏蔽）。
+            # 允许 find_package / find_path / find_library 同时搜 vcpkg 与本地
+            # glog-install（vcpkg toolchain 默认把这几个模式设为 ONLY，会把非
+            # vcpkg 路径全部屏蔽）。
             -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH \
+            -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=BOTH \
+            -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=BOTH \
             -DCMAKE_PREFIX_PATH="$PWD/glog-install" \
             -DBoost_INCLUDE_DIR="$BOOST_ROOT" \
             -DCMAKE_SHARED_LINKER_FLAGS="/NODEFAULTLIB:OLDNAMES.lib /DEFAULTLIB:legacy_stdio_definitions.lib" \
