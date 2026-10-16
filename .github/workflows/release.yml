@@ -99,6 +99,7 @@ jobs:
           fi
 
       - name: 安装 librime 依赖（vcpkg + Boost 头文件）
+        if: matrix.platform == 'windows'
         shell: bash
         run: |
           # librime 的 CMake 依赖。用 x64-windows-static（静态库 + 静态 CRT）：
@@ -138,6 +139,7 @@ jobs:
           echo "BOOST_ROOT=$BOOST_DIR" >> "$GITHUB_ENV"
 
       - name: 构建 librime（CMake + vcpkg 工具链）
+        if: matrix.platform == 'windows'
         continue-on-error: true
         shell: bash
         run: |
@@ -316,31 +318,62 @@ jobs:
       - name: 安装 Rust stable
         uses: dtolnay/rust-toolchain@stable
 
-      - name: 构建 librime（Windows 官方 build.bat 路径，尽力而为）
-        continue-on-error: true
-        shell: cmd
+      - name: 安装 librime 依赖（vcpkg + Boost 头文件）
+        shell: bash
         run: |
-          if not exist core\vendor\librime\build.bat exit /b 0
-          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSPATH=%%i"
-          if not defined VSPATH (
-            echo ::warning::未找到 Visual Studio 2022，跳过 Windows librime 构建
-            exit /b 0
-          )
-          call "%VSPATH%\VC\Auxiliary\Build\vcvars64.bat" || exit /b 1
-          set "RIME_ROOT=%CD%\core\vendor\librime"
-          set "BOOST_ROOT=%RIME_ROOT%\deps\boost-1.89.0"
-          if not exist "%BOOST_ROOT%\boost" (
-            curl -L --retry 3 -o "%RIME_ROOT%\deps\boost.7z" https://archives.boost.io/release/1.89.0/source/boost_1_89_0.7z || exit /b 1
-            7z x "%RIME_ROOT%\deps\boost.7z" -o"%RIME_ROOT%\deps" || exit /b 1
-            ren "%RIME_ROOT%\deps\boost_1_89_0" boost-1.89.0
-            pushd "%BOOST_ROOT%"
-            call bootstrap.bat || exit /b 1
-            .\b2 headers || exit /b 1
-            popd
-          )
-          cd /d "%RIME_ROOT%"
-          call build.bat deps || exit /b 1
-          call build.bat librime || exit /b 1
+          # 与 ci-clients.yml / build-core（windows）同一套已验证路径：
+          # build.bat 官方脚本的 Boost bootstrap 在 CI 上无法探测 VS 工具集，
+          # 已弃用（曾导致 librime 始终未就绪 -> 客户端构建被跳过 -> 发布
+          # 出没有 Windows 包的版本）。
+          # x64-windows-static（静态库 + 静态 CRT）：marisa-trie（opencc 的
+          # 传递依赖）在 vcpkg 仅支持 static triplet；rime 的 target 默认按
+          # MT_StaticRelease 编译，全静态 CRT 使 vcpkg 库与之一致。
+          vcpkg install --triplet x64-windows-static yaml-cpp leveldb opencc
+          # glog 从 librime 锁定的 submodule（0.7.1）编译：vcpkg 版带 gflags，
+          # FlagRegisterer 模板签名与 librime 期望的不带 gflags 版不符。
+          # 直接装进 vcpkg 的 installed 前缀：vcpkg toolchain 把 find 根路径
+          # 限制在 installed 内，装到别处可能命中不到。
+          VCPKG_PREFIX="C:/vcpkg/installed/x64-windows-static"
+          cmake -S core/vendor/librime/deps/glog -B glog-build \
+            -DCMAKE_INSTALL_PREFIX="$VCPKG_PREFIX" \
+            -DWITH_GFLAGS=OFF -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF \
+            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build glog-build --config Release --parallel
+          cmake --install glog-build
+          ls "$VCPKG_PREFIX/lib/glog.lib" "$VCPKG_PREFIX/include/glog/logging.h"
+          # Boost 只需头文件（signals2 / algorithm），无需 bootstrap/编译。
+          BOOST_DIR="$PWD/core/vendor/librime/deps/boost-1.89.0"
+          if [ ! -d "$BOOST_DIR/boost" ]; then
+            curl -L --retry 3 -o boost.7z \
+              https://archives.boost.io/release/1.89.0/source/boost_1_89_0.7z
+            7z x boost.7z -ocore/vendor/librime/deps
+            mv core/vendor/librime/deps/boost_1_89_0 "$BOOST_DIR"
+          fi
+          ls "$BOOST_DIR/boost/version.hpp" >/dev/null
+          echo "BOOST_ROOT=$BOOST_DIR" >> "$GITHUB_ENV"
+
+      - name: 构建 librime（CMake + vcpkg 工具链）
+        continue-on-error: true
+        shell: bash
+        run: |
+          # 注意：注释不能插在续行链中间——续行后 # 不再是注释起点，会吞掉后续参数。
+          cmake -S core/vendor/librime -B librime-build \
+            -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static \
+            -DBoost_INCLUDE_DIR="$BOOST_ROOT" \
+            -DCMAKE_SHARED_LINKER_FLAGS="/DEFAULTLIB:legacy_stdio_definitions.lib" \
+            -DBUILD_STATIC=ON -DBUILD_SHARED_LIBS=ON \
+            -DBUILD_TEST=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
+          cmake --build librime-build --config Release --parallel
+          cmake --install librime-build --prefix core/vendor/librime/dist
+          # librime 对库用绝对安装路径（C:/Program Files (x86)/rime/lib），
+          # --prefix 无效；复制回 dist/lib 与 dist/bin 供就绪检查与打包使用。
+          mkdir -p core/vendor/librime/dist/lib
+          cp "C:/Program Files (x86)/rime/lib/rime.lib" core/vendor/librime/dist/lib/ 2>/dev/null || true
+          cp "C:/Program Files (x86)/rime/lib/rime.dll" core/vendor/librime/dist/lib/ 2>/dev/null || true
+          cp "C:/Program Files (x86)/rime/lib/rime.dll" core/vendor/librime/dist/bin/ 2>/dev/null || true
+          ls core/vendor/librime/dist/lib core/vendor/librime/dist/bin
 
       - name: 检查 librime 构建结果
         id: rime-check
