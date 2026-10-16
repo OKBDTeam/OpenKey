@@ -52,10 +52,20 @@ jobs:
       - name: 安装 librime 依赖（vcpkg + Boost 头文件）
         shell: bash
         run: |
-          # librime 的 CMake 依赖。用 x64-windows-static（静态库 + 动态 CRT）：
-          # marisa-trie（opencc 的传递依赖）在 vcpkg 仅支持 static triplet；-md 保持
-          # 动态 CRT，与 Rust openkey_ffi 静态库的 /MD 一致，避免 LNK2038。
-          vcpkg install --triplet x64-windows-static glog yaml-cpp leveldb opencc
+          # librime 的 CMake 依赖。用 x64-windows-static（静态库 + 静态 CRT）：
+          # marisa-trie（opencc 的传递依赖）在 vcpkg 仅支持 static triplet；rime 的
+          # target 默认按 MT_StaticRelease 编译，全静态 CRT 使 vcpkg 库与之一致
+          # （曾报 LNK2038 RuntimeLibrary 不匹配）。rime.dll 自带 CRT，与 Rust
+          # openkey_ffi 的 /MD 在 DLL 边界不冲突（C ABI，不跨边界传 CRT 资源）。
+          vcpkg install --triplet x64-windows-static yaml-cpp leveldb opencc
+          # glog 从 librime 锁定的 submodule（0.7.1）编译：vcpkg 版带 gflags，
+          # FlagRegisterer 模板签名与 librime 期望的不带 gflags 版不符（LNK2019）。
+          cmake -S core/vendor/librime/deps/glog -B glog-build \
+            -DCMAKE_INSTALL_PREFIX="$PWD/glog-install" \
+            -DWITH_GFLAGS=OFF -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build glog-build --config Release --parallel
+          cmake --install glog-build
           # Boost 只需头文件（signals2 / algorithm）：CMake 的 find_package(Boost)
           # 非 REQUIRED，但源码有 #include，故提供头文件即可，无需 bootstrap/编译。
           BOOST_DIR="$PWD/core/vendor/librime/deps/boost-1.89.0"
@@ -80,6 +90,10 @@ jobs:
           cmake -S core/vendor/librime -B librime-build \
             -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" \
             -DVCPKG_TARGET_TRIPLET=x64-windows-static \
+            # 允许 find_package 同时搜 vcpkg 与本地 glog-install（默认 ONLY 会
+            # 把非 vcpkg 路径全部屏蔽）。
+            -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH \
+            -DCMAKE_PREFIX_PATH="$PWD/glog-install" \
             -DBoost_INCLUDE_DIR="$BOOST_ROOT" \
             -DCMAKE_SHARED_LINKER_FLAGS="/NODEFAULTLIB:OLDNAMES.lib /DEFAULTLIB:legacy_stdio_definitions.lib" \
             -DBUILD_STATIC=ON -DBUILD_SHARED_LIBS=ON \
