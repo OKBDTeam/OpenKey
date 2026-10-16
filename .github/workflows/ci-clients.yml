@@ -49,33 +49,25 @@ jobs:
       - name: 安装 Rust stable
         uses: dtolnay/rust-toolchain@stable
 
-      - name: 构建 librime（Windows 官方 build.bat 路径，尽力而为）
-        continue-on-error: true
-        shell: cmd
+      - name: 安装 librime 依赖（vcpkg）
+        shell: bash
         run: |
-          if not exist core\vendor\librime\build.bat exit /b 0
-          rem 定位 VS 2022 并加载 x64 本机工具环境
-          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSPATH=%%i"
-          if not defined VSPATH (
-            echo ::warning::未找到 Visual Studio 2022，跳过 Windows librime 构建
-            exit /b 0
-          )
-          call "%VSPATH%\VC\Auxiliary\Build\vcvars64.bat" || exit /b 1
-          set "RIME_ROOT=%CD%\core\vendor\librime"
-          set "BOOST_ROOT=%RIME_ROOT%\deps\boost-1.89.0"
-          if not exist "%BOOST_ROOT%\boost" (
-            echo 下载 Boost 1.89.0（对齐 librime install-boost.bat，curl 替代 aria2c）
-            curl -L --retry 3 -o "%RIME_ROOT%\deps\boost.7z" https://archives.boost.io/release/1.89.0/source/boost_1_89_0.7z || exit /b 1
-            7z x "%RIME_ROOT%\deps\boost.7z" -o"%RIME_ROOT%\deps" || exit /b 1
-            ren "%RIME_ROOT%\deps\boost_1_89_0" boost-1.89.0
-            pushd "%BOOST_ROOT%"
-            call bootstrap.bat || exit /b 1
-            .\b2 headers || exit /b 1
-            popd
-          )
-          cd /d "%RIME_ROOT%"
-          call build.bat deps || exit /b 1
-          call build.bat librime || exit /b 1
+          # librime 的 CMake 依赖（Windows 上 Boost 为可选，无需 bootstrap）：
+          # glog / yaml-cpp / leveldb / marisa / opencc。
+          vcpkg install --triplet x64-windows glog yaml-cpp leveldb marisa opencc
+
+      - name: 构建 librime（CMake + vcpkg 工具链）
+        continue-on-error: true
+        shell: bash
+        run: |
+          cmake -S core/vendor/librime -B librime-build \
+            -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_TARGET_TRIPLET=x64-windows \
+            -DBUILD_STATIC=ON -DBUILD_SHARED_LIBS=ON \
+            -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
+          cmake --build librime-build --config Release --parallel
+          cmake --install librime-build --prefix core/vendor/librime/dist
+          ls core/vendor/librime/dist/lib core/vendor/librime/dist/bin 2>/dev/null || true
 
       - name: 检查 librime 构建结果
         id: rime-check
