@@ -130,7 +130,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" \
             -DVCPKG_TARGET_TRIPLET=x64-windows-static-md \
             -DBoost_INCLUDE_DIR="$BOOST_ROOT" \
-            -DCMAKE_CXX_STANDARD_LIBRARIES=oldnames.lib \
+            -DCMAKE_CXX_STANDARD_LIBRARIES="oldnames.lib;legacy_stdio_definitions.lib" \
             -DBUILD_STATIC=ON -DBUILD_SHARED_LIBS=ON \
             -DBUILD_TEST=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
           cmake --build librime-build --config Release --parallel
