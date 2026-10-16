@@ -394,7 +394,7 @@ jobs:
         if: steps.core-so.outputs.ready == 'true'
         shell: bash
         run: |
-          apk=$(find clients/android -path '*/build/outputs/apk' -name '*.apk' 2>/dev/null | head -1)
+          apk=$(find clients/android -path '*/build/outputs/apk/*' -name '*.apk' 2>/dev/null | head -1 || true)
           if [ -z "$apk" ]; then
             echo "::notice::未找到 APK 产物"
             exit 0

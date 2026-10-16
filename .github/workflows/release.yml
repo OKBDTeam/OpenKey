@@ -233,6 +233,8 @@ jobs:
           cp core/ffi-headers/openkey.h stage/
           python3 - "$ver" "${{ matrix.platform }}" "${{ matrix.arch }}" <<'PY'
           import sys, zipfile, pathlib
+          # Windows 控制台默认 GBK 代码页：print 中文会抛 UnicodeEncodeError。
+          sys.stdout.reconfigure(encoding='utf-8', errors='replace')
           ver, platform, arch = sys.argv[1], sys.argv[2], sys.argv[3]
           stage = pathlib.Path('stage')
           out = pathlib.Path('dist') / f'OpenKey-core-{ver}-{platform}-{arch}.zip'
@@ -588,9 +590,11 @@ jobs:
         if: steps.core-so.outputs.ready == 'true'
         shell: bash
         run: |
-          apk=$(find clients/android -path '*/build/outputs/apk' -name '*.apk' 2>/dev/null | grep -i release | head -1)
+          # 注意：find 的 -path 与 -name 是 AND 语义，须用 '*/build/outputs/apk/*'
+          # 匹配目录下的文件；管道加 || true 防止 pipefail + head 提前退出触发 set -e。
+          apk=$(find clients/android -path '*/build/outputs/apk/*' -name '*.apk' 2>/dev/null | grep -i release | head -1 || true)
           if [ -z "$apk" ]; then
-            apk=$(find clients/android -path '*/build/outputs/apk' -name '*.apk' 2>/dev/null | head -1)
+            apk=$(find clients/android -path '*/build/outputs/apk/*' -name '*.apk' 2>/dev/null | head -1 || true)
           fi
           if [ -z "$apk" ]; then
             echo "::notice::未找到 APK 产物"
