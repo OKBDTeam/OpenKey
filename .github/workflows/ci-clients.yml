@@ -74,14 +74,15 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
+          # leveldb 等依赖引用 POSIX 名（unlink/fdopen/access/getpid…），链接
+          # rime.dll 需 oldnames.lib 提供 MSVC 的别名映射（CMAKE_CXX_STANDARD_LIBRARIES）。
+          # 注意：注释不能插在续行链中间——续行后 # 不再是注释起点，会吞掉后续参数。
           cmake -S core/vendor/librime -B librime-build \
             -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" \
             -DVCPKG_TARGET_TRIPLET=x64-windows-static-md \
             -DBoost_INCLUDE_DIR="$BOOST_ROOT" \
-            -DBUILD_STATIC=ON -DBUILD_SHARED_LIBS=ON \
-            # leveldb 等依赖引用 POSIX 名（unlink/fdopen/access/getpid…），
-            # 链接 rime.dll 需 oldnames.lib 提供 MSVC 的别名映射。
             -DCMAKE_CXX_STANDARD_LIBRARIES=oldnames.lib \
+            -DBUILD_STATIC=ON -DBUILD_SHARED_LIBS=ON \
             -DBUILD_TEST=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
           cmake --build librime-build --config Release --parallel
           cmake --install librime-build --prefix core/vendor/librime/dist
