@@ -93,16 +93,16 @@ jobs:
         shell: bash
         run: |
           # 链接选项说明：
-          # - /NODEFAULTLIB:OLDNAMES.lib：vcpkg 库 pragma 引入的旧 SDK oldnames
-          #   引用 UCRT 不提供的 __imp__* 符号，忽略它（UCRT 已直接导出无下划线
-          #   POSIX 名）；/DEFAULTLIB:legacy_stdio_definitions.lib 提供 printf 系
-          #   旧名映射。
+          # - /MT 全静态 CRT 下，glog/leveldb 引用的无下划线 POSIX 名（write/
+          #   getpid/unlink…）由 OLDNAMES.lib 映射到 UCRT 的 _write/_getpid；
+          #   leveldb 的 pragma comment(lib) 会自动引入它，此处无需显式添加。
+          # - /DEFAULTLIB:legacy_stdio_definitions.lib 提供 printf 系旧名映射。
           # 注意：注释不能插在续行链中间——续行后 # 不再是注释起点，会吞掉后续参数。
           cmake -S core/vendor/librime -B librime-build \
             -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" \
             -DVCPKG_TARGET_TRIPLET=x64-windows-static \
             -DBoost_INCLUDE_DIR="$BOOST_ROOT" \
-            -DCMAKE_SHARED_LINKER_FLAGS="/NODEFAULTLIB:OLDNAMES.lib /DEFAULTLIB:legacy_stdio_definitions.lib" \
+            -DCMAKE_SHARED_LINKER_FLAGS="/DEFAULTLIB:legacy_stdio_definitions.lib" \
             -DBUILD_STATIC=ON -DBUILD_SHARED_LIBS=ON \
             -DBUILD_TEST=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
           cmake --build librime-build --config Release --parallel
