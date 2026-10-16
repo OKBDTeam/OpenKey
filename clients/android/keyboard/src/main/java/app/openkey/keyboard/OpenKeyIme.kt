@@ -7,6 +7,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import app.openkey.core.OpenKeyEngine
+import app.openkey.core.OpenKeyNative
 import app.openkey.core.OpenKeySession
 
 /**
