@@ -6,21 +6,6 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.ViewTreeLifecycleOwner
-import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.savedstate.SavedStateRegistry
-import androidx.savedstate.SavedStateRegistryController
-import androidx.savedstate.SavedStateRegistryOwner
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import app.openkey.core.OpenKeyEngine
 import app.openkey.core.OpenKeySession
 
@@ -28,12 +13,12 @@ import app.openkey.core.OpenKeySession
  * OpenKey 输入法服务（docs/02 4.4.2）。
  *
  * 数据流：按键 → keysym/mask → [OpenKeySession.processKey] → 取 commit 上屏、
- * 取 context 刷新候选条。Compose 键盘运行在 [ComposeView] 中，状态由
- * [uiState] 驱动（按键回调发生在主线程，直接赋值即可触发重组）。
+ * 取 context 刷新候选条。键盘面板为传统 View 实现（[KeyboardPanelView]），
+ * 形态偏差与 Compose 化的后续计划见该类文档与 README。
  */
 class OpenKeyIme : InputMethodService() {
 
-    private val uiState = mutableStateOf(KeyboardUiState())
+    private var keyboardView: KeyboardPanelView? = null
 
     private var engine: OpenKeyEngine? = null
     private var session: OpenKeySession? = null
@@ -41,42 +26,22 @@ class OpenKeyIme : InputMethodService() {
     /** 当前输入框是否为密码类（docs/02 4.4.2：密码模式 Phase 4 接入 vault，先做检测）。 */
     private var passwordField = false
 
-    private var composeOwner: ComposeOwner? = null
-
     override fun onCreate() {
         super.onCreate()
         initEngine()
     }
 
     override fun onCreateInputView(): View {
-        val owner = ComposeOwner()
-        owner.handleCreate()
-        owner.handleStart()
-        composeOwner = owner
-
-        return ComposeView(this).apply {
-            // IME 窗口没有 Activity/Fragment 提供的 owner，必须手动挂齐
-            // LifecycleOwner / ViewModelStoreOwner / SavedStateRegistryOwner 三者，
-            // 否则 ComposeView.setContent 抛 IllegalStateException。
-            ViewTreeLifecycleOwner.set(this, owner)
-            ViewTreeViewModelStoreOwner.set(this, owner)
-            ViewTreeSavedStateRegistryOwner.set(this, owner)
-            // 组合生命周期绑定到我们手动维护的 owner（输入视图销毁时释放组合）
-            setViewCompositionStrategy(
-                ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
-            )
-            setContent {
-                MaterialTheme {
-                    KeyboardView(
-                        state = uiState.value,
-                        onKey = ::onKey,
-                        onSelectCandidate = ::onSelectCandidate,
-                        onPage = ::onPage,
-                        onToggleAscii = ::onToggleAscii,
-                    )
-                }
-            }
-        }
+        val panel = KeyboardPanelView(this)
+        panel.bind(
+            onKey = ::onKey,
+            onSelectCandidate = ::onSelectCandidate,
+            onPage = ::onPage,
+            onToggleAscii = ::onToggleAscii,
+        )
+        keyboardView = panel
+        refresh()
+        return panel
     }
 
     override fun onStartInputView(editorInfo: EditorInfo, restarting: Boolean) {
@@ -91,17 +56,11 @@ class OpenKeyIme : InputMethodService() {
         refresh()
     }
 
-    override fun onFinishInput() {
+    override fun onFinishInputView(finishingInput: Boolean) {
         // 保留会话（下次输入直接复用），仅清除组词状态。
         session?.clearComposition()
         refresh()
-        super.onFinishInput()
-    }
-
-    override fun onDestroyInputView() {
-        composeOwner?.handleDestroy()
-        composeOwner = null
-        super.onDestroyInputView()
+        super.onFinishInputView(finishingInput)
     }
 
     override fun onDestroy() {
@@ -109,6 +68,7 @@ class OpenKeyIme : InputMethodService() {
         session = null
         engine?.destroy()
         engine = null
+        keyboardView = null
         super.onDestroy()
     }
 
@@ -138,7 +98,7 @@ class OpenKeyIme : InputMethodService() {
     }
 
     /* -------------------------------------------------------------- */
-    /* 输入管线（Compose 键盘与硬件键盘共用）                            */
+    /* 输入管线（面板键盘与硬件键盘共用）                                 */
     /* -------------------------------------------------------------- */
 
     /** 处理一次按键；未被 librime 消费时对退格/回车做编辑器级兜底。 */
@@ -198,27 +158,35 @@ class OpenKeyIme : InputMethodService() {
     }
 
     /* -------------------------------------------------------------- */
-    /* 状态刷新                                                         */
+    /* 状态刷新                                                          */
     /* -------------------------------------------------------------- */
 
     private fun refresh() {
         val s = session
         if (s == null) {
-            uiState.value = KeyboardUiState(
-                notice = if (OpenKeyNative.isLoaded) "引擎初始化失败，详见日志与 README" else "core 未加载，详见 clients/android/README.md"
+            keyboardView?.updateState(
+                KeyboardUiState(
+                    notice = if (OpenKeyNative.isLoaded) {
+                        "引擎初始化失败，详见日志与 README"
+                    } else {
+                        "core 未加载，详见 clients/android/README.md"
+                    }
+                )
             )
             return
         }
         val ctx = s.context()
         val st = s.status()
-        uiState.value = KeyboardUiState(
-            preedit = ctx?.preedit ?: "",
-            candidates = ctx?.candidates?.map { Candidate(it.text, it.comment) } ?: emptyList(),
-            page = ctx?.page ?: 0,
-            pageSize = ctx?.pageSize ?: 5,
-            isLastPage = ctx?.isLastPage ?: true,
-            highlighted = ctx?.highlighted ?: 0,
-            asciiMode = st?.isAsciiMode ?: false,
+        keyboardView?.updateState(
+            KeyboardUiState(
+                preedit = ctx?.preedit ?: "",
+                candidates = ctx?.candidates?.map { Candidate(it.text, it.comment) } ?: emptyList(),
+                page = ctx?.page ?: 0,
+                pageSize = ctx?.pageSize ?: 5,
+                isLastPage = ctx?.isLastPage ?: true,
+                highlighted = ctx?.highlighted ?: 0,
+                asciiMode = st?.isAsciiMode ?: false,
+            )
         )
     }
 
@@ -257,42 +225,5 @@ class OpenKeyIme : InputMethodService() {
 
     companion object {
         private const val TAG = "OpenKeyIme"
-    }
-}
-
-/**
- * 为运行在 Service 窗口中的 ComposeView 提供 LifecycleOwner +
- * SavedStateRegistryOwner（InputMethodService 的窗口默认没有）。
- */
-private class ComposeOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
-
-    private val lifecycleRegistry = LifecycleRegistry(this)
-    private val savedStateController = SavedStateRegistryController.create(this)
-    private val viewModelStore = ViewModelStore()
-
-    override val lifecycle: Lifecycle
-        get() = lifecycleRegistry
-
-    override val viewModelStore: ViewModelStore
-        get() = viewModelStore
-
-    override val savedStateRegistry: SavedStateRegistry
-        get() = savedStateController.savedStateRegistry
-
-    fun handleCreate() {
-        savedStateController.performRestore(null)
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    }
-
-    fun handleStart() {
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    }
-
-    fun handleDestroy() {
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
-        viewModelStore.clear()
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     }
 }

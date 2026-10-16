@@ -8,7 +8,7 @@ Gradle（KTS）工程：`:app`（主 App）/ `:keyboard`（IME）/ `:core-bindin
 | 模块 | 职责 |
 |---|---|
 | `:app` | 主 App：设置骨架（方案选择 / 中英切换）、输入法启用引导、关于页 |
-| `:keyboard` | `OpenKeyIme`（InputMethodService + ComposeView 键盘）：按键 → keysym → core，候选条自绘 |
+| `:keyboard` | `OpenKeyIme`（InputMethodService + 传统 View 键盘 `KeyboardPanelView`）：按键 → keysym → core，候选条自绘 |
 | `:core-binding` | `openkey.h` 的 JNI 绑定：`cpp/openkey_jni_shim.c`（裸指针 → JSON 拍平）+ Kotlin 封装 |
 | `:voicepack` | 语音组件动态加载器骨架（状态机 + 接口，Phase 6 实现下载/校验/`System.load`） |
 
@@ -66,7 +66,7 @@ filesDir/openkey/
 | compileSdk / targetSdk | 35 | 方案基线（docs/02 2.5） |
 | minSdk | 26 | AutofillService 需要（docs/02 4.4.3） |
 | Java | 17 | AGP 8.x 默认工具链要求 |
-| lifecycle-runtime / savedstate | 2.8.6 / 1.2.1 | 为 IME 窗口中的 ComposeView 提供 LifecycleOwner/SavedStateRegistryOwner |
+| lifecycle-runtime / savedstate | 2.8.6 / 1.2.1 | Compose 键盘（后续任务）需要，为 IME 窗口中的 ComposeView 提供 owner；Phase 1 键盘为传统 View，暂不依赖 |
 
 ## TODO 清单（按阶段）
 
@@ -77,3 +77,8 @@ filesDir/openkey/
 - **Phase 5**：表情候选注入与 `commitContent` 贴图 / 剪贴板引导路径。
 - **Phase 6**：`VoicePackLoader` 下载/校验/解压/`System.load`；`ok_component_*` 的 shim 转发（含进度回调）；键盘麦克风键。
 - **持续**：KeysymMap 方向键等按键补齐；主流 ROM（MIUI/ColorOS/HyperOS）兼容验证。
+
+## 与设计文档的偏差（Phase 1）
+
+1. **键盘面板用传统 View，不用 Compose。** docs/02 4.4.2 原计划 Compose 键盘。CI 实测：ComposeView 在 InputMethodService 窗口中必须手动挂 `ViewTreeLifecycleOwner` / `ViewTreeViewModelStoreOwner` / `ViewTreeSavedStateRegistryOwner`，而这组符号在 CI 的 AndroidX 依赖组合（Gradle 8.9 + AGP 8.7.2 + Compose BOM 2024.09.00 + lifecycle 2.8.6）下无法解析——`gradle :keyboard:dependencies` 显示 `lifecycle-runtime-android:2.8.6` 已在编译类路径中，Kotlin 编译仍报 Unresolved reference（Compose 侧符号可正常编译）。该现象疑似 KMP 变体与 AGP debug variant 的匹配问题，待定位。Phase 1 改用 `KeyboardPanelView`（LinearLayout + Button/TextView）实现同等功能（按键集、候选条、翻页、中英切换一致）；Compose 化恢复时替换该文件即可，`OpenKeyIme` 的回调签名不变。
+2. `:app`（设置页）仍为 Compose 实现（Activity 场景 owner 由 AppCompatActivity 提供，无此问题）。
