@@ -49,21 +49,14 @@ jobs:
       - name: 安装 Rust stable
         uses: dtolnay/rust-toolchain@stable
 
-      - name: 安装 librime 依赖（vcpkg + marisa 源码）
+      - name: 安装 librime 依赖（vcpkg，static-md）
         shell: bash
         run: |
           # librime 的 CMake 依赖（Windows 上 Boost 为可选，无需 bootstrap）。
-          # vcpkg 无 marisa port，从 librime 自带的 submodule（CI 已 recursive
-          # checkout）源码编译；缺失时回退克隆官方仓库。
-          vcpkg install --triplet x64-windows glog yaml-cpp leveldb opencc
-          MARISA_SRC=core/vendor/librime/deps/marisa-trie
-          if [ ! -f "$MARISA_SRC/CMakeLists.txt" ]; then
-            git clone --depth 1 -b v0.2.6 https://github.com/s-yata/marisa-trie.git "$MARISA_SRC"
-          fi
-          cmake -S "$MARISA_SRC" -B marisa-build \
-            -DCMAKE_INSTALL_PREFIX="$PWD/marisa-install" -DCMAKE_BUILD_TYPE=Release
-          cmake --build marisa-build --config Release --parallel
-          cmake --install marisa-build
+          # 用 x64-windows-static-md（静态库 + 动态 CRT）：marisa-trie（opencc 的
+          # 传递依赖）在 vcpkg 仅支持 static triplet；-md 保持动态 CRT，与 Rust
+          # openkey_ffi 静态库的 /MD 一致，避免 LNK2038 运行时库冲突。
+          vcpkg install --triplet x64-windows-static-md glog yaml-cpp leveldb opencc
 
       - name: 构建 librime（CMake + vcpkg 工具链）
         continue-on-error: true
@@ -71,8 +64,7 @@ jobs:
         run: |
           cmake -S core/vendor/librime -B librime-build \
             -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" \
-            -DVCPKG_TARGET_TRIPLET=x64-windows \
-            -DCMAKE_PREFIX_PATH="$PWD/marisa-install" \
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static-md \
             -DBUILD_STATIC=ON -DBUILD_SHARED_LIBS=ON \
             -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
           cmake --build librime-build --config Release --parallel
