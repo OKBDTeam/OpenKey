@@ -129,7 +129,14 @@ DWORD WINAPI ConnectionThread(LPVOID param) {
 
 }  // namespace
 
-int main() {
+/* 入口用 wWinMain：CMake 以 WIN32 子系统生成（无控制台窗口），此时链接器
+ * 需要 WinMain/wWinMain 而非 main（曾报 LNK2019 unresolved WinMain）。 */
+int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
+                    LPWSTR cmd_line, int cmd_show) {
+  (void)instance;
+  (void)prev_instance;
+  (void)cmd_line;
+  (void)cmd_show;
   // 单实例：已运行则静默退出（TSF 客户端会依赖唯一 Server）。
   HANDLE instance_mutex =
       CreateMutexW(nullptr, TRUE, L"Global\\OpenKeyServer");

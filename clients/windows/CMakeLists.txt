@@ -30,9 +30,18 @@ endif()
 
 # 源码为无 BOM 的 UTF-8（含中文注释与界面串）：显式指定源字符集与执行字符集，
 # 否则 MSVC 按 ANSI 代码页解析，产生 C4819 警告并使窄字符串字面量乱码。
+# UNICODE/_UNICODE：资源 ID 宏（IDC_ARROW 等）与 LoadCursorW 等 W 版 API
+# 配套，未定义时 IDC_ARROW 为 LPSTR，无法传给 LoadCursorW。
 if(MSVC)
   add_compile_options(/utf-8)
+  add_compile_definitions(UNICODE _UNICODE)
 endif()
+
+# Rust 静态库（openkey_ffi.lib）在 MSVC 链接期需要的 Windows 系统库。
+# Rust 的 .lib 不携带这些 defaultlib 指令，缺失会报 LNK2019（曾出现
+# __imp_GetUserProfileDirectoryW / __imp_NtCreateNamedPipeFile）。
+set(OPENKEY_RUST_SYSLIBS
+  userenv ntdll ws2_32 bcrypt crypt32 secur32 oleaut32 ole32 uuid shell32 advapi32)
 
 # ---- core / librime 路径解析 -------------------------------------------------
 if(NOT DEFINED OPENKEY_CORE_INCLUDE_DIR AND DEFINED ENV{LIBRIME_DIR})
@@ -76,7 +85,8 @@ target_include_directories(OpenKeyCoreClient PUBLIC
   "${OPENKEY_CORE_INCLUDE_DIR}"
   ${CMAKE_CURRENT_SOURCE_DIR}/src/OpenKeyCoreClient
 )
-target_link_libraries(OpenKeyCoreClient PUBLIC "${OPENKEY_CORE_LIB}" "${OPENKEY_RIME_LIB}")
+target_link_libraries(OpenKeyCoreClient PUBLIC
+  "${OPENKEY_CORE_LIB}" "${OPENKEY_RIME_LIB}" ${OPENKEY_RUST_SYSLIBS})
 
 # ---- OpenKeyTsf（TSF DLL）---------------------------------------------------
 add_library(OpenKeyTsf SHARED

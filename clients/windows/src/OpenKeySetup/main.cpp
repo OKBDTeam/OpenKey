@@ -118,13 +118,13 @@ LRESULT CALLBACK SetupWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
                     hwnd, nullptr, nullptr, nullptr);
       CreateWindowW(L"COMBOBOX", nullptr,
                     WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_VSCROLL,
-                    100, 12, 280, 200, hwnd, (HMENU)IDC_SCHEMA_COMBO, nullptr, nullptr);
+                    100, 12, 280, 200, hwnd, (HMENU)(INT_PTR)IDC_SCHEMA_COMBO, nullptr, nullptr);
       CreateWindowW(L"BUTTON", L"英文模式", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
-                    16, 48, 100, 20, hwnd, (HMENU)IDC_ASCII_CHECK, nullptr, nullptr);
+                    16, 48, 100, 20, hwnd, (HMENU)(INT_PTR)IDC_ASCII_CHECK, nullptr, nullptr);
       CreateWindowW(L"BUTTON", L"确定", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-                    220, 150, 80, 26, hwnd, (HMENU)IDOK, nullptr, nullptr);
+                    220, 150, 80, 26, hwnd, (HMENU)(INT_PTR)IDOK, nullptr, nullptr);
       CreateWindowW(L"BUTTON", L"取消", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                    310, 150, 80, 26, hwnd, (HMENU)IDCANCEL, nullptr, nullptr);
+                    310, 150, 80, 26, hwnd, (HMENU)(INT_PTR)IDCANCEL, nullptr, nullptr);
 
       if (!InitEngineAndSession()) {
         MessageBoxW(hwnd, L"引擎初始化失败（详见 %APPDATA%\\OpenKey\\log）",

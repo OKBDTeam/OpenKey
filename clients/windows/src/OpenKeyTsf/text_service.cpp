@@ -107,13 +107,15 @@ STDMETHODIMP OpenKeyTextService::Activate(ITfThreadMgr* ptim,
   tid_ = tid;
   candidates_.SetSelectCallback(
       [this](size_t index) { this->OnCandidateSelected(index); });
-  // 当前焦点上下文（可能尚无焦点，允许为空）
+  // 当前焦点上下文（可能尚无焦点，允许为空）：GetFocus 返回文档管理器，
+  // 需再取栈顶上下文（与 RequestEditSession / UpdateUi 的处理一致）。
   ITfContext* focus = nullptr;
-  if (SUCCEEDED(ptim_->GetFocus(&focus)) && focus) {
-    AdviseSinks(focus);
-  } else {
-    AdviseSinks(nullptr);
+  ITfDocumentMgr* dim = nullptr;
+  if (SUCCEEDED(ptim_->GetFocus(&dim)) && dim) {
+    if (FAILED(dim->GetTop(&focus)) || !focus) focus = nullptr;
+    dim->Release();
   }
+  AdviseSinks(focus);
   if (focus) focus->Release();
   return S_OK;
 }
@@ -277,7 +279,7 @@ bool OpenKeyTextService::EnsureSession() {
     pipe::FieldMap req;
     pipe::SetFieldInt(&req, "key",
                       static_cast<long long>(OpenKeySessionKey()));
-    auto resp = pipe::Request(pipe::kMethodCreateSession, req);
+    auto resp = Request(pipe::kMethodCreateSession, req);
     std::string err;
     if (pipe::GetField(resp, "__error__", &err)) return false;
     long long key = 0;
@@ -297,7 +299,7 @@ bool OpenKeyTextService::DestroySession() {
   try {
     pipe::FieldMap req;
     pipe::SetFieldInt(&req, "session", session_key_);
-    pipe::Request(pipe::kMethodDestroySession, req);
+    Request(pipe::kMethodDestroySession, req);
   } catch (const PipeError&) {
     // 服务端已退出：无需处理
   }
@@ -311,7 +313,7 @@ void OpenKeyTextService::RefreshStatus() {
   try {
     pipe::FieldMap req;
     pipe::SetFieldInt(&req, "session", session_key_);
-    auto resp = pipe::Request(pipe::kMethodGetStatus, req);
+    auto resp = Request(pipe::kMethodGetStatus, req);
     std::string err;
     if (pipe::GetField(resp, "__error__", &err)) return;
     long long ascii = 0;
@@ -448,14 +450,14 @@ STDMETHODIMP OpenKeyTextService::OnKeyDown(ITfContext* pic, WPARAM wParam,
 
   bool consumed = false;
   try {
-    auto resp = pipe::Request(pipe::kMethodProcessKey, req);
+    auto resp = Request(pipe::kMethodProcessKey, req);
     std::string err;
     if (pipe::GetField(resp, "__error__", &err)) {
       // 服务端报错或掉线：重建会话重试一次，再失败进入透传
       session_ready_ = false;
       if (EnsureSession()) {
         pipe::SetFieldInt(&req, "session", session_key_);
-        resp = pipe::Request(pipe::kMethodProcessKey, req);
+        resp = Request(pipe::kMethodProcessKey, req);
       } else {
         if (keysym >= 0x20 && keysym <= 0x7E) {
           RequestEditSession([this, keysym](TfEditCookie ec) {
@@ -521,7 +523,7 @@ void OpenKeyTextService::UpdateUi(TfEditCookie ec) {
     try {
       pipe::FieldMap req;
       pipe::SetFieldInt(&req, "session", session_key_);
-      auto resp = pipe::Request(pipe::kMethodGetCommit, req);
+      auto resp = Request(pipe::kMethodGetCommit, req);
       std::string err;
       if (!pipe::GetField(resp, "__error__", &err)) {
         has_commit = pipe::GetField(resp, "text", &commit);
@@ -552,7 +554,7 @@ void OpenKeyTextService::UpdateUi(TfEditCookie ec) {
     try {
       pipe::FieldMap req;
       pipe::SetFieldInt(&req, "session", session_key_);
-      auto resp = pipe::Request(pipe::kMethodGetContext, req);
+      auto resp = Request(pipe::kMethodGetContext, req);
       std::string err;
       if (!pipe::GetField(resp, "__error__", &err)) {
         // 解析协议字段
@@ -704,7 +706,7 @@ void OpenKeyTextService::RefreshCandidates() {
   try {
     pipe::FieldMap req;
     pipe::SetFieldInt(&req, "session", session_key_);
-    auto resp = pipe::Request(pipe::kMethodGetContext, req);
+    auto resp = Request(pipe::kMethodGetContext, req);
     std::string err;
     if (pipe::GetField(resp, "__error__", &err)) return;
     pipe::GetField(resp, "preedit", &ctx.preedit);
@@ -758,7 +760,7 @@ void OpenKeyTextService::OnCandidateSelected(size_t index) {
     pipe::FieldMap req;
     pipe::SetFieldInt(&req, "session", session_key_);
     pipe::SetFieldInt(&req, "index", static_cast<long long>(index));
-    auto resp = pipe::Request(pipe::kMethodSelectCandidate, req);
+    auto resp = Request(pipe::kMethodSelectCandidate, req);
     std::string err;
     if (pipe::GetField(resp, "__error__", &err)) return;
   } catch (const PipeError&) {
