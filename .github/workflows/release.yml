@@ -146,6 +146,10 @@ jobs:
             -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=BOTH \
             -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=BOTH \
             -DCMAKE_PREFIX_PATH="$PWD/glog-install" \
+            # 直接给 FindGlog 的缓存变量（find_path/find_library 在 vcpkg
+            # toolchain 下的根路径限制难以完全绕开，缓存变量最直接）。
+            -DGlog_INCLUDE_PATH="$PWD/glog-install/include" \
+            -DGlog_LIBRARY="$PWD/glog-install/lib/glog.lib" \
             -DBoost_INCLUDE_DIR="$BOOST_ROOT" \
             -DCMAKE_SHARED_LINKER_FLAGS="/NODEFAULTLIB:OLDNAMES.lib /DEFAULTLIB:legacy_stdio_definitions.lib" \
             -DBUILD_STATIC=ON -DBUILD_SHARED_LIBS=ON \
