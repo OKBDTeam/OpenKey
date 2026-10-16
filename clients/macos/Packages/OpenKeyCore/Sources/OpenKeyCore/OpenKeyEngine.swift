@@ -263,7 +263,8 @@ public final class OpenKeySession {
     /// 内部句柄：同模块的 OpenKeySession 需要读取（非跨模块 API）。
     let handle: OpaquePointer
 
-    init?(engine: OpenKeyEngine) {
+    /// 从引擎创建输入会话（失败返回 nil，详情见 `OpenKeyEngine.lastError()`）。
+    public init?(engine: OpenKeyEngine) {
         guard let session = ok_session_create(engine.handle) else { return nil }
         self.engine = engine
         self.handle = session

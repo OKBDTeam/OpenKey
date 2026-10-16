@@ -358,8 +358,14 @@ jobs:
         shell: bash
         run: |
           cd clients/android
+          set +e
           ./gradlew :keyboard:dependencies --configuration debugCompileClasspath \
-            | grep -iE "lifecycle|savedstate" || echo "（classpath 中未见 lifecycle/savedstate）"
+            --console=plain > /tmp/deps.txt 2>&1
+          echo "gradlew exit=$?"
+          echo "--- 命中 lifecycle/savedstate 的行:"
+          grep -iE "lifecycle|savedstate" /tmp/deps.txt | head -20
+          echo "--- 输出末尾（判断任务是否失败）:"
+          tail -8 /tmp/deps.txt
 
       - name: Gradle 构建（assembleDebug）
         if: steps.core-so.outputs.ready == 'true'
@@ -608,9 +614,12 @@ jobs:
           xcodegen generate --spec project.yml
           ls -la | head -20
           # 工程 / scheme 名以 project.yml 为准；-derivedDataPath 固定产物位置便于收集
+          # core 静态库为 aarch64-apple-ios-sim（arm64）构建；xcodebuild 可能
+          # 默认选 x86_64 destination 导致架构不匹配，显式锁定 arm64。
           xcodebuild -project OpenKey.xcodeproj -scheme OpenKey \
             -configuration Debug -derivedDataPath build \
             -destination 'generic/platform=iOS Simulator' \
+            ARCHS=arm64 ONLY_ACTIVE_ARCH=NO \
             CODE_SIGNING_ALLOWED=NO build
 
       - name: 打包模拟器构建产物为 zip

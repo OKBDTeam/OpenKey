@@ -823,9 +823,12 @@ jobs:
           xcodegen generate --spec project.yml
           ls -la | head -20
           # 工程 / scheme 名以 project.yml 为准；-derivedDataPath 固定产物位置便于收集
+          # core 静态库为 aarch64-apple-ios-sim（arm64）构建；xcodebuild 可能
+          # 默认选 x86_64 destination 导致架构不匹配，显式锁定 arm64。
           xcodebuild -project OpenKey.xcodeproj -scheme OpenKey \
             -configuration Debug -derivedDataPath build \
             -destination 'generic/platform=iOS Simulator' \
+            ARCHS=arm64 ONLY_ACTIVE_ARCH=NO \
             CODE_SIGNING_ALLOWED=NO build
 
       - name: 打包模拟器构建产物为 zip

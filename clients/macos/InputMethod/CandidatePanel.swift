@@ -36,7 +36,7 @@ final class CandidatePanel {
         )
         panel.level = .popUpMenu
         panel.isFloatingPanel = true
-        panel.hidesOnDeactivateKey = false
+        panel.hidesOnDeactivate = false
         panel.backgroundColor = .clear
         panel.isOpaque = false
         panel.hasShadow = true
