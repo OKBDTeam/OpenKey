@@ -98,12 +98,21 @@ jobs:
             install_name_tool -id "$LIBRIME_DIR/lib/librime.dylib" "$LIBRIME_DIR/lib/librime.dylib"
           fi
 
-      - name: 安装 librime 依赖（vcpkg）
+      - name: 安装 librime 依赖（vcpkg + marisa 源码）
         shell: bash
         run: |
-          # librime 的 CMake 依赖（Windows 上 Boost 为可选，无需 bootstrap）：
-          # glog / yaml-cpp / leveldb / marisa / opencc。
-          vcpkg install --triplet x64-windows glog yaml-cpp leveldb marisa opencc
+          # librime 的 CMake 依赖（Windows 上 Boost 为可选，无需 bootstrap）。
+          # vcpkg 无 marisa port，从 librime 自带的 submodule（CI 已 recursive
+          # checkout）源码编译；缺失时回退克隆官方仓库。
+          vcpkg install --triplet x64-windows glog yaml-cpp leveldb opencc
+          MARISA_SRC=core/vendor/librime/deps/marisa-trie
+          if [ ! -f "$MARISA_SRC/CMakeLists.txt" ]; then
+            git clone --depth 1 -b v0.2.6 https://github.com/s-yata/marisa-trie.git "$MARISA_SRC"
+          fi
+          cmake -S "$MARISA_SRC" -B marisa-build \
+            -DCMAKE_INSTALL_PREFIX="$PWD/marisa-install" -DCMAKE_BUILD_TYPE=Release
+          cmake --build marisa-build --config Release --parallel
+          cmake --install marisa-build
 
       - name: 构建 librime（CMake + vcpkg 工具链）
         continue-on-error: true
@@ -112,6 +121,7 @@ jobs:
           cmake -S core/vendor/librime -B librime-build \
             -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" \
             -DVCPKG_TARGET_TRIPLET=x64-windows \
+            -DCMAKE_PREFIX_PATH="$PWD/marisa-install" \
             -DBUILD_STATIC=ON -DBUILD_SHARED_LIBS=ON \
             -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
           cmake --build librime-build --config Release --parallel
