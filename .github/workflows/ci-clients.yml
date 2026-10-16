@@ -206,7 +206,8 @@ jobs:
             exit 0
           fi
           mkdir -p dist stage
-          find build \( -name '*.exe' -o -name '*.dll' \) -exec cp {} stage/ \;
+          # 排除 CMakeFiles：编译器探测会生成 CompilerIdCXX.exe 等中间产物
+          find build \( -name '*.exe' -o -name '*.dll' \) -not -path '*/CMakeFiles/*' -exec cp {} stage/ \;
           # librime 运行时：rime.dll 必须与 OpenKeyServer.exe 同级（DLL 搜索路径首选 exe 目录）
           if [ -f core/vendor/librime/dist/bin/rime.dll ]; then
             cp core/vendor/librime/dist/bin/rime.dll stage/
