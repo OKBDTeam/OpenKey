@@ -130,7 +130,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" \
             -DVCPKG_TARGET_TRIPLET=x64-windows-static-md \
             -DBoost_INCLUDE_DIR="$BOOST_ROOT" \
-            -DCMAKE_SHARED_LINKER_FLAGS="/DEFAULTLIB:oldnames.lib /DEFAULTLIB:legacy_stdio_definitions.lib" \
+            -DCMAKE_SHARED_LINKER_FLAGS="/DEFAULTLIB:legacy_stdio_definitions.lib" \
             -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL \
             -DBUILD_STATIC=ON -DBUILD_SHARED_LIBS=ON \
             -DBUILD_TEST=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
