@@ -128,6 +128,9 @@ jobs:
             -DVCPKG_TARGET_TRIPLET=x64-windows-static-md \
             -DBoost_INCLUDE_DIR="$BOOST_ROOT" \
             -DBUILD_STATIC=ON -DBUILD_SHARED_LIBS=ON \
+            # leveldb 等依赖引用 POSIX 名（unlink/fdopen/access/getpid…），
+            # 链接 rime.dll 需 oldnames.lib 提供 MSVC 的别名映射。
+            -DCMAKE_CXX_STANDARD_LIBRARIES=oldnames.lib \
             -DBUILD_TEST=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
           cmake --build librime-build --config Release --parallel
           cmake --install librime-build --prefix core/vendor/librime/dist
