@@ -113,6 +113,7 @@ jobs:
           mkdir -p core/vendor/librime/dist/lib
           cp "C:/Program Files (x86)/rime/lib/rime.lib" core/vendor/librime/dist/lib/ 2>/dev/null || true
           cp "C:/Program Files (x86)/rime/lib/rime.dll" core/vendor/librime/dist/lib/ 2>/dev/null || true
+          cp "C:/Program Files (x86)/rime/lib/rime.dll" core/vendor/librime/dist/bin/ 2>/dev/null || true
           ls core/vendor/librime/dist/lib core/vendor/librime/dist/bin
 
       - name: 检查 librime 构建结果
