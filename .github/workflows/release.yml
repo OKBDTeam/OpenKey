@@ -101,10 +101,10 @@ jobs:
       - name: 安装 librime 依赖（vcpkg + Boost 头文件）
         shell: bash
         run: |
-          # librime 的 CMake 依赖。用 x64-windows-static-md（静态库 + 动态 CRT）：
+          # librime 的 CMake 依赖。用 x64-windows-static（静态库 + 动态 CRT）：
           # marisa-trie（opencc 的传递依赖）在 vcpkg 仅支持 static triplet；-md 保持
           # 动态 CRT，与 Rust openkey_ffi 静态库的 /MD 一致，避免 LNK2038。
-          vcpkg install --triplet x64-windows-static-md glog yaml-cpp leveldb opencc
+          vcpkg install --triplet x64-windows-static glog yaml-cpp leveldb opencc
           # Boost 只需头文件（signals2 / algorithm）：CMake 的 find_package(Boost)
           # 非 REQUIRED，但源码有 #include，故提供头文件即可，无需 bootstrap/编译。
           BOOST_DIR="$PWD/core/vendor/librime/deps/boost-1.89.0"
@@ -128,10 +128,9 @@ jobs:
           # 注意：注释不能插在续行链中间——续行后 # 不再是注释起点，会吞掉后续参数。
           cmake -S core/vendor/librime -B librime-build \
             -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake" \
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static-md \
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static \
             -DBoost_INCLUDE_DIR="$BOOST_ROOT" \
             -DCMAKE_SHARED_LINKER_FLAGS="/NODEFAULTLIB:OLDNAMES.lib /DEFAULTLIB:legacy_stdio_definitions.lib" \
-            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL \
             -DBUILD_STATIC=ON -DBUILD_SHARED_LIBS=ON \
             -DBUILD_TEST=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
           cmake --build librime-build --config Release --parallel
