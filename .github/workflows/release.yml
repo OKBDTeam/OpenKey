@@ -686,9 +686,12 @@ jobs:
           cd clients/macos
           xcodegen generate --spec project.yml
           ls -la | head -20
+          # core 静态库为 aarch64-apple-darwin 构建；xcodebuild 可能默认选
+          # x86_64 destination 导致架构不匹配，显式锁定 arm64。
           xcodebuild -project OpenKey.xcodeproj -scheme OpenKey \
-            -configuration Release -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO build
+            -configuration Release -destination 'generic/platform=macOS' \
+            ARCHS=arm64 ONLY_ACTIVE_ARCH=NO \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
 
       - name: macOS 代码签名（证书未配置时跳过）
         if: ${{ env.APPLE_CERT_BASE64 != '' }}
