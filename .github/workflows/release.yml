@@ -500,7 +500,7 @@ jobs:
               'REM 开机自启（HKCU，无需管理员）\r\n'
               'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v OpenKeyServer /t REG_SZ /d "\\"%~dp0OpenKeyServer.exe\\"" /f >nul\r\n'
               'echo 安装完成：\r\n'
-              'echo   1. 打开 设置 - 时间和语言 - 语言和区域 - 中文^^(简体，中国^)^^\r\n'
+              'echo   1. 打开 设置 - 时间和语言 - 语言和区域 - 中文(简体，中国)\r\n'
               'echo   2. 选项 - 添加键盘 - OpenKey\r\n'
               'echo   3. 用 Win+空格 或 Ctrl+Shift 切换到 OpenKey\r\n'
               'pause\r\n', encoding='utf-8')
