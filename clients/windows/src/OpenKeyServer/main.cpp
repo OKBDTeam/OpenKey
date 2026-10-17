@@ -129,14 +129,8 @@ DWORD WINAPI ConnectionThread(LPVOID param) {
 
 }  // namespace
 
-/* 入口用 wWinMain：CMake 以 WIN32 子系统生成（无控制台窗口），此时链接器
- * 需要 WinMain/wWinMain 而非 main（曾报 LNK2019 unresolved WinMain）。 */
-int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
-                    LPWSTR cmd_line, int cmd_show) {
-  (void)instance;
-  (void)prev_instance;
-  (void)cmd_line;
-  (void)cmd_show;
+/* 入口用 main（控制台子系统）：窗口即状态指示，用户可据此确认服务在运行。 */
+int main() {
   // 单实例：已运行则静默退出（TSF 客户端会依赖唯一 Server）。
   HANDLE instance_mutex =
       CreateMutexW(nullptr, TRUE, L"Global\\OpenKeyServer");
@@ -155,6 +149,10 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
     std::fprintf(stderr, "引擎初始化失败: %s\n", host.init_error().c_str());
     // 引擎不可用时仍然常驻：TSF 需要管道存在以查询状态/触发修复；
     // 输入方法调用会以错误响应返回（见 EngineHost::last_error）。
+  } else {
+    auto schemas = host.engine().SchemaList();
+    std::printf("引擎就绪：方案数 %zu（共享数据：exe 目录\\shared）\n",
+                schemas.size());
   }
 
   g_stop_event = CreateEventW(nullptr, TRUE, FALSE, nullptr);
@@ -177,6 +175,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   }
 
   std::printf("OpenKeyServer 就绪（%ls）。\n", openkey::pipe::kPipeName);
+  std::printf("此窗口为状态指示，可最小化；关闭窗口或 Ctrl+C 即退出服务。\n");
 
   while (WaitForSingleObject(g_stop_event, 0) == WAIT_TIMEOUT) {
     if (!ConnectNamedPipe(pipe, nullptr)) {

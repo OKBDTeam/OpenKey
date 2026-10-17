@@ -7,6 +7,47 @@
 #include <cstring>
 
 namespace openkey {
+namespace {
+
+/* 本进程是否已尝试拉起过 Server（避免每次按键都触发 CreateProcess）。
+ * 连接成功时清零，使 Server 崩溃后能按 docs/02 4.1.1「崩溃自动重启」再次拉起。 */
+bool g_launch_attempted = false;
+
+/* 从当前模块（OpenKeyTsf.dll / OpenKeySetup.exe）同目录启动
+ * OpenKeyServer.exe。docs/02 4.1.1 要求「Server 常驻、TSF 侧重连」，
+ * 首次启动同样由客户端负责：否则用户不手动运行 Server 就完全无法输入
+ * （Server 为无窗口进程，用户也无从判断它是否在运行）。 */
+bool TryLaunchServer() {
+  HMODULE module = nullptr;
+  if (!GetModuleHandleExW(
+          GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+              GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+          reinterpret_cast<LPCWSTR>(&TryLaunchServer), &module)) {
+    return false;
+  }
+  wchar_t self[MAX_PATH] = {};
+  if (!GetModuleFileNameW(module, self, MAX_PATH)) return false;
+  std::wstring dir(self);
+  size_t slash = dir.find_last_of(L"\\/");
+  if (slash == std::wstring::npos) return false;
+  dir.resize(slash);
+  std::wstring exe = dir + L"\\OpenKeyServer.exe";
+  if (GetFileAttributesW(exe.c_str()) == INVALID_FILE_ATTRIBUTES) return false;
+
+  STARTUPINFOW si{};
+  si.cb = sizeof(si);
+  PROCESS_INFORMATION pi{};
+  // 工作目录设为 exe 所在目录：Server 按 <exe 目录>\shared 取方案词库。
+  if (!CreateProcessW(exe.c_str(), nullptr, nullptr, nullptr, FALSE, 0,
+                      nullptr, dir.c_str(), &si, &pi)) {
+    return false;
+  }
+  CloseHandle(pi.hThread);
+  CloseHandle(pi.hProcess);
+  return true;
+}
+
+}  // namespace
 
 PipeClient::~PipeClient() { Disconnect(); }
 
@@ -29,16 +70,23 @@ void PipeClient::Connect(DWORD wait_ms) {
   Disconnect();
   // 等待管道实例就绪（服务端未启动时快速失败，不挂起宿主线程）。
   if (!WaitNamedPipeW(pipe::kPipeName, wait_ms)) {
-    // 服务端不在： ERROR_SEM_TIMEOUT / ERROR_FILE_NOT_FOUND 均按此上报
+    // 服务端不在：先尝试拉起（每进程一次），再等一次仍失败才上报。
+    if (!g_launch_attempted) {
+      g_launch_attempted = true;
+      if (TryLaunchServer()) {
+        // 刚启动的进程需要时间创建管道；给足等待窗口。
+        if (WaitNamedPipeW(pipe::kPipeName, wait_ms)) return TryOpen();
+      }
+    }
     throw PipeError("WaitNamedPipe failed: server not available",
                     GetLastError());
   }
-  HANDLE h = CreateFileW(pipe::kPipeName, GENERIC_READ | GENERIC_WRITE,
-                         0,            // 不共享
-                         nullptr,      // 默认安全属性
-                         OPEN_EXISTING,
-                         0,            // 字节流模式，同步 IO
-                         nullptr);
+  TryOpen();
+}
+
+void PipeClient::TryOpen() {
+  HANDLE h = CreateFileW(pipe::kPipeName, GENERIC_READ | GENERIC_WRITE, 0,
+                         nullptr, OPEN_EXISTING, 0, nullptr);
   if (h == INVALID_HANDLE_VALUE) {
     throw PipeError("CreateFile(pipe) failed", GetLastError());
   }
@@ -46,6 +94,7 @@ void PipeClient::Connect(DWORD wait_ms) {
   DWORD mode = PIPE_READMODE_BYTE | PIPE_WAIT;
   SetNamedPipeHandleState(h, &mode, nullptr, nullptr);
   handle_ = h;
+  g_launch_attempted = false;  // 连接成功：允许下次崩溃后重新拉起
   read_buffer_.clear();
 }
 

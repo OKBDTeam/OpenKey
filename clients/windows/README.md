@@ -38,7 +38,13 @@ CMake 变量缺失时报 `FATAL_ERROR`；`OPENKEY_RIME_LIB` 可从环境变量 `
    与 `shared\`（词库方案目录）置于同一安装目录；
 2. `regsvr32 OpenKeyTsf.dll`（写入 CTF TIP 注册表）；
 3. 系统设置 → 时间与语言 → 语言与区域 → 中文 → 选项 → 添加键盘"开门输入法"；
-4. 首次输入时 Server 自动启动（由 TSF 拉起）；设置经 `OpenKeySetup.exe`。
+4. 首次输入时 Server 自动启动（由 TSF 从 DLL 同目录拉起，每进程一次，
+   连接成功后重置，崩溃后可再次拉起）；设置经 `OpenKeySetup.exe`。
+
+发布包内附带 `install.bat` / `uninstall.bat`（管理员权限）：注册/注销
+`OpenKeyTsf.dll`、启动 Server、写入 HKCU 开机自启；`README.txt` 面向最终
+用户说明三个程序的分工与启用步骤。`OpenKeyServer.exe` 为控制台子系统：
+窗口本身即运行状态指示，关闭窗口即退出服务。
 
 目录约定（docs/02 4.1.4）：共享数据 `<安装目录>\shared`，用户数据
 `%APPDATA%\OpenKey`（rime user / `openkey.db` / `components` / `log`）；

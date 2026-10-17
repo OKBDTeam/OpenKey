@@ -481,16 +481,71 @@ jobs:
           stage = pathlib.Path('stage')
           (stage / 'install.bat').write_text(
               '@echo off\r\n'
-              'REM 开门输入法：注册 TSF 文本服务（需管理员权限）\r\n'
+              'REM 开门输入法 Windows 安装：注册 TSF 文本服务 + 启动服务 + 开机自启\r\n'
+              'REM 需管理员权限（regsvr32 写 HKCR，开机自启写 HKCU）\r\n'
+              'net session >nul 2>&1\r\n'
+              'if %errorlevel% neq 0 (\r\n'
+              '  echo 请右键本文件，选择"以管理员身份运行"。\r\n'
+              '  pause\r\n'
+              '  exit /b 1\r\n'
+              ')\r\n'
               'regsvr32 /s "%~dp0OpenKeyTsf.dll"\r\n'
-              'echo OpenKeyTsf.dll 已注册，请在 设置 - 时间和语言 - 语言 中添加 OpenKey。\r\n'
+              'if %errorlevel% neq 0 (\r\n'
+              '  echo OpenKeyTsf.dll 注册失败（请确认文件未被移动）。\r\n'
+              '  pause\r\n'
+              '  exit /b 1\r\n'
+              ')\r\n'
+              'REM Server 未运行则启动；已运行则启动命令直接返回\r\n'
+              'start "" "%~dp0OpenKeyServer.exe"\r\n'
+              'REM 开机自启（HKCU，无需管理员）\r\n'
+              'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v OpenKeyServer /t REG_SZ /d "\\"%~dp0OpenKeyServer.exe\\"" /f >nul\r\n'
+              'echo 安装完成：\r\n'
+              'echo   1. 打开 设置 - 时间和语言 - 语言和区域 - 中文^^(简体，中国^)^^\r\n'
+              'echo   2. 选项 - 添加键盘 - OpenKey\r\n'
+              'echo   3. 用 Win+空格 或 Ctrl+Shift 切换到 OpenKey\r\n'
               'pause\r\n', encoding='utf-8')
           (stage / 'uninstall.bat').write_text(
               '@echo off\r\n'
-              'REM 开门输入法：注销 TSF 文本服务（需管理员权限）\r\n'
+              'REM 开门输入法 Windows 卸载：注销 TSF 文本服务 + 取消开机自启（需管理员权限）\r\n'
               'regsvr32 /u /s "%~dp0OpenKeyTsf.dll"\r\n'
-              'echo OpenKeyTsf.dll 已注销。\r\n'
+              'reg delete "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v OpenKeyServer /f >nul 2>&1\r\n'
+              'echo OpenKeyTsf.dll 已注销。若仍看到输入法项，重启资源管理器或注销重登。\r\n'
               'pause\r\n', encoding='utf-8')
+          PY
+          # 使用说明（三个程序的角色与启用步骤）
+          python3 - <<'PY'
+          import pathlib
+          stage = pathlib.Path('stage')
+          (stage / 'README.txt').write_text(
+              'OpenKey 0.1.0 for Windows x86_64\r\n'
+              '================================\r\n'
+              '\r\n'
+              '三个程序的分工：\r\n'
+              '  OpenKeyTsf.dll     输入法本体（TSF 文本服务）。必须先用 install.bat 注册，\r\n'
+              '                     之后才会出现在 Windows 输入法列表里。\r\n'
+              '  OpenKeyServer.exe  应用服务：加载引擎与词库、处理按键。必须处于运行状态\r\n'
+              '                     （窗口最小化即可，关闭窗口即退出服务）。\r\n'
+              '  OpenKeySetup.exe   设置：切换输入方案、英文模式。\r\n'
+              '\r\n'
+              '安装与启用（v0.1.0，未提供 MSI 安装器）：\r\n'
+              '  1. 右键 install.bat，选择"以管理员身份运行"。\r\n'
+              '     作用：注册 OpenKeyTsf.dll、启动 OpenKeyServer、设置开机自启。\r\n'
+              '  2. 设置 - 时间和语言 - 语言和区域 - 中文(简体，中国) - 选项\r\n'
+              '     - 添加键盘 - OpenKey。\r\n'
+              '     （系统未安装中文语言时，先"添加语言"安装简体中文。）\r\n'
+              '  3. Win+空格 或 Ctrl+Shift 切换到 OpenKey，即可拼音输入。\r\n'
+              '\r\n'
+              '卸载：右键 uninstall.bat，以管理员身份运行。\r\n'
+              '\r\n'
+              '注意事项：\r\n'
+              '  - 本目录须保持完整：OpenKeyServer.exe 依赖同目录的 rime.dll 与\r\n'
+              '    shared\\ 下的方案词库，移动 exe 会同时移动这两个。\r\n'
+              '  - 本版本未经 Authenticode 代码签名，首次运行 SmartScreen 会提示，\r\n'
+              '    选择"更多信息 - 仍要运行"。\r\n'
+              '  - 用户数据（自造词、openkey.db）位于 %APPDATA%\\OpenKey。\r\n'
+              '\r\n'
+              '遇到问题时，OpenKeyServer.exe 窗口内的输出是首要诊断信息。\r\n',
+              encoding='utf-8')
           PY
           python3 - "$TAG" <<'PY'
           import sys, zipfile, pathlib

@@ -99,7 +99,10 @@ add_library(OpenKeyTsf SHARED
 target_link_libraries(OpenKeyTsf PRIVATE OpenKeyCoreClient ole32 uuid gdi32)
 
 # ---- OpenKeyServer（常驻进程）-----------------------------------------------
-add_executable(OpenKeyServer WIN32
+# 不加 WIN32：保持控制台子系统。Server 为无窗口进程时用户无从判断它是否
+# 在运行（这是 v0.1.0 被反馈「无法使用输入法」的直接原因之一）；
+# 控制台窗口同时让 Ctrl+C / Ctrl+Break 优雅退出路径真正可用。
+add_executable(OpenKeyServer
   src/OpenKeyServer/main.cpp
   src/OpenKeyServer/engine_host.cpp
   src/OpenKeyServer/update_check.cpp

@@ -59,6 +59,9 @@ class PipeClient {
                 bool* ok, pipe::FieldMap* resp);
 
  private:
+  /* 打开已就绪的管道（WaitNamedPipe 成功后调用；失败抛 PipeError）。 */
+  void TryOpen();
+
   /* 读取一行（至 '\n' 为止，不含换行符）。 */
   std::string ReadLine(DWORD timeout_ms);
 
